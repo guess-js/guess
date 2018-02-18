@@ -1,0 +1,32 @@
+{
+  "name": "smarty",
+  "version": "0.0.0",
+  "description": "Smart bundling",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgechev/smarty.git"
+  },
+  "keywords": [
+    "bundling",
+    "webpack",
+    "ml",
+    "ai",
+    "analytics",
+    "recommendation"
+  ],
+  "author": "Minko Gechev <mgechev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mgechev/smarty/issues"
+  },
+  "homepage": "https://github.com/mgechev/smarty#readme",
+  "dependencies": {
+    "googleapis": "^26.0.1",
+    "levelgraph": "^2.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^9.4.6",
+    "typescript": "^2.7.2"
+  }
+}
