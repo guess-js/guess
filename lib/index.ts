@@ -27,9 +27,17 @@ function queryData(analytics: any) {
       auth: jwtClient,
       resource: {
         reportRequests: {
+          pageSize: 1000,
           viewId: `ga:${viewID}`,
-          dimensions: [{ name: 'ga:pagePath' }],
-          metrics: [{ expression: 'ga:uniquePageviews' }]
+          dateRanges: [
+            {
+              startDate: '2017-02-21',
+              endDate: '2018-02-21'
+            }
+          ],
+          dimensions: [{ name: 'ga:previousPagePath' }, { name: 'ga:pagePath' }],
+          metrics: [{ expression: 'ga:users' }],
+          orderBys: [{ fieldName: 'ga:users', sortOrder: 'DESCENDING' }]
         }
       }
     },
@@ -38,7 +46,7 @@ function queryData(analytics: any) {
         console.log(err);
         return;
       }
-      console.log(response);
+      console.log(JSON.stringify(response.data.reports[0], null, 2));
     }
   );
 }
