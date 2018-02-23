@@ -1,8 +1,14 @@
+import { normalize } from './normalize';
+import { Connection } from './network';
+import { dbStorage } from './store';
+
 const { readFileSync } = require('fs');
 
 const { google } = require('googleapis');
 const key = require('../credentials.json');
 const viewID = readFileSync('./view_id.txt').toString();
+
+const db = dbStorage('db');
 
 let jwtClient = new google.auth.JWT(
   key.client_email,
@@ -46,7 +52,10 @@ function queryData(analytics: any) {
         console.log(err);
         return;
       }
-      console.log(JSON.stringify(response.data.reports[0], null, 2));
+      db
+        .save(normalize(response.data.reports[0].data))
+        .then(() => console.log('Stored'))
+        .catch(e => console.error(e));
     }
   );
 }

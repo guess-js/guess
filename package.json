@@ -23,6 +23,7 @@
   "homepage": "https://github.com/mgechev/smarty#readme",
   "dependencies": {
     "googleapis": "^26.0.1",
+    "level": "^3.0.0",
     "levelgraph": "^2.1.1"
   },
   "devDependencies": {
