@@ -54,7 +54,17 @@ function queryData(analytics: any) {
       }
       db
         .save(normalize(response.data.reports[0].data))
-        .then(() => console.log('Stored'))
+        .then(() => {
+          console.log('Stored');
+          db
+            .query('/2016/01/23/angular2-viewchildren-contentchildren-difference-viewproviders/')
+            .then(data => {
+              console.log(data);
+            })
+            .catch(e => {
+              console.error(e);
+            });
+        })
         .catch(e => console.error(e));
     }
   );

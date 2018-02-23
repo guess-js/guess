@@ -6,7 +6,7 @@ export const normalize = (data: any) => {
       return {
         first: r.dimensions[0],
         second: r.dimensions[1],
-        weight: r.metrics[0].value
+        weight: parseInt(r.metrics[0].values[0])
       };
     })
     .filter((node: Connection) => node.first !== '(entrance)' && node.first !== node.second);
