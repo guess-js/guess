@@ -3,10 +3,9 @@ import { normalize } from './normalize';
 import { Connection } from '../store';
 import { dbStorage } from '../store';
 
-const db = dbStorage('db');
-
 async function fetchData(jwtClient: any, viewId: string) {
   const client = getClient(jwtClient, 10, viewId);
+  const db = dbStorage(viewId.toString());
   for await (const val of client()) {
     if (val.error) {
       console.error(val.error);
@@ -19,22 +18,24 @@ async function fetchData(jwtClient: any, viewId: string) {
   }
 }
 
-export async function fetch(key: any, viewId: string) {
-  const { google } = require('googleapis');
+export function fetch(key: any, viewId: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const { google } = require('googleapis');
 
-  const jwtClient = new google.auth.JWT(
-    key.client_email,
-    null,
-    key.private_key,
-    ['https://www.googleapis.com/auth/analytics.readonly'],
-    null
-  );
+    const jwtClient = new google.auth.JWT(
+      key.client_email,
+      null,
+      key.private_key,
+      ['https://www.googleapis.com/auth/analytics.readonly'],
+      null
+    );
 
-  jwtClient.authorize(function(err: any, tokens: any) {
-    if (err) {
-      console.log(err);
-      return;
-    }
-    fetch(jwtClient, viewId);
+    jwtClient.authorize(function(err: any, tokens: any) {
+      if (err) {
+        reject(err);
+        return;
+      }
+      fetchData(jwtClient, viewId).then(resolve, reject);
+    });
   });
 }
