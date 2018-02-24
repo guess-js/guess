@@ -1,6 +1,9 @@
+import { dbStorage } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
+
 import { fetch } from './fetch';
+import { listen } from './report';
 
 const argv = minimist(process.argv);
 
@@ -17,10 +20,9 @@ ${c('fetch')} ${o('-v')} ${o('[view_id]')} ${o('-c')} ${o('[credentials]')} ${o(
     '-e'
   )} ${o('[end_date]')} ${d(`Fetches data from Google Analytics and stores it in levelgraph.
   Provide the view id of your page and credentials JSON file.`)}
-${chalk.blue('report')} ${o('-v')} ${o('[view_id]')} ${o('-f')} ${o(
-    '[format]'
-  )} ${d(`Produces report from already stored data in levelgraph.
-  Provide view id and format. Available format HTML.`)}
+${chalk.blue('report')} ${o('-p')} ${o('[port]')} ${d(
+    `Starts a server which lets you explore the flow for given view.`
+  )}
 `);
   process.exit(0);
 }
@@ -59,4 +61,8 @@ if (isFetch) {
       error(chalk.red(e));
     }
   );
+}
+
+if (isReport) {
+  listen(argv.p || 3000);
 }

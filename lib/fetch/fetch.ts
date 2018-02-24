@@ -14,7 +14,7 @@ async function fetchData(jwtClient: any, viewId: string, period: Period) {
     }
     const result = val.report;
     if (result) {
-      await db.save(normalize(result.data));
+      await db.addNodes(normalize(result.data));
     }
   }
 }

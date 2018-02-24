@@ -81,13 +81,14 @@ export function getClient(jwtClient: any, pageSize: number, viewId: string, peri
         clientResult.report = result.report;
         if (result.nextPage) {
           pageConfig.pageToken = result.nextPage;
-        } else {
-          break;
         }
       } catch (e) {
         clientResult.error = e;
       }
       yield clientResult;
+      if (!pageConfig.pageToken) {
+        break;
+      }
     }
   }
 

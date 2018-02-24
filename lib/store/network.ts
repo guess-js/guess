@@ -1,5 +1,5 @@
 export interface Connection {
-  first: string;
+  from: string;
   weight: number;
-  second: string;
+  to: string;
 }

@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "sourceMap": false,
+    "declaration": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "outDir": "./public/js",
+    "downlevelIteration": true,
+    "lib": ["es2015", "esnext", "dom"]
+  },
+  "files": ["app/index.ts"],
+  "angularCompilerOptions": {
+    "skipTemplateCodegen": true
+  }
+}
