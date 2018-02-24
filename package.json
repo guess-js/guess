@@ -4,20 +4,13 @@
   "description": "Smart bundling",
   "main": "index.js",
   "scripts": {
-    "c": "ts-node lib/index.ts fetch -c ../credentials.json -v 128035004"
+    "c": "ts-node lib/index.ts fetch -c ../credentials.json -v 128035004 -s 2016-1-1 -e 2018-2-24"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mgechev/smarty.git"
   },
-  "keywords": [
-    "bundling",
-    "webpack",
-    "ml",
-    "ai",
-    "analytics",
-    "recommendation"
-  ],
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {

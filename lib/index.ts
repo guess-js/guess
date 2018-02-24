@@ -1,21 +1,25 @@
 import * as minimist from 'minimist';
 import chalk from 'chalk';
-
 import { fetch } from './fetch';
 
 const argv = minimist(process.argv);
+
+const o = (n: string) => chalk.yellow(n);
+const c = (n: string) => chalk.blue(n);
+const d = (n: string) => chalk.gray(n);
+const error = (s: string) => console.error(chalk.red(s));
 
 if (argv.h) {
   console.log(`
 Welcome to Smarty!
 
-${chalk.blue('fetch')} ${chalk.yellow('-v')} ${chalk.yellow.dim('[view_id]')} ${chalk.yellow('-c')} ${chalk.yellow.dim(
-    '[credentials]'
-  )} ${chalk.gray(`Fetches data from Google Analytics and stores it in levelgraph.
+${c('fetch')} ${o('-v')} ${o('[view_id]')} ${o('-c')} ${o('[credentials]')} ${o('-s')} ${o('[start_date]')} ${o(
+    '-e'
+  )} ${o('[end_date]')} ${d(`Fetches data from Google Analytics and stores it in levelgraph.
   Provide the view id of your page and credentials JSON file.`)}
-${chalk.blue('report')} ${chalk.yellow('-v')} ${chalk.yellow.dim('[view_id]')} ${chalk.yellow('-f')} ${chalk.yellow.dim(
+${chalk.blue('report')} ${o('-v')} ${o('[view_id]')} ${o('-f')} ${o(
     '[format]'
-  )} ${chalk.gray(`Produces report from already stored data in levelgraph.
+  )} ${d(`Produces report from already stored data in levelgraph.
   Provide view id and format. Available format HTML.`)}
 `);
   process.exit(0);
@@ -25,23 +29,34 @@ const isFetch = argv._.indexOf('fetch') >= 0;
 const isReport = argv._.indexOf('report') >= 0;
 
 if (isFetch && isReport) {
-  console.error('You cannot fetch and report in the same time');
+  error('You cannot fetch and report in the same time');
 }
 
 if (isFetch) {
   const key = require(argv.c);
   const viewId = argv.v;
+  const start = argv.s;
+  const end = argv.e;
 
   if (!viewId) {
-    console.error('View id is mandatory');
+    error('View id is mandatory');
     process.exit(0);
   }
-  fetch(key, viewId).then(
+
+  if (!start || !end) {
+    error('Start and end dates are mandatory');
+    process.exit(0);
+  }
+
+  fetch(key, viewId, {
+    startDate: new Date(start),
+    endDate: new Date(end)
+  }).then(
     () => {
       console.log(chalk.green('Data processed successfully'));
     },
     e => {
-      console.error(chalk.red(e));
+      error(chalk.red(e));
     }
   );
 }

@@ -1,26 +1,3 @@
-function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig) {
-  const result = {
-    auth: jwtClient,
-    resource: {
-      reportRequests: {
-        pageSize: pageConfig.pageSize,
-        pageToken: pageConfig.pageToken,
-        viewId: `ga:${viewId}`,
-        dateRanges: [
-          {
-            startDate: '2017-02-21',
-            endDate: '2018-02-21'
-          }
-        ],
-        dimensions: [{ name: 'ga:previousPagePath' }, { name: 'ga:pagePath' }],
-        metrics: [{ expression: 'ga:users' }],
-        orderBys: [{ fieldName: 'ga:users', sortOrder: 'DESCENDING' }]
-      }
-    }
-  };
-  return result;
-}
-
 interface PageConfig {
   pageToken: number;
   pageSize: number;
@@ -31,9 +8,40 @@ interface AnalyticsResult {
   nextPage: number;
 }
 
-async function fetchReport(client: any, jwtClient: any, viewId: string, pageConfig: PageConfig) {
+export interface Period {
+  startDate: Date;
+  endDate: Date;
+}
+
+const formatNumber = (n: number) => (n.toString().length === 1 ? '0' + n : n);
+
+const formatDate = (d: Date) => `${d.getFullYear()}-${formatNumber(d.getMonth() + 1)}-${formatNumber(d.getDate())}`;
+
+function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, period: Period) {
+  return {
+    auth: jwtClient,
+    resource: {
+      reportRequests: {
+        pageSize: pageConfig.pageSize,
+        pageToken: pageConfig.pageToken,
+        viewId: `ga:${viewId}`,
+        dateRanges: [
+          {
+            startDate: formatDate(period.startDate),
+            endDate: formatDate(period.endDate)
+          }
+        ],
+        dimensions: [{ name: 'ga:previousPagePath' }, { name: 'ga:pagePath' }],
+        metrics: [{ expression: 'ga:users' }],
+        orderBys: [{ fieldName: 'ga:users', sortOrder: 'DESCENDING' }]
+      }
+    }
+  };
+}
+
+async function fetchReport(client: any, jwtClient: any, viewId: string, pageConfig: PageConfig, period: Period) {
   return new Promise<AnalyticsResult>((resolve, reject) => {
-    client.reports.batchGet(requestBuilder(jwtClient, viewId, pageConfig), function(err: any, response: any) {
+    client.reports.batchGet(requestBuilder(jwtClient, viewId, pageConfig, period), function(err: any, response: any) {
       if (err) {
         reject(err);
         return;
@@ -57,7 +65,7 @@ export interface ClientResult {
   report?: any;
 }
 
-export function getClient(jwtClient: any, pageSize: number, viewId: string) {
+export function getClient(jwtClient: any, pageSize: number, viewId: string, period: Period) {
   const { google } = require('googleapis');
   const client = google.analyticsreporting('v4');
   const pageConfig: PageConfig = {
@@ -69,7 +77,7 @@ export function getClient(jwtClient: any, pageSize: number, viewId: string) {
     while (true) {
       const clientResult: ClientResult = {};
       try {
-        const result = await fetchReport(client, jwtClient, viewId, pageConfig);
+        const result = await fetchReport(client, jwtClient, viewId, pageConfig, period);
         clientResult.report = result.report;
         if (result.nextPage) {
           pageConfig.pageToken = result.nextPage;
