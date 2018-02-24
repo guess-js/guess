@@ -1,71 +1,47 @@
-import { normalize } from './normalize';
-import { Connection } from './network';
-import { dbStorage } from './store';
+import * as minimist from 'minimist';
+import chalk from 'chalk';
 
-const { readFileSync } = require('fs');
+import { fetch } from './fetch';
 
-const { google } = require('googleapis');
-const key = require('../credentials.json');
-const viewID = readFileSync('./view_id.txt').toString();
+const argv = minimist(process.argv);
 
-const db = dbStorage('db');
+if (argv.h) {
+  console.log(`
+Welcome to Smarty!
 
-let jwtClient = new google.auth.JWT(
-  key.client_email,
-  null,
-  key.private_key,
-  ['https://www.googleapis.com/auth/analytics.readonly'],
-  null
-);
+${chalk.blue('fetch')} ${chalk.yellow('-v')} ${chalk.yellow.dim('[view_id]')} ${chalk.yellow('-c')} ${chalk.yellow.dim(
+    '[credentials]'
+  )} ${chalk.gray(`Fetches data from Google Analytics and stores it in levelgraph.
+  Provide the view id of your page and credentials JSON file.`)}
+${chalk.blue('report')} ${chalk.yellow('-v')} ${chalk.yellow.dim('[view_id]')} ${chalk.yellow('-f')} ${chalk.yellow.dim(
+    '[format]'
+  )} ${chalk.gray(`Produces report from already stored data in levelgraph.
+  Provide view id and format. Available format HTML.`)}
+`);
+  process.exit(0);
+}
 
-jwtClient.authorize(function(err: any, tokens: any) {
-  if (err) {
-    console.log(err);
-    return;
+const isFetch = argv._.indexOf('fetch') >= 0;
+const isReport = argv._.indexOf('report') >= 0;
+
+if (isFetch && isReport) {
+  console.error('You cannot fetch and report in the same time');
+}
+
+if (isFetch) {
+  const key = require(argv.c);
+  const viewId = argv.v;
+
+  if (!viewId) {
+    console.error('View id is mandatory');
+    process.exit(0);
   }
-  let analytics = google.analyticsreporting('v4');
-  queryData(analytics);
-});
-
-function queryData(analytics: any) {
-  analytics.reports.batchGet(
-    {
-      auth: jwtClient,
-      resource: {
-        reportRequests: {
-          pageSize: 1000,
-          viewId: `ga:${viewID}`,
-          dateRanges: [
-            {
-              startDate: '2017-02-21',
-              endDate: '2018-02-21'
-            }
-          ],
-          dimensions: [{ name: 'ga:previousPagePath' }, { name: 'ga:pagePath' }],
-          metrics: [{ expression: 'ga:users' }],
-          orderBys: [{ fieldName: 'ga:users', sortOrder: 'DESCENDING' }]
-        }
-      }
+  fetch(key, viewId).then(
+    () => {
+      console.log(chalk.green('Data processed successfully'));
     },
-    function(err: any, response: any) {
-      if (err) {
-        console.log(err);
-        return;
-      }
-      db
-        .save(normalize(response.data.reports[0].data))
-        .then(() => {
-          console.log('Stored');
-          db
-            .query('/2016/01/23/angular2-viewchildren-contentchildren-difference-viewproviders/')
-            .then(data => {
-              console.log(data);
-            })
-            .catch(e => {
-              console.error(e);
-            });
-        })
-        .catch(e => console.error(e));
+    e => {
+      console.error(chalk.red(e));
     }
   );
 }

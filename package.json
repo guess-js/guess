@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Smart bundling",
   "main": "index.js",
+  "scripts": {
+    "c": "ts-node lib/index.ts fetch -c ../credentials.json -v 128035004"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mgechev/smarty.git"
@@ -22,9 +25,13 @@
   },
   "homepage": "https://github.com/mgechev/smarty#readme",
   "dependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/minimist": "^1.2.0",
+    "chalk": "^2.3.1",
     "googleapis": "^26.0.1",
     "level": "^3.0.0",
-    "levelgraph": "^2.1.1"
+    "levelgraph": "^2.1.1",
+    "minimist": "^1.2.0"
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
