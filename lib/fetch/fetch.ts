@@ -5,7 +5,7 @@ import { dbStorage } from '../store';
 
 const PageSize = 1000;
 
-async function fetchData(jwtClient: any, viewId: string, period: Period) {
+async function fetchData(routeDeclarations: string[], jwtClient: any, viewId: string, period: Period) {
   const client = getClient(jwtClient, PageSize, viewId, period);
   const db = dbStorage(viewId.toString());
   for await (const val of client()) {
@@ -14,12 +14,12 @@ async function fetchData(jwtClient: any, viewId: string, period: Period) {
     }
     const result = val.report;
     if (result) {
-      await db.addNodes(normalize(result.data));
+      await db.addNodes(normalize(result.data, routeDeclarations));
     }
   }
 }
 
-export function fetch(key: any, viewId: string, period: Period): Promise<void> {
+export function fetch(key: any, viewId: string, period: Period, routeDeclarations: string[] = []): Promise<void> {
   return new Promise((resolve, reject) => {
     const { google } = require('googleapis');
 
@@ -36,7 +36,7 @@ export function fetch(key: any, viewId: string, period: Period): Promise<void> {
         reject(err);
         return;
       }
-      fetchData(jwtClient, viewId, period).then(resolve, reject);
+      fetchData(routeDeclarations, jwtClient, viewId, period).then(resolve, reject);
     });
   });
 }

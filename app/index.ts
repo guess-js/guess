@@ -42,7 +42,7 @@ declare var cytoscape: any;
         data: {
           id: n,
           name: n,
-          width: Math.max(nodeStrength, 30)
+          width: Math.max(nodeStrength * 0.8, 30)
         }
       });
     }
