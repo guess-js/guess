@@ -5,7 +5,13 @@ import { dbStorage } from '../store';
 
 const PageSize = 1000;
 
-async function fetchData(routeDeclarations: string[], jwtClient: any, viewId: string, period: Period) {
+async function fetchData(
+  routeDeclarations: string[],
+  formatter: (r: string) => string,
+  jwtClient: any,
+  viewId: string,
+  period: Period
+) {
   const client = getClient(jwtClient, PageSize, viewId, period);
   const db = dbStorage(viewId.toString());
   for await (const val of client()) {
@@ -14,12 +20,20 @@ async function fetchData(routeDeclarations: string[], jwtClient: any, viewId: st
     }
     const result = val.report;
     if (result) {
-      await db.addNodes(normalize(result.data, routeDeclarations));
+      await db.addNodes(normalize(result.data, formatter, routeDeclarations));
     }
   }
 }
 
-export function fetch(key: any, viewId: string, period: Period, routeDeclarations: string[] = []): Promise<void> {
+const noop = (r: string) => r;
+
+export function fetch(
+  key: any,
+  viewId: string,
+  period: Period,
+  formatter = noop,
+  routeDeclarations: string[] = []
+): Promise<void> {
   return new Promise((resolve, reject) => {
     const { google } = require('googleapis');
 
@@ -36,7 +50,7 @@ export function fetch(key: any, viewId: string, period: Period, routeDeclaration
         reject(err);
         return;
       }
-      fetchData(routeDeclarations, jwtClient, viewId, period).then(resolve, reject);
+      fetchData(routeDeclarations, formatter, jwtClient, viewId, period).then(resolve, reject);
     });
   });
 }

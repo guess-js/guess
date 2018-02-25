@@ -22,7 +22,9 @@ Welcome to Smarty!
 
 ${c('fetch')} ${o('-v')} ${o('[view_id]')} ${o('-c')} ${o('[credentials]')} ${o('-s')} ${o('[start_date]')} ${o(
     '-e'
-  )} ${o('[end_date]')} ${d(`Fetches data from Google Analytics and stores it in levelgraph.
+  )} ${o('[end_date]')} ${o('-a')} ${o('[aggregate]')} ${o('-p')} ${o(
+    '[project_path]'
+  )} ${d(`Fetches data from Google Analytics and stores it in levelgraph.
   Provide the view id of your page and credentials JSON file.`)}
 ${chalk.blue('report')} ${o('-p')} ${o('[port]')} ${d(
     `Starts a server which lets you explore the flow for given view.`
@@ -51,18 +53,26 @@ if (isFetch) {
 
   if (!viewId) {
     error('View id is mandatory');
-    process.exit(0);
   }
 
   if (!start || !end) {
     error('Start and end dates are mandatory');
-    process.exit(0);
   }
 
-  fetch(key, viewId, {
-    startDate: new Date(start),
-    endDate: new Date(end)
-  }).then(
+  if (argv.a && !argv.p) {
+    error('For aggregated information you should provide a project as well');
+  }
+
+  fetch(
+    key,
+    viewId,
+    {
+      startDate: new Date(start),
+      endDate: new Date(end)
+    },
+    r => r.replace('/app', ''),
+    argv.a ? parse(argv.p) : []
+  ).then(
     () => {
       console.log(chalk.green('Data processed successfully'));
     },
@@ -74,12 +84,4 @@ if (isFetch) {
 
 if (isReport) {
   listen(argv.p || 3000);
-}
-
-if (ngRoutes) {
-  const config = argv.p;
-  if (!config) {
-    error('tsconfig.json file not specified');
-  }
-  console.log(parse(config));
 }
