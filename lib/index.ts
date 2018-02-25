@@ -1,3 +1,4 @@
+import { parse } from './ng/index';
 import { dbStorage } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
@@ -10,7 +11,10 @@ const argv = minimist(process.argv);
 const o = (n: string) => chalk.yellow(n);
 const c = (n: string) => chalk.blue(n);
 const d = (n: string) => chalk.gray(n);
-const error = (s: string) => console.error(chalk.red(s));
+const error = (s: string) => {
+  console.error(chalk.red(s));
+  process.exit(1);
+};
 
 if (argv.h) {
   console.log(`
@@ -23,16 +27,21 @@ ${c('fetch')} ${o('-v')} ${o('[view_id]')} ${o('-c')} ${o('[credentials]')} ${o(
 ${chalk.blue('report')} ${o('-p')} ${o('[port]')} ${d(
     `Starts a server which lets you explore the flow for given view.`
   )}
+${chalk.blue('ng-routes')} ${o('-p')} ${o('[tsconfig]')} ${d(`Collects the routes of an Angular application.`)}
 `);
   process.exit(0);
 }
 
 const isFetch = argv._.indexOf('fetch') >= 0;
 const isReport = argv._.indexOf('report') >= 0;
+const ngRoutes = argv._.indexOf('ng-routes') >= 0;
 
-if (isFetch && isReport) {
-  error('You cannot fetch and report in the same time');
-}
+[isFetch, isReport, ngRoutes].reduce((a, c) => {
+  if (a && c) {
+    error('You can specify only "report", "fetch", or "ng-routes" in the same time');
+  }
+  return a || c;
+}, false);
 
 if (isFetch) {
   const key = require(argv.c);
@@ -65,4 +74,12 @@ if (isFetch) {
 
 if (isReport) {
   listen(argv.p || 3000);
+}
+
+if (ngRoutes) {
+  const config = argv.p;
+  if (!config) {
+    error('tsconfig.json file not specified');
+  }
+  console.log(parse(config));
 }
