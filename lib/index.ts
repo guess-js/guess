@@ -1,3 +1,4 @@
+import { clusterize } from './ml/clusterize';
 import { parseRoutes, RouteDefinition } from './ng/index';
 import { dbStorage } from './store/store';
 import * as minimist from 'minimist';
@@ -29,16 +30,18 @@ ${c('fetch')} ${o('-v')} ${o('[view_id]')} ${o('-c')} ${o('[credentials]')} ${o(
 ${chalk.blue('report')} ${o('-p')} ${o('[port]')} ${d(
     `Starts a server which lets you explore the flow for given view.`
   )}
-${chalk.blue('ng-routes')} ${o('-p')} ${o('[tsconfig]')} ${d(`Collects the routes of an Angular application.`)}
+${chalk.blue('clusterize')} ${o('-v')} ${o('[view_id]')} ${o('-n')} ${o('[total]')} ${d(
+    `Returns the optimal bundles of your application`
+  )}
 `);
   process.exit(0);
 }
 
 const isFetch = argv._.indexOf('fetch') >= 0;
 const isReport = argv._.indexOf('report') >= 0;
-const ngRoutes = argv._.indexOf('ng-routes') >= 0;
+const isClusterize = argv._.indexOf('clusterize') >= 0;
 
-[isFetch, isReport, ngRoutes].reduce((a, c) => {
+[isFetch, isReport, isClusterize].reduce((a, c) => {
   if (a && c) {
     error('You can specify only "report", "fetch", or "ng-routes" in the same time');
   }
@@ -66,7 +69,6 @@ if (isFetch) {
   let applicationRoutes: RouteDefinition[] = [];
   if (argv.a) {
     applicationRoutes = parseRoutes(argv.p);
-    console.log(JSON.stringify(applicationRoutes, null, 2));
   }
 
   fetch(
@@ -86,6 +88,24 @@ if (isFetch) {
       error(chalk.red(e));
     }
   );
+}
+
+if (isClusterize) {
+  const viewId = argv.v;
+  const total = argv.n;
+
+  if (!viewId) {
+    error('View id is mandatory');
+  }
+  if (!total) {
+    error('Must specify number of bundles');
+  }
+
+  dbStorage(viewId)
+    .all()
+    .then(g => {
+      console.log(clusterize(g, parseInt(total)));
+    });
 }
 
 if (isReport) {
