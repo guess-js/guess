@@ -1,4 +1,4 @@
-import { parse } from './ng/index';
+import { parseRoutes, RouteDefinition } from './ng/index';
 import { dbStorage } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
@@ -60,7 +60,13 @@ if (isFetch) {
   }
 
   if (argv.a && !argv.p) {
-    error('For aggregated information you should provide a project as well');
+    error('For aggregated information you should provide a project path');
+  }
+
+  let applicationRoutes: RouteDefinition[] = [];
+  if (argv.a) {
+    applicationRoutes = parseRoutes(argv.p);
+    console.log(JSON.stringify(applicationRoutes, null, 2));
   }
 
   fetch(
@@ -71,7 +77,7 @@ if (isFetch) {
       endDate: new Date(end)
     },
     r => r.replace('/app', ''),
-    argv.a ? parse(argv.p) : []
+    argv.a ? applicationRoutes.map(f => f.path) : []
   ).then(
     () => {
       console.log(chalk.green('Data processed successfully'));

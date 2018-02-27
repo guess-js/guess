@@ -34,7 +34,14 @@ const collectRoutes = (modules: RawModuleData[], result: ModuleTree) => {
   modules.forEach(m => processModule(m, result));
 };
 
-export const parse = (tsconfig: string): string[] => {
+export interface RouteDefinition {
+  path: string;
+  module: string;
+  parentModule: string;
+  lazy: boolean;
+}
+
+export const parseRoutes = (tsconfig: string): RouteDefinition[] => {
   const s = new ProjectSymbols(
     tsconfig,
     {
@@ -68,15 +75,20 @@ export const parse = (tsconfig: string): string[] => {
 
   const root = flattened.find(m => m.module.reference.name === 'AppModule');
 
-  const result: string[] = [];
+  const result: RouteDefinition[] = [];
 
   const findRoutes = (
-    filePath: string,
+    modulePath: string,
     routes: Route[],
     parentRoute: string,
     rawMap: { [key: string]: RawModuleData },
-    result: string[]
+    result: RouteDefinition[],
+    parentModule: string | null
   ) => {
+    const parts = modulePath.split('/');
+    parts.pop();
+    const filePath = parts.join('/');
+
     interface RouteWithParent {
       route: Route;
       parent: string;
@@ -89,15 +101,28 @@ export const parse = (tsconfig: string): string[] => {
 
     while (r.length) {
       const c = r.pop();
+      const path = (c.route as any).path;
+
+      result.push({
+        path: join(c.parent, path),
+        module: modulePath,
+        lazy: !!c.route.loadChildren,
+        parentModule: parentModule
+      });
+
       if (c.route.loadChildren) {
         const parts = c.route.loadChildren.split('#');
-        const key = '/' + join(filePath, parts[0]) + '.ts' + '#' + parts[1];
-        const m = rawMap[key];
-        resolveRoutes(m, m.provider.useValue as Route[], join(c.parent, (c.route as any).path), rawMap, result);
-        continue;
+        const childModule = join(filePath, parts[0]) + '.ts';
+        const key = childModule + '#' + parts[1];
+        findRoutes(
+          childModule,
+          rawMap[key].provider.useValue as Route[],
+          join(c.parent, (c.route as any).path),
+          rawMap,
+          result,
+          modulePath
+        );
       }
-      const path = (c.route as any).path;
-      result.push(join(c.parent, path));
       (c.route.children || []).forEach(x => {
         r.push({
           route: x,
@@ -107,20 +132,12 @@ export const parse = (tsconfig: string): string[] => {
     }
   };
 
-  const resolveRoutes = (
-    current: RawModuleData,
-    routes: Route[],
-    parentRoute: string,
-    rawMap: { [key: string]: RawModuleData },
-    result: string[]
-  ) => {
-    const parts = current.module.reference.filePath.split('/');
-    parts.pop();
-    const filePath = join.apply(null, parts);
-    findRoutes(filePath, routes, parentRoute, rawMap, result);
-  };
+  findRoutes(root.module.reference.filePath, root.provider.useValue as Route[], '', rawMap, result, null);
 
-  resolveRoutes(root, root.provider.useValue as Route[], '', rawMap, result);
-
-  return result.map(r => `/${r}`);
+  return result.map(r => ({
+    path: `/${r.path}`,
+    module: r.module,
+    lazy: r.lazy,
+    parentModule: r.parentModule
+  }));
 };
