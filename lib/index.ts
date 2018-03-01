@@ -101,10 +101,14 @@ if (isClusterize) {
     error('Must specify number of bundles');
   }
 
+  if (!argv.p) {
+    error('For clusterization you need to provide a project');
+  }
+
   dbStorage(viewId)
     .all()
     .then(g => {
-      console.log(clusterize(g, parseInt(total)));
+      console.log(clusterize(g, parseInt(total), parseRoutes(argv.p)));
     });
 }
 

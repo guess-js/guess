@@ -19,6 +19,13 @@ interface RawModuleData {
   module: CompileIdentifierMetadata;
 }
 
+export interface RoutingModule {
+  path: string;
+  module: string;
+  parentModule: string;
+  lazy: boolean;
+}
+
 const processRoutes = (name: string, routes: Route[]) => {};
 
 const key = (ref: any) => ref.filePath + '#' + ref.name;
