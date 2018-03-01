@@ -154,7 +154,7 @@ class BundleTree {
   }
 }
 
-const whatever = (
+const normalizeEntryPoints = (
   cluster: Cluster,
   tree: BundleTree,
   pathCluster: { [key: string]: Cluster },
@@ -179,7 +179,7 @@ const whatever = (
     }
   }
   if (changed) {
-    whatever(cluster, tree, pathCluster, pathModule);
+    normalizeEntryPoints(cluster, tree, pathCluster, pathModule);
   }
 };
 
@@ -208,36 +208,51 @@ export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) 
     return result;
   }
 
+  // Build a Markov chain
   normalize(graph);
 
+  // Each node in the bundle tree is an entry point of a bundle.
+  // The node contains all the routes defined in this entry point.
   const bundleTree = new BundleTree();
   bundleTree.build(modules);
 
+  // Path to module mapping
   const pathModule: { [key: string]: RouteDefinition } = {};
   modules.forEach(m => {
     pathModule[m.path] = m;
   });
 
   while (true) {
+    // Build the neighbors list in the current version of the graph.
     const nl = neighborsList(graph, nodes);
+    // Find the connected components.
     const cc = tarjan(nl);
 
+    // Each node in each connected component should point to
+    // the connected component itself.
+    // Two nodes from the same connected component should point to the same reference.
     const bundleClusterMap: { [key: string]: Cluster } = {};
-
     cc.forEach(c => {
       for (const n of c) {
         bundleClusterMap[n] = c;
       }
     });
 
+    // For each connected component, we want to push all the parents of all the routes.
+    // For example, if the user wants to load `/a/b/c` from `/d`, this means
+    // that if `/a/b/c` & `/d` are in the same connected component, we should also
+    // push `/a` and `/a/b` because without them we cannot provide `/a/b/c`.
     cc.forEach(c => {
-      whatever(c, bundleTree, bundleClusterMap, pathModule);
+      normalizeEntryPoints(c, bundleTree, bundleClusterMap, pathModule);
     });
 
+    // Drop all the empty connected components.
     const res = cc.filter(c => c.length);
     if (res.length >= n) {
       return res;
     }
+
+    // Trim the graph if we haven't found a solution yet.
     trimGraph(graph);
   }
 };
