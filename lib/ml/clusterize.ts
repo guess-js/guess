@@ -30,26 +30,6 @@ const normalize = (graph: Graph) => {
   });
 };
 
-const toBundleGraph = (graph: Graph, defs: RouteDefinition[]): Graph => {
-  const res: Graph = {};
-  const routeFile = defs.reduce(
-    (a, c: RouteDefinition) => {
-      a[c.path.replace('/.', '')] = c.module;
-      return a;
-    },
-    {} as { [key: string]: string }
-  );
-  Object.keys(graph).forEach((k: string) => {
-    const from = routeFile[k];
-    res[from] = res[from] || {};
-    Object.keys(graph[k]).forEach(n => {
-      const to = routeFile[n];
-      res[from][to] = (res[from][to] || 0) + graph[k][n];
-    });
-  });
-  return res;
-};
-
 type Cluster = string[];
 type Clusters = Cluster[];
 
@@ -83,12 +63,10 @@ const normalizeEntryPoints = (
   }
 };
 
-export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) => {
+export const clusterize = (bundleGraph: Graph, n: number, modules: RouteDefinition[]) => {
   if (n <= 0) {
     throw new Error('The number of bundles should be a positive number');
   }
-
-  const bundleGraph = toBundleGraph(graph, modules);
 
   const nodes = new Set<string>();
   Object.keys(bundleGraph).forEach(k => {

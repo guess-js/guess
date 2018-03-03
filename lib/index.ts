@@ -1,6 +1,6 @@
 import { clusterize } from './ml/clusterize';
 import { parseRoutes, RouteDefinition } from './ng/index';
-import { dbStorage } from './store/store';
+import { dbStorage, Graph } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
 
@@ -90,6 +90,26 @@ if (isFetch) {
   );
 }
 
+const toBundleGraph = (graph: Graph, defs: RouteDefinition[]): Graph => {
+  const res: Graph = {};
+  const routeFile = defs.reduce(
+    (a, c: RouteDefinition) => {
+      a[c.path.replace('/.', '')] = c.module;
+      return a;
+    },
+    {} as { [key: string]: string }
+  );
+  Object.keys(graph).forEach((k: string) => {
+    const from = routeFile[k];
+    res[from] = res[from] || {};
+    Object.keys(graph[k]).forEach(n => {
+      const to = routeFile[n];
+      res[from][to] = (res[from][to] || 0) + graph[k][n];
+    });
+  });
+  return res;
+};
+
 if (isClusterize) {
   const viewId = argv.v;
   const total = argv.n;
@@ -108,7 +128,9 @@ if (isClusterize) {
   dbStorage(viewId)
     .all()
     .then(g => {
-      console.log(clusterize(g, parseInt(total), parseRoutes(argv.p)));
+      const modules = parseRoutes(argv.p);
+      const bundleGraph = toBundleGraph(g, modules);
+      console.log(clusterize(bundleGraph, parseInt(total), modules));
     });
 }
 
