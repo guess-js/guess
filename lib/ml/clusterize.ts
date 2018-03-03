@@ -1,26 +1,8 @@
 import { RouteDefinition } from './../ng/index';
 import { tarjan, NeighborListGraph } from './graph/tarjan';
 import { Graph } from './../store/store';
-
-const connected = (a: string, b: string, graph: Graph) => {
-  return (graph[a] && graph[a][b] && graph[a][b] > 0) || (graph[b] && graph[b][a] && graph[b][a] > 0);
-};
-
-const neighborsList = (graph: Graph, nodes: Set<string>) => {
-  const nl: NeighborListGraph = {};
-  for (const a of nodes.values()) {
-    nl[a] = [];
-    for (const b of nodes.values()) {
-      if (a === b) {
-        continue;
-      }
-      if (connected(a, b, graph)) {
-        nl[a].push(b);
-      }
-    }
-  }
-  return nl;
-};
+import { BundleNode, BundleTree } from './bundle-tree';
+import { neighborsList } from './graph/neighbors-list';
 
 const trimGraph = (graph: Graph) => {
   let minEdge = Infinity;
@@ -48,117 +30,34 @@ const normalize = (graph: Graph) => {
   });
 };
 
+const toBundleGraph = (graph: Graph, defs: RouteDefinition[]): Graph => {
+  const res: Graph = {};
+  const routeFile = defs.reduce(
+    (a, c: RouteDefinition) => {
+      a[c.path.replace('/.', '')] = c.module;
+      return a;
+    },
+    {} as { [key: string]: string }
+  );
+  Object.keys(graph).forEach((k: string) => {
+    const from = routeFile[k];
+    res[from] = res[from] || {};
+    Object.keys(graph[k]).forEach(n => {
+      const to = routeFile[n];
+      res[from][to] = (res[from][to] || 0) + graph[k][n];
+    });
+  });
+  return res;
+};
+
 type Cluster = string[];
 type Clusters = Cluster[];
-
-class BundleNode {
-  routes: RouteDefinition[] = [];
-  children: { [key: string]: BundleNode } = {};
-  constructor(public module: RouteDefinition, public parent: BundleNode) {}
-}
-
-class BundleTree {
-  root: BundleNode = null;
-
-  build(m: RouteDefinition[]) {
-    const modules = m.slice();
-    const r = (m: RouteDefinition) => {
-      if (!m.parentModule) {
-        this.root = new BundleNode(m, null);
-        return true;
-      }
-      return false;
-    };
-    const c = (m: RouteDefinition) => {
-      if (!m.parentModule) {
-        this.root.routes.push(m);
-        return true;
-      }
-      if (this.find(m.parentModule)) {
-        this.insert(m);
-        return true;
-      }
-      return false;
-    };
-    while (modules.length) {
-      for (const m of modules) {
-        let processed = false;
-        if (this.root) {
-          processed = c(m);
-        } else {
-          processed = r(m);
-        }
-        if (processed) {
-          modules.splice(modules.indexOf(m), 1);
-        }
-      }
-    }
-  }
-
-  insert(m: RouteDefinition) {
-    const parent = this.find(m.parentModule);
-    parent.children[m.module] = parent.children[m.module] || new BundleNode(m, null);
-    parent.children[m.module].routes.push(m);
-  }
-
-  lca(a: RouteDefinition, b: RouteDefinition): RouteDefinition | null {
-    let na = this.find(a.module);
-    let nb = this.find(b.module);
-    if (!na || !nb) {
-      return null;
-    }
-
-    const visited: { [key: string]: boolean } = {};
-
-    let nodeA = na;
-    while (nodeA) {
-      visited[nodeA.module.module] = true;
-      nodeA = nodeA.parent;
-    }
-
-    let nodeB = nb;
-    while (nodeB) {
-      if (visited[nodeB.module.module]) {
-        return nodeB.module;
-      }
-      visited[nodeB.module.module] = true;
-      nodeB = nodeB.parent;
-    }
-
-    nodeA = na;
-    while (nodeA) {
-      if (visited[nodeA.module.module]) {
-        return nodeA.module;
-      }
-      nodeA = nodeA.parent;
-    }
-
-    return null;
-  }
-
-  find(node: string) {
-    if (!this.root) {
-      return null;
-    }
-    const stack = [this.root];
-    while (stack.length) {
-      const c = stack.pop();
-      if (c.module.module === node) {
-        return c;
-      }
-      Object.keys(c.children).forEach(k => {
-        stack.push(c.children[k]);
-      });
-    }
-    return null;
-  }
-}
 
 const normalizeEntryPoints = (
   cluster: Cluster,
   tree: BundleTree,
   pathCluster: { [key: string]: Cluster },
-  pathModule: { [key: string]: RouteDefinition }
+  entryPointModule: { [key: string]: RouteDefinition }
 ) => {
   let changed = false;
   for (const a of cluster) {
@@ -166,20 +65,21 @@ const normalizeEntryPoints = (
       if (a === b) {
         continue;
       }
-      const ancestor = tree.lca(pathModule[a || '/.'], pathModule[b || '/.']);
+      const ancestor = tree.lca(entryPointModule[a], entryPointModule[b]);
       if (!ancestor) {
         throw new Error('Cannot find LCA');
       }
-      if (cluster.indexOf(ancestor.path) < 0) {
-        while ((pathCluster[ancestor.path] || []).length) {
-          cluster.push(pathCluster[ancestor.path].pop());
+      const entry = ancestor[0].module;
+      if (cluster.indexOf(entry) < 0) {
+        while ((pathCluster[entry] || []).length) {
+          cluster.push(pathCluster[entry].pop());
           changed = true;
         }
       }
     }
   }
   if (changed) {
-    normalizeEntryPoints(cluster, tree, pathCluster, pathModule);
+    normalizeEntryPoints(cluster, tree, pathCluster, entryPointModule);
   }
 };
 
@@ -188,10 +88,12 @@ export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) 
     throw new Error('The number of bundles should be a positive number');
   }
 
+  const bundleGraph = toBundleGraph(graph, modules);
+
   const nodes = new Set<string>();
-  Object.keys(graph).forEach(k => {
+  Object.keys(bundleGraph).forEach(k => {
     nodes.add(k);
-    Object.keys(graph[k]).forEach(n => {
+    Object.keys(bundleGraph[k]).forEach(n => {
       nodes.add(n);
     });
   });
@@ -209,7 +111,7 @@ export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) 
   }
 
   // Build a Markov chain
-  normalize(graph);
+  normalize(bundleGraph);
 
   // Each node in the bundle tree is an entry point of a bundle.
   // The node contains all the routes defined in this entry point.
@@ -217,14 +119,15 @@ export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) 
   bundleTree.build(modules);
 
   // Path to module mapping
-  const pathModule: { [key: string]: RouteDefinition } = {};
+  const entryPointModule: { [key: string]: RouteDefinition } = {};
   modules.forEach(m => {
-    pathModule[m.path] = m;
+    entryPointModule[m.module] = m;
   });
 
   while (true) {
     // Build the neighbors list in the current version of the graph.
-    const nl = neighborsList(graph, nodes);
+    const nl = neighborsList(bundleGraph, nodes);
+
     // Find the connected components.
     const cc = tarjan(nl);
 
@@ -243,7 +146,7 @@ export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) 
     // that if `/a/b/c` & `/d` are in the same connected component, we should also
     // push `/a` and `/a/b` because without them we cannot provide `/a/b/c`.
     cc.forEach(c => {
-      normalizeEntryPoints(c, bundleTree, bundleClusterMap, pathModule);
+      normalizeEntryPoints(c, bundleTree, bundleClusterMap, entryPointModule);
     });
 
     // Drop all the empty connected components.
@@ -253,6 +156,6 @@ export const clusterize = (graph: Graph, n: number, modules: RouteDefinition[]) 
     }
 
     // Trim the graph if we haven't found a solution yet.
-    trimGraph(graph);
+    trimGraph(bundleGraph);
   }
 };
