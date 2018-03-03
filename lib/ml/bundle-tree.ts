@@ -1,7 +1,7 @@
-import { RouteDefinition } from './../ng/index';
+import { Module } from './clusterize';
 
 export class BundleNode {
-  defs: RouteDefinition[] = [];
+  defs: Module[] = [];
   children: { [key: string]: BundleNode } = {};
   constructor(public key: string, public parent: BundleNode) {}
 }
@@ -9,9 +9,9 @@ export class BundleNode {
 export class BundleTree {
   root: BundleNode = null;
 
-  build(m: RouteDefinition[]) {
+  build(m: Module[]) {
     const modules = m.slice();
-    const r = (m: RouteDefinition) => {
+    const r = (m: Module) => {
       if (!m.parentModule) {
         this.root = new BundleNode(m.module, null);
         this.root.defs.push(m);
@@ -19,7 +19,7 @@ export class BundleTree {
       }
       return false;
     };
-    const c = (m: RouteDefinition) => {
+    const c = (m: Module) => {
       const current = this.find(m.module);
       if (current) {
         current.defs.push(m);
@@ -46,14 +46,14 @@ export class BundleTree {
     }
   }
 
-  insert(m: RouteDefinition) {
+  insert(m: Module) {
     const parent = this.find(m.parentModule);
     const node = new BundleNode(m.module, null);
     parent.children[m.module] = parent.children[m.module] || node;
     node.defs.push(m);
   }
 
-  lca(a: RouteDefinition, b: RouteDefinition): RouteDefinition[] | null {
+  lca(a: Module, b: Module): Module[] | null {
     let na = this.find(a.module);
     let nb = this.find(b.module);
     if (!na || !nb) {

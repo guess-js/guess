@@ -129,8 +129,7 @@ if (isClusterize) {
     .all()
     .then(g => {
       const modules = parseRoutes(argv.p);
-      const bundleGraph = toBundleGraph(g, modules);
-      console.log(clusterize(bundleGraph, parseInt(total), modules));
+      console.log(clusterize(toBundleGraph(g, modules), modules, parseInt(total)));
     });
 }
 

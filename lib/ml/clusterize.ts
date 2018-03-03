@@ -1,4 +1,3 @@
-import { RouteDefinition } from './../ng/index';
 import { tarjan, NeighborListGraph } from './graph/tarjan';
 import { Graph } from './../store/store';
 import { BundleNode, BundleTree } from './bundle-tree';
@@ -37,7 +36,7 @@ const normalizeEntryPoints = (
   cluster: Cluster,
   tree: BundleTree,
   pathCluster: { [key: string]: Cluster },
-  entryPointModule: { [key: string]: RouteDefinition }
+  entryPointModule: { [key: string]: Module }
 ) => {
   let changed = false;
   for (const a of cluster) {
@@ -63,7 +62,12 @@ const normalizeEntryPoints = (
   }
 };
 
-export const clusterize = (bundleGraph: Graph, n: number, modules: RouteDefinition[]) => {
+export interface Module {
+  module: string;
+  parentModule: string;
+}
+
+export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cluster | Clusters => {
   if (n <= 0) {
     throw new Error('The number of bundles should be a positive number');
   }
@@ -97,7 +101,7 @@ export const clusterize = (bundleGraph: Graph, n: number, modules: RouteDefiniti
   bundleTree.build(modules);
 
   // Path to module mapping
-  const entryPointModule: { [key: string]: RouteDefinition } = {};
+  const entryPointModule: { [key: string]: Module } = {};
   modules.forEach(m => {
     entryPointModule[m.module] = m;
   });
