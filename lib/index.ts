@@ -4,7 +4,7 @@ import { dbStorage, Graph } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
 
-import { fetch } from './fetch';
+import { fetch } from './ga';
 import { listen } from './report';
 
 const argv = minimist(process.argv);
