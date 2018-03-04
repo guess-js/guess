@@ -27,6 +27,21 @@ const normalize = (graph: Graph) => {
     const total = ns.reduce((a, c) => a + graph[k][c], 0);
     ns.forEach(n => (graph[k][n] = graph[k][n] / total));
   });
+
+  // Cut pages such as:
+  // - a -> b, 50%
+  // - b -> a, 1%
+  // Then we don't want to let `a` and `b` belong to the same bundle.
+  Object.keys(graph).forEach(k => {
+    Object.keys(graph[k]).forEach(n => {
+      if (graph[k][n] < 0.05 || !graph[n] || !graph[n][k] || graph[n][k] < 0.05) {
+        graph[k][n] = 0;
+        if (graph[n] && graph[n][k]) {
+          graph[n][k] = 0;
+        }
+      }
+    });
+  });
 };
 
 type Cluster = string[];
