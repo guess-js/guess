@@ -10,8 +10,7 @@ const error = (s: string) => {
 };
 
 const cli = meow(
-  `
-Usage
+  `Usage
 $ smarty <options>
 
 Options
