@@ -7,6 +7,8 @@ import chalk from 'chalk';
 import { fetch } from './ga';
 import { listen } from './report';
 
+import * as meow from 'meow';
+
 const argv = minimist(process.argv);
 
 const o = (n: string) => chalk.yellow(n);
@@ -16,6 +18,28 @@ const error = (s: string) => {
   console.error(chalk.red(s));
   process.exit(1);
 };
+
+meow(`
+Usage
+$ smarty fetch <options>
+
+Options
+--view-id, -v Google Anaytics View ID
+--credentials, -c JSON file containing email and private key
+--start-date, -s Start date of the report
+--end-date, -e End date of the report
+--aggregate, -a Aggregate the routes
+--project, -p TypeScript project
+
+Examples
+$ smarty fetch
+  --view-id 11111
+  --credentials ga.json
+  --start-date 10-10-2018
+  --end-date 11-11-2018
+  --aggregate true
+  --project tsconfig.json
+`);
 
 if (argv.h) {
   console.log(`

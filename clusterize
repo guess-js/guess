@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ts-node lib/clusterize.ts --view-id 128035004 --clusters 10 --project ~/Projects/smarty-demo/src/tsconfig.app.json
