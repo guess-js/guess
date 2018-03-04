@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ts-node lib/runtime.ts -v 128035004 -p ~/Projects/smarty-demo/src/tsconfig.app.json
