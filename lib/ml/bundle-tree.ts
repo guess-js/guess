@@ -11,13 +11,22 @@ export class BundleTree {
 
   build(m: Module[]) {
     const modules = m.slice();
-    const r = (m: Module) => {
-      if (!m.parentModule) {
-        this.root = new BundleNode(m.module, null);
-        this.root.defs.push(m);
-        return true;
+    const r = (c: Module) => {
+      for (const p of m) {
+        if (c === p) {
+          continue;
+        }
+        if (p.module === c.parentModule) {
+          return false;
+        }
       }
-      return false;
+      if (!this.root) {
+        this.root = new BundleNode(c.parentModule, null);
+      }
+      const node = new BundleNode(c.module, null);
+      this.root.children[c.module] = node;
+      node.defs.push(c);
+      return true;
     };
     const c = (m: Module) => {
       const current = this.find(m.module);

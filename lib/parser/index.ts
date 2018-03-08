@@ -11,7 +11,7 @@ export enum ProjectType {
 
 const unique = (a: RoutingModule[]) => {
   const map: { [path: string]: RoutingModule } = {};
-  a.reduce(r => (map[r.path] = r));
+  a.forEach(r => (map[r.path] = r));
   return Object.keys(map).map(k => map[k]);
 };
 

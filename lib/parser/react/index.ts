@@ -65,7 +65,7 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
             const parts = file.fileName.split('/');
             parts.pop();
             const name = extractModule(p as ts.JsxAttribute) + '.tsx';
-            module.module = path.join(...parts.concat([name]));
+            module.module = '/' + path.join(...parts.concat([name]));
           }
           result.push(module as RoutingModule);
         });
