@@ -1,5 +1,5 @@
 import { clusterize } from './ml/clusterize';
-import { parseRoutes, RouteDefinition } from './ng/index';
+import { getRoutes, RoutingModule, ProjectType } from './parser';
 import { dbStorage, Graph } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
@@ -20,6 +20,7 @@ Options
 --view-id, -v Google Anaytics View ID
 --clusters, -n Total different bundles
 --project, -p TypeScript project
+--type, -t Project type (supported "react" and "angular")
 
 Examples
 $ smarty --view-id 11111 --clusters 5 --project tsconfig.json
@@ -37,15 +38,19 @@ $ smarty --view-id 11111 --clusters 5 --project tsconfig.json
       project: {
         type: 'string',
         alias: 'p'
+      },
+      type: {
+        type: 'string',
+        alias: 't'
       }
     }
   }
 );
 
-const toBundleGraph = (graph: Graph, defs: RouteDefinition[]): Graph => {
+const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
   const res: Graph = {};
   const routeFile = defs.reduce(
-    (a, c: RouteDefinition) => {
+    (a, c: RoutingModule) => {
       a[c.path.replace('/.', '')] = c.module;
       return a;
     },
@@ -75,6 +80,7 @@ const nameBundles = (clusters: (string | string[])[]) => {
 const viewId = cli.flags.viewId;
 const total = parseInt(cli.flags.clusters, 10);
 const project = cli.flags.project;
+const type = cli.flags.type;
 
 if (!viewId) {
   error('View id is mandatory');
@@ -91,7 +97,7 @@ dbStorage(viewId)
   .all()
   .then(g => {
     console.time('parseRoutes');
-    const modules = parseRoutes(project);
+    const modules = getRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
     console.timeEnd('parseRoutes');
 
     console.time('clusterize');
