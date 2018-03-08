@@ -1,4 +1,4 @@
-import { parseRoutes, RouteDefinition } from './ng/index';
+import { parseRoutes, RouteDefinition } from './parser/ng/index';
 import chalk from 'chalk';
 import { fetch } from './ga';
 

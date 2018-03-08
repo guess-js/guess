@@ -4,6 +4,11 @@ import { CompileIdentifierMetadata, CompileProviderMetadata } from '@angular/com
 import { Route } from '@angular/compiler/src/core';
 import { join } from 'path';
 
+export interface RawModuleData {
+  provider: CompileProviderMetadata;
+  module: CompileIdentifierMetadata;
+}
+
 interface Module {
   parents: Module[];
   name: string;
@@ -12,18 +17,6 @@ interface Module {
 
 interface ModuleTree {
   [key: string]: Module;
-}
-
-interface RawModuleData {
-  provider: CompileProviderMetadata;
-  module: CompileIdentifierMetadata;
-}
-
-export interface RoutingModule {
-  path: string;
-  module: string;
-  parentModule: string;
-  lazy: boolean;
 }
 
 const processRoutes = (name: string, routes: Route[]) => {};
