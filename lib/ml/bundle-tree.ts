@@ -9,6 +9,8 @@ export class BundleNode {
 export class BundleTree {
   root: BundleNode = null;
 
+  // TODO: use topological sort in order to insert the elements
+  // with linear complexity.
   build(m: Module[]) {
     const modules = m.slice();
     const r = (c: Module) => {
