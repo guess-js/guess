@@ -61,6 +61,9 @@ const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
     res[from] = res[from] || {};
     Object.keys(graph[k]).forEach(n => {
       const to = routeFile[n];
+      if (to === undefined) {
+        return;
+      }
       res[from][to] = (res[from][to] || 0) + graph[k][n];
     });
   });
@@ -98,9 +101,10 @@ dbStorage(viewId)
   .then(g => {
     console.time('parseRoutes');
     const modules = getRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
+    console.log(modules.map(p => p.path));
     console.timeEnd('parseRoutes');
 
     console.time('clusterize');
-    console.log(nameBundles(clusterize(toBundleGraph(g, modules), modules, total)));
+    // console.log(nameBundles(clusterize(toBundleGraph(g, modules), modules, total)));
     console.timeEnd('clusterize');
   });
