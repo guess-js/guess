@@ -1,4 +1,4 @@
-import { parseRoutes, RouteDefinition } from './parser/ng/index';
+import { getRoutes, RoutingModule, ProjectType } from './parser';
 import chalk from 'chalk';
 import { fetch } from './ga';
 
@@ -20,6 +20,7 @@ Options
 --end-date, -e End date of the report
 --aggregate, -a Aggregate the routes
 --project, -p TypeScript project
+--type, -p Project type ("react" and "angular" supported)
 
 Examples
 $ smarty 
@@ -29,6 +30,7 @@ $ smarty
   --end-date 11-11-2018
   --aggregate true
   --project tsconfig.json
+  --type angular
 `,
   {
     flags: {
@@ -56,6 +58,10 @@ $ smarty
       project: {
         type: 'string',
         alias: 'p'
+      },
+      type: {
+        type: 'string',
+        alias: 't'
       }
     }
   }
@@ -67,14 +73,15 @@ const start = cli.flags.startDate;
 const end = cli.flags.endDate;
 const aggregate = cli.flags.aggregate;
 const project = cli.flags.project;
+const type = cli.flags.type;
 
 if (aggregate && !project) {
   error('For aggregated information you should provide a project path');
 }
 
-let applicationRoutes: RouteDefinition[] = [];
+let applicationRoutes: RoutingModule[] = [];
 if (aggregate) {
-  applicationRoutes = parseRoutes(project);
+  applicationRoutes = getRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
 }
 
 fetch(

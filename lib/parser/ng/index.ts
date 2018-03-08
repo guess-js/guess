@@ -1,3 +1,4 @@
+import { RoutingModule } from '../interfaces';
 import { ProjectSymbols } from 'ngast';
 import { readFileSync, readFile, writeFileSync } from 'fs';
 import { CompileIdentifierMetadata, CompileProviderMetadata } from '@angular/compiler';
@@ -34,14 +35,7 @@ const collectRoutes = (modules: RawModuleData[], result: ModuleTree) => {
   modules.forEach(m => processModule(m, result));
 };
 
-export interface RouteDefinition {
-  path: string;
-  module: string;
-  parentModule: string;
-  lazy: boolean;
-}
-
-export const parseRoutes = (tsconfig: string): RouteDefinition[] => {
+export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   const s = new ProjectSymbols(
     tsconfig,
     {
@@ -75,14 +69,14 @@ export const parseRoutes = (tsconfig: string): RouteDefinition[] => {
 
   const root = flattened.find(m => m.module.reference.name === 'AppModule');
 
-  const result: RouteDefinition[] = [];
+  const result: RoutingModule[] = [];
 
   const findRoutes = (
     modulePath: string,
     routes: Route[],
     parentRoute: string,
     rawMap: { [key: string]: RawModuleData },
-    result: RouteDefinition[],
+    result: RoutingModule[],
     parentModule: string | null
   ) => {
     const parts = modulePath.split('/');

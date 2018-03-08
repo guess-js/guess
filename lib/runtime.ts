@@ -1,4 +1,5 @@
-import { parseRoutes, RouteDefinition } from './ng/index';
+import { ProjectType } from './parser/index';
+import { getRoutes, RoutingModule } from './parser';
 import { dbStorage, Graph } from './store/store';
 import * as meow from 'meow';
 
@@ -9,6 +10,7 @@ $ smarty <options>
 Options
 --view-id, -v Google Anaytics View ID
 --project, -p TypeScript project
+--type, -t Project type ("angular" and "react" supported)
 
 Examples
 $ smarty 
@@ -30,6 +32,7 @@ $ smarty
 );
 
 const viewId = cli.flags.viewId;
+const type = cli.flags.type;
 
 export interface Neighbor {
   route: string;
@@ -41,7 +44,7 @@ export interface RuntimeMap {
   [route: string]: Neighbor[];
 }
 
-const buildMap = (routes: RouteDefinition[], graph: Graph) => {
+const buildMap = (routes: RoutingModule[], graph: Graph) => {
   const result: RuntimeMap = {};
   const routeFile = {} as { [key: string]: string };
   routes.forEach(r => {
@@ -66,6 +69,6 @@ const buildMap = (routes: RouteDefinition[], graph: Graph) => {
 dbStorage(viewId)
   .all()
   .then(graph => {
-    const routes = parseRoutes(cli.flags.project);
+    const routes = getRoutes(cli.flags.project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
     console.log(JSON.stringify(buildMap(routes, graph), null, 2));
   });

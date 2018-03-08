@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ts-node lib/runtime.ts -v 128035004 -t react -p ~/Projects/smarty-react/tsconfig.json

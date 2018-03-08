@@ -1,4 +1,4 @@
-import { RoutingModule } from './../index';
+import { RoutingModule } from '../interfaces';
 import { readFileSync } from 'fs';
 import * as ts from 'typescript';
 import * as fs from 'fs';
@@ -89,5 +89,3 @@ export const parseRoutes = (tsconfig: string) => {
   const jsxFiles = program.getSourceFiles().filter(f => f.fileName.endsWith('.tsx') || f.fileName.endsWith('.jsx'));
   return jsxFiles.reduce((a, f) => a.concat(extractRoutes(f)), []);
 };
-
-console.log(parseRoutes('/Users/mgechev/Projects/smarty-react/tsconfig.json'));

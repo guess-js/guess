@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ts-node lib/fetch.ts --type angular --project ~/Projects/smarty-demo/src/tsconfig.app.json --credentials ../credentials.json --view-id 128035004 --start-date 2016-1-1 --end-date 2018-2-24 --aggregate true

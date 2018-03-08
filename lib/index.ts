@@ -1,5 +1,4 @@
 import { clusterize } from './ml/clusterize';
-import { parseRoutes, RouteDefinition } from './parser/ng/index';
 import { dbStorage, Graph } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
