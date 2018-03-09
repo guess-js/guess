@@ -1,4 +1,6 @@
 import { Module } from './clusterize';
+import { NeighborListGraph } from './graph/tarjan';
+import { topologicalSort } from './graph/topological-sort';
 
 export class BundleNode {
   defs: Module[] = [];
@@ -9,59 +11,47 @@ export class BundleNode {
 export class BundleTree {
   root: BundleNode = null;
 
-  // TODO: use topological sort in order to insert the elements
-  // with linear complexity.
   build(m: Module[]) {
-    const modules = m.slice();
-    const r = (c: Module) => {
-      for (const p of m) {
-        if (c === p) {
-          continue;
-        }
-        if (p.module === c.parentModule) {
-          return false;
-        }
-      }
-      if (!this.root) {
-        this.root = new BundleNode(c.parentModule, null);
-      }
-      const node = new BundleNode(c.module, null);
-      this.root.children[c.module] = node;
-      node.defs.push(c);
-      return true;
-    };
-    const c = (m: Module) => {
-      const current = this.find(m.module);
-      if (current) {
-        current.defs.push(m);
-        return true;
-      }
-      if (this.find(m.parentModule)) {
-        this.insert(m);
-        return true;
-      }
-      return false;
-    };
-    while (modules.length) {
-      for (const m of modules) {
-        let processed = false;
-        if (this.root) {
-          processed = c(m);
-        } else {
-          processed = r(m);
-        }
-        if (processed) {
-          modules.splice(modules.indexOf(m), 1);
-        }
-      }
+    const roots = m.filter(c => !c.parentModule);
+    if (roots.length !== 1) {
+      throw new Error('Only one root entry point required');
     }
-  }
 
-  insert(m: Module) {
-    const parent = this.find(m.parentModule);
-    const node = new BundleNode(m.module, null);
-    parent.children[m.module] = parent.children[m.module] || node;
-    node.defs.push(m);
+    const root = roots[0];
+
+    m = m.filter(c => c.parentModule);
+
+    // Build neighbors list
+    const graph: NeighborListGraph = {};
+    for (const c of m) {
+      graph[c.module] = [];
+    }
+    const moduleMap: { [module: string]: Module[] } = {};
+    for (const c of m) {
+      if (c.parentModule !== root.module) {
+        graph[c.parentModule].push(c.module);
+      }
+      moduleMap[c.module] = moduleMap[c.module] || [];
+      moduleMap[c.module].push(c);
+    }
+    // Remove duplicates
+    Object.keys(graph).forEach(n => {
+      graph[n] = graph[n].filter((e, i) => graph[n].indexOf(n) === i);
+    });
+    const insertionOrder = topologicalSort(graph).reverse();
+    this.root = new BundleNode(root.module, null);
+    this.root.defs.push(root);
+
+    for (const c of insertionOrder) {
+      const parentEntry = moduleMap[c][0].parentModule;
+      const parent = this.find(parentEntry);
+      if (!parent) {
+        throw new Error(`Cannot find parent bundle for ${c}`);
+      }
+      const node = parent.children[c] || new BundleNode(c, parent);
+      moduleMap[c].forEach(m => node.defs.push(m));
+      parent.children[c] = node;
+    }
   }
 
   lca(a: Module, b: Module): Module[] | null {
