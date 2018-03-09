@@ -14,11 +14,12 @@ export class BundleTree {
   build(m: Module[]) {
     const roots = m.filter(c => !c.parentModule);
     if (roots.length !== 1) {
-      throw new Error('Only one root entry point required');
+      throw new Error('One root module allowed');
     }
 
     const root = roots[0];
-
+    this.root = new BundleNode(root.module, null);
+    this.root.defs.push(root);
     m = m.filter(c => c.parentModule);
 
     // Build neighbors list
@@ -34,13 +35,13 @@ export class BundleTree {
       moduleMap[c.module] = moduleMap[c.module] || [];
       moduleMap[c.module].push(c);
     }
+
     // Remove duplicates
     Object.keys(graph).forEach(n => {
-      graph[n] = graph[n].filter((e, i) => graph[n].indexOf(n) === i);
+      graph[n] = graph[n].filter((e, i) => graph[n].indexOf(e) === i);
     });
-    const insertionOrder = topologicalSort(graph).reverse();
-    this.root = new BundleNode(root.module, null);
-    this.root.defs.push(root);
+
+    const insertionOrder = topologicalSort(graph);
 
     for (const c of insertionOrder) {
       const parentEntry = moduleMap[c][0].parentModule;

@@ -3,7 +3,8 @@ import { ProjectSymbols } from 'ngast';
 import { readFileSync, readFile, writeFileSync } from 'fs';
 import { CompileIdentifierMetadata, CompileProviderMetadata } from '@angular/compiler';
 import { Route } from '@angular/compiler/src/core';
-import { join } from 'path';
+import { join, normalize } from 'path';
+import { constructDependencies } from '@angular/core/src/di/reflective_provider';
 
 export interface RawModuleData {
   provider: CompileProviderMetadata;
@@ -97,11 +98,21 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
       const c = r.pop();
       const path = (c.route as any).path;
 
+      let module = modulePath;
+      if (c.route.loadChildren) {
+        const path = c.route.loadChildren.split('#')[0] + '.ts';
+        const parentParts = modulePath.split('/');
+        parentParts.pop();
+        const parentPath = parentParts.join('/');
+        module = join(parentPath, path);
+      }
+
+      const currentPath = normalize('/' + join(c.parent, path));
       result.push({
-        path: join(c.parent, path),
-        module: modulePath,
+        path: currentPath,
+        module,
         lazy: !!c.route.loadChildren,
-        parentModule: parentModule
+        parentModule: currentPath === '/' ? null : modulePath
       });
 
       if (c.route.loadChildren) {
@@ -128,10 +139,5 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
 
   findRoutes(root.module.reference.filePath, root.provider.useValue as Route[], '', rawMap, result, null);
 
-  return result.map(r => ({
-    path: `/${r.path}`,
-    module: r.module,
-    lazy: r.lazy,
-    parentModule: r.parentModule
-  }));
+  return result;
 };

@@ -5,8 +5,12 @@ describe(BundleTree.name, () => {
   it('should index modules', () => {
     const modules: Module[] = [
       {
-        module: '/root',
+        module: '/qux',
         parentModule: null
+      },
+      {
+        module: '/root',
+        parentModule: '/qux'
       },
       {
         module: '/child1',
@@ -30,63 +34,15 @@ describe(BundleTree.name, () => {
     expect(() => tree.build(modules)).not.toThrow();
   });
 
-  it('should throw without a root module', () => {
-    const modules: Module[] = [
-      {
-        module: '/child1',
-        parentModule: '/root'
-      },
-      {
-        module: '/child1',
-        parentModule: '/root'
-      },
-      {
-        module: '/child2',
-        parentModule: '/root'
-      },
-      {
-        module: '/child3',
-        parentModule: '/child1'
-      }
-    ];
-
-    const tree = new BundleTree();
-    expect(() => tree.build(modules)).toThrow();
-  });
-
-  it('should throw without a parent module', () => {
-    const modules: Module[] = [
-      {
-        module: '/child1',
-        parentModule: '/root'
-      },
-      {
-        module: '/child4',
-        parentModule: '/root'
-      },
-      {
-        module: '/child4',
-        parentModule: '/root'
-      },
-      {
-        module: '/child2',
-        parentModule: '/root'
-      },
-      {
-        module: '/child3',
-        parentModule: '/child1'
-      }
-    ];
-
-    const tree = new BundleTree();
-    expect(() => tree.build(modules)).toThrow();
-  });
-
   it('should find the LCA', () => {
     const modules: Module[] = [
       {
-        module: '/root',
+        module: '/qux',
         parentModule: null
+      },
+      {
+        module: '/root',
+        parentModule: '/qux'
       },
       {
         module: '/child1',

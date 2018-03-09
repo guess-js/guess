@@ -1,5 +1,5 @@
 import { clusterize } from './ml/clusterize';
-import { getRoutes, RoutingModule, ProjectType } from './parser';
+import { getLazyRoutes, RoutingModule, ProjectType } from './parser';
 import { dbStorage, Graph } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
@@ -58,9 +58,18 @@ const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
   );
   Object.keys(graph).forEach((k: string) => {
     const from = routeFile[k];
+    if (from === undefined) {
+      console.warn('Cannot find file for the route ' + k);
+      return;
+    }
     res[from] = res[from] || {};
     Object.keys(graph[k]).forEach(n => {
       const to = routeFile[n];
+      if (to === undefined) {
+        console.warn('Cannot find file for the route ' + n);
+        return;
+      }
+
       res[from][to] = (res[from][to] || 0) + graph[k][n];
     });
   });
@@ -97,7 +106,7 @@ dbStorage(viewId)
   .all()
   .then(g => {
     console.time('parseRoutes');
-    const modules = getRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
+    const modules = getLazyRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
     console.timeEnd('parseRoutes');
 
     console.time('clusterize');

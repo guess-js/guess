@@ -15,12 +15,18 @@ const unique = (a: RoutingModule[]) => {
   return Object.keys(map).map(k => map[k]);
 };
 
-export const getRoutes = (tsconfig: string, projectType: ProjectType) => {
+export const getLazyRoutes = (tsconfig: string, projectType: ProjectType) => {
+  let result: RoutingModule[] | undefined = undefined;
   if (projectType === ProjectType.Angular) {
-    return unique(ngParseRoutes(tsconfig));
+    result = ngParseRoutes(tsconfig);
   }
   if (projectType === ProjectType.React) {
-    return unique(reactParseRoutes(tsconfig));
+    result = reactParseRoutes(tsconfig);
   }
-  throw new Error('Unknown project type');
+  if (!result) {
+    throw new Error('Unknown project type');
+  }
+  const res = unique(result.filter(r => r.lazy || !r.parentModule || r.path === '/'));
+  const roots = res.filter(r => !r.parentModule || r.path === '/').forEach(r => (r.parentModule = null));
+  return res;
 };
