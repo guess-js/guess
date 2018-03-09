@@ -59,6 +59,12 @@ const normalizeEntryPoints = (
       if (a === b) {
         continue;
       }
+      // We can keep sibings in the same chunk
+      const nodeA = tree.find(entryPointModule[a].module);
+      const nodeB = tree.find(entryPointModule[b].module);
+      if (nodeA.parent === nodeB.parent) {
+        continue;
+      }
       const ancestor = tree.lca(entryPointModule[a], entryPointModule[b]);
       if (!ancestor) {
         throw new Error('Cannot find LCA');
