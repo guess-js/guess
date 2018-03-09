@@ -1,5 +1,5 @@
 import { ProjectType } from './parser/index';
-import { getRoutes, RoutingModule } from './parser';
+import { getLazyRoutes, RoutingModule } from './parser';
 import { dbStorage, Graph } from './store/store';
 import * as meow from 'meow';
 
@@ -26,6 +26,10 @@ $ smarty
       project: {
         type: 'string',
         alias: 'p'
+      },
+      type: {
+        type: 'string',
+        alias: 't'
       }
     }
   }
@@ -69,6 +73,6 @@ const buildMap = (routes: RoutingModule[], graph: Graph) => {
 dbStorage(viewId)
   .all()
   .then(graph => {
-    const routes = getRoutes(cli.flags.project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
+    const routes = getLazyRoutes(cli.flags.project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
     console.log(JSON.stringify(buildMap(routes, graph), null, 2));
   });

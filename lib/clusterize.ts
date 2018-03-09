@@ -59,14 +59,14 @@ const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
   Object.keys(graph).forEach((k: string) => {
     const from = routeFile[k];
     if (from === undefined) {
-      console.warn('Cannot find file for the route ' + k);
+      // console.warn('Cannot find file for the route ' + k);
       return;
     }
     res[from] = res[from] || {};
     Object.keys(graph[k]).forEach(n => {
       const to = routeFile[n];
       if (to === undefined) {
-        console.warn('Cannot find file for the route ' + n);
+        // console.warn('Cannot find file for the route ' + n);
         return;
       }
 
