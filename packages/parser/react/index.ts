@@ -93,5 +93,20 @@ export const parseRoutes = (tsconfig: string) => {
   const parsed = ts.parseJsonConfigFileContent(config, parseConfigHost, basePath);
   const program = ts.createProgram(parsed.fileNames, parsed.options);
   const jsxFiles = program.getSourceFiles().filter(f => f.fileName.endsWith('.tsx') || f.fileName.endsWith('.jsx'));
-  return jsxFiles.reduce((a, f) => a.concat(extractRoutes(f)), []);
+  const routes = jsxFiles.reduce((a, f) => a.concat(extractRoutes(f)), []);
+  const modules = routes.reduce(
+    (a, r) => {
+      a[r.modulePath] = true;
+      return a;
+    },
+    {} as { [key: string]: boolean }
+  );
+  const rootModulePath = routes.filter(r => !modules[r.parentModulePath]).pop().parentModulePath;
+  routes.push({
+    path: '/',
+    parentModulePath: null,
+    modulePath: rootModulePath,
+    lazy: false
+  });
+  return routes;
 };

@@ -39,7 +39,7 @@ const defaultRouteProvider = (): RouteProvider => {
   }
   if (content.dependencies['react']) {
     type = ProjectType.React;
-    tsconfigPath = '../tsconfig.json';
+    tsconfigPath = 'tsconfig.json';
   }
   if (type === undefined) {
     throw new Error('Unable to discover the project type');
@@ -55,6 +55,7 @@ export class PageGraphMLPlugin {
     const runtime = _config.runtime;
     const routeProvider = _config.routeProvider || defaultRouteProvider();
     const routes = routeProvider();
+    console.log(routes);
     if (runtime !== false) {
       this._runtime = new RuntimePrefetchPlugin({
         data: _config.data,
