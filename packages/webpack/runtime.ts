@@ -1,19 +1,8 @@
-import { RouteProvider } from './ga';
 import { Graph, RoutingModule } from '../common/interfaces';
+import { RuntimeMap } from './interfaces';
 
 const template = require('lodash.template');
 const runtimeTemplate = require('./runtime.tpl');
-
-export interface Neighbor {
-  route: string;
-  file?: string;
-  chunk?: string;
-  probability: number;
-}
-
-export interface RuntimeMap {
-  [route: string]: Neighbor[];
-}
 
 export interface PrefetchConfig {
   '4g': number;
@@ -23,6 +12,7 @@ export interface PrefetchConfig {
 }
 
 export interface RuntimePrefetchConfig {
+  debug?: boolean;
   data: Graph;
   basePath?: string;
   prefetchConfig?: PrefetchConfig;
@@ -30,8 +20,11 @@ export interface RuntimePrefetchConfig {
 }
 
 export class RuntimePrefetchPlugin {
+  private _debug: boolean;
+
   constructor(private _config: RuntimePrefetchConfig) {
-    if (!this._config.data) {
+    this._debug = !!_config.debug;
+    if (!_config.data) {
       throw new Error('Page graph not provided');
     }
   }
@@ -61,11 +54,7 @@ export class RuntimePrefetchPlugin {
       });
 
       const old = compilation.assets['main.bundle.js'];
-      const prefetchLogic = template(
-        require('fs')
-          .readFileSync('./runtime.tpl')
-          .toString()
-      )({
+      const prefetchLogic = template(runtimeTemplate)({
         BASE_PATH: this._config.basePath || '/',
         GRAPH: JSON.stringify(newConfig),
         THRESHOLDS: JSON.stringify(this._config.prefetchConfig || defaultPrefetchConfig)

@@ -1,19 +1,9 @@
-import { Graph, Module } from '../common/interfaces';
+import { Graph } from '../common/interfaces';
 import { clusterize } from 'bundle-clusterizer';
-
-export type Cluster = string[];
-export type Clusters = Cluster[];
-
-export interface ClusterizationAlgorithm {
-  (graph: Graph, modules: Module[], totalClusters: number): Clusters;
-}
-
-export interface Module {
-  path: string;
-  parentModule: string;
-}
+import { ClusterizationAlgorithm, Cluster, Clusters, Module } from './interfaces';
 
 export interface ClusterizeChunksConfig {
+  debug?: boolean;
   moduleGraph: Graph;
   modules: Module[];
   algorithm: ClusterizationAlgorithm;
@@ -22,8 +12,10 @@ export interface ClusterizeChunksConfig {
 
 export class ClusterizeChunksPlugin {
   private _clusters: Clusters | Cluster;
+  private _debug: boolean;
 
   constructor(config: ClusterizeChunksConfig) {
+    this._debug = !!config.debug;
     if (config.algorithm) {
       this._clusters = config.algorithm(config.moduleGraph, config.modules, config.totalChunks);
     } else {

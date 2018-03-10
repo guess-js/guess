@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ts-node packages/runtime.ts -v 128035004 -t angular -p ~/Projects/smarty-demo/src/tsconfig.app.json

@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ts-node packages/fetch.ts --type react --project ~/Projects/smarty-react/tsconfig.json --credentials ../credentials.json --view-id 128035004 --start-date 2016-1-1 --end-date 2018-2-24 --aggregate true

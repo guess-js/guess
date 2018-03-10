@@ -1,0 +1,12 @@
+#!/bin/bash
+
+declare -a packages=("ga" "ml" "webpack" "parser")
+
+cd ..
+
+for p in "${packages[@]}"
+do
+  cd packages/$p
+  webpack 
+  cd ../..
+done

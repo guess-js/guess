@@ -1,14 +1,10 @@
-import { ProjectType } from '../parser';
-import { RuntimePrefetchPlugin, RuntimePrefetchConfig } from './runtime';
-import { ClusterizeChunksPlugin, ClusterizationAlgorithm } from './build';
+import { ProjectType, parseRoutes } from 'route-parser';
+
 import { Graph, RoutingModule } from '../common/interfaces';
+import { RouteProvider, ClusterizationAlgorithm } from './interfaces';
 
-import { parseRoutes as parseNgRoutes } from '../parser/ng';
-import { parseRoutes as parseReactRoutes } from '../parser/react';
-
-export interface RouteProvider {
-  (): RoutingModule[];
-}
+import { RuntimePrefetchPlugin, RuntimePrefetchConfig } from './runtime';
+import { ClusterizeChunksPlugin } from './build';
 
 export interface BuildConfig {
   totalClusters: number;
@@ -19,7 +15,8 @@ export interface RuntimeConfig {
   basePath: string;
 }
 
-export interface GAMLPluginConfig {
+export interface PageGraphMLPluginConfig {
+  debug?: boolean;
   runtime?: false | RuntimeConfig;
   build: false | BuildConfig;
   routeProvider?: RouteProvider;
@@ -29,26 +26,22 @@ export interface GAMLPluginConfig {
 const defaultRouteProvider: (path: string) => RouteProvider = (path: string) => {
   const type: ProjectType = ProjectType.Angular;
   const tsconfigPath = path;
-  return () => {
-    if (type === ProjectType.Angular) {
-      return parseNgRoutes(tsconfigPath);
-    }
-    return parseReactRoutes(tsconfigPath);
-  };
+  return () => parseRoutes(tsconfigPath, type);
 };
 
-export class GAMLPlugin {
+export class PageGraphMLPlugin {
   private _runtime: RuntimePrefetchPlugin;
   private _build: ClusterizeChunksPlugin;
 
-  constructor(private _config: GAMLPluginConfig) {
-    const runtime = this._config.runtime;
-    const routeProvider = this._config.routeProvider || defaultRouteProvider('');
+  constructor(private _config: PageGraphMLPluginConfig) {
+    const runtime = _config.runtime;
+    const routeProvider = _config.routeProvider || defaultRouteProvider('tsconfig.json');
     const routes = routeProvider();
     if (runtime !== false) {
       this._runtime = new RuntimePrefetchPlugin({
-        data: this._config.data,
+        data: _config.data,
         basePath: runtime ? runtime.basePath : '/',
+        debug: _config.debug,
         routes
       });
     }
@@ -58,6 +51,7 @@ export class GAMLPlugin {
         totalChunks: build.totalClusters,
         algorithm: build.algorithm,
         moduleGraph: toBundleGraph(this._config.data, routes),
+        debug: _config.debug,
         modules: routeProvider()
       });
     }
@@ -65,9 +59,11 @@ export class GAMLPlugin {
 
   apply(compiler: any) {
     if (this._build) {
+      this._config.debug && console.debug('Applying the build-time plugin');
       this._build.apply(compiler);
     }
     if (this._runtime) {
+      this._config.debug && console.debug('Applying the runtime-time plugin');
       this._runtime.apply(compiler);
     }
   }

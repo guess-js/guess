@@ -13,7 +13,7 @@ const unique = (a: RoutingModule[]) => {
   return Object.keys(map).map(k => map[k]);
 };
 
-export const getLazyRoutes = (tsconfig: string, projectType: ProjectType) => {
+export const parseRoutes = (tsconfig: string, projectType: ProjectType) => {
   let result: RoutingModule[] | undefined = undefined;
   if (projectType === ProjectType.Angular) {
     result = ngParseRoutes(tsconfig);

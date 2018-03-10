@@ -1,8 +1,9 @@
-import { getLazyRoutes, RoutingModule, ProjectType } from './parser';
+import { parseRoutes, ProjectType } from 'route-parser';
 import chalk from 'chalk';
 import { fetch } from './ga';
 
 import * as meow from 'meow';
+import { RoutingModule } from './common/interfaces';
 
 const error = (s: string) => {
   console.error(chalk.red(s));
@@ -81,7 +82,7 @@ if (aggregate && !project) {
 
 let applicationRoutes: RoutingModule[] = [];
 if (aggregate) {
-  applicationRoutes = getLazyRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
+  applicationRoutes = parseRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
 }
 
 fetch(

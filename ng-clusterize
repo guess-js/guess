@@ -1,3 +1,0 @@
-#!/bin/bash
-
-ts-node packages/clusterize.ts -t angular --view-id 128035004 --clusters 10 --project ~/Projects/smarty-demo/src/tsconfig.app.json

@@ -1,10 +1,18 @@
+const nodeExternals = require('webpack-node-externals');
+
 module.exports = {
   devtool: 'inline-source-map',
   entry: './index.ts',
   target: 'node',
   output: {
-    filename: './dist/webpack/index.js'
+    filename: './dist/webpack/index.js',
+    libraryTarget: 'umd'
   },
+  externals: [
+    nodeExternals({
+      modulesDir: '../node_modules'
+    })
+  ],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.ts', '.js']
