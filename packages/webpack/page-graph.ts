@@ -6,6 +6,8 @@ import { RouteProvider, ClusterizationAlgorithm } from './interfaces';
 import { RuntimePrefetchPlugin, RuntimePrefetchConfig } from './runtime';
 import { ClusterizeChunksPlugin } from './build';
 
+import { existsSync, readFileSync } from 'fs';
+
 export interface BuildConfig {
   minChunks: number;
   algorithm?: ClusterizationAlgorithm;
@@ -26,16 +28,18 @@ export interface PageGraphMLPluginConfig {
 const defaultRouteProvider = (): RouteProvider => {
   let type: ProjectType | undefined = undefined;
   let tsconfigPath = '';
-  try {
-    require('@angular/core');
+  const path = ['package.json', '../package.json'].filter(existsSync).pop();
+  if (!path) {
+    throw new Error('Unable to discover the project type');
+  }
+  const content = JSON.parse(readFileSync(path).toString()) as any;
+  if (content.dependencies['@angular/core']) {
     type = ProjectType.Angular;
     tsconfigPath = 'src/tsconfig.app.json';
-  } catch (e) {
-    try {
-      require('react');
-      type = ProjectType.React;
-      tsconfigPath = 'tsconfig.json';
-    } catch (e) {}
+  }
+  if (content.dependencies['react']) {
+    type = ProjectType.React;
+    tsconfigPath = '../tsconfig.json';
   }
   if (type === undefined) {
     throw new Error('Unable to discover the project type');
@@ -64,9 +68,9 @@ export class PageGraphMLPlugin {
       this._build = new ClusterizeChunksPlugin({
         minChunks: build.minChunks,
         algorithm: build.algorithm,
-        moduleGraph: toBundleGraph(this._config.data, routes),
+        moduleGraph: toBundleGraph(this._config.data, routes, this._config.debug),
         debug: _config.debug,
-        modules: routeProvider()
+        modules: routes
       });
     }
   }
@@ -83,7 +87,7 @@ export class PageGraphMLPlugin {
   }
 }
 
-const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
+const toBundleGraph = (graph: Graph, defs: RoutingModule[], debug: boolean): Graph => {
   const res: Graph = {};
   const routeFile = defs.reduce(
     (a, c: RoutingModule) => {
@@ -95,17 +99,16 @@ const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
   Object.keys(graph).forEach((k: string) => {
     const from = routeFile[k];
     if (from === undefined) {
-      // console.warn('Cannot find file for the route ' + k);
+      debug && console.warn('Cannot find file for the route ' + k);
       return;
     }
     res[from] = res[from] || {};
     Object.keys(graph[k]).forEach(n => {
       const to = routeFile[n];
       if (to === undefined) {
-        // console.warn('Cannot find file for the route ' + n);
+        debug && console.warn('Cannot find file for the route ' + n);
         return;
       }
-
       res[from][to] = (res[from][to] || 0) + graph[k][n];
     });
   });

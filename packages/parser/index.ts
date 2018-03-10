@@ -25,6 +25,6 @@ export const parseRoutes = (tsconfig: string, projectType: ProjectType) => {
     throw new Error('Unknown project type');
   }
   const res = unique(result.filter(r => r.lazy || !r.parentModulePath || r.path === '/'));
-  const roots = res.filter(r => !r.parentModulePath || r.path === '/').forEach(r => (r.parentModulePath = null));
+  res.filter(r => !r.parentModulePath || r.path === '/').forEach(r => (r.parentModulePath = null));
   return res;
 };

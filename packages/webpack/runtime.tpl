@@ -41,8 +41,6 @@
       if (route.chunk) {
         console.log('Prefetchink', route.chunk);
         import(basepath + route.chunk);
-      } else {
-        console.log('Cannot find chunk for', route.route);
       }
     }
   };

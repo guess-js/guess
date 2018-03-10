@@ -74,10 +74,10 @@ export class RuntimePrefetchPlugin {
 }
 
 const defaultPrefetchConfig: PrefetchConfig = {
-  '4g': 0.2,
+  '4g': 0.15,
   '3g': 0.3,
-  '2g': 0.4,
-  'slow-2g': 0.5
+  '2g': 0.45,
+  'slow-2g': 0.6
 };
 
 const buildMap = (routes: RoutingModule[], graph: Graph) => {
