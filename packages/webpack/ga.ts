@@ -1,8 +1,10 @@
-import { RoutingModule } from '../parser';
+import { RoutingModule, ProjectType } from '../parser';
 import { Graph } from '../store/store';
 import { Module } from '../ml/clusterize';
 import RuntimePrefetchPlugin, { RuntimePrefetchConfig } from './runtime';
 import ClusterizeChunksPlugin from './build';
+import { parseRoutes as parseNgRoutes } from '../parser/ng';
+import { parseRoutes as parseReactRoutes } from '../parser/react';
 
 export interface RouteProvider {
   (): RoutingModule[];
@@ -31,9 +33,16 @@ export interface GAMLPluginConfig {
   data: Graph;
 }
 
-class MLPlugin {}
-
-export const defaultRouteProvider: RouteProvider = undefined;
+const defaultRouteProvider: (path: string) => RouteProvider = (path: string) => {
+  const type: ProjectType = ProjectType.Angular;
+  const tsconfigPath = path;
+  return () => {
+    if (type === ProjectType.Angular) {
+      return parseNgRoutes(tsconfigPath);
+    }
+    return parseReactRoutes(tsconfigPath);
+  };
+};
 
 export class GAMLPlugin {
   private _runtime: RuntimePrefetchPlugin;
@@ -41,7 +50,7 @@ export class GAMLPlugin {
 
   constructor(private _config: GAMLPluginConfig) {
     const runtime = this._config.runtime;
-    const routeProvider = this._config.routeProvider || defaultRouteProvider;
+    const routeProvider = this._config.routeProvider || defaultRouteProvider('');
     const routes = routeProvider();
     if (runtime !== false) {
       this._runtime = new RuntimePrefetchPlugin({

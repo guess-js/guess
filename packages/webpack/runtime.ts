@@ -1,6 +1,6 @@
 import { RoutingModule } from '../parser';
 import { RuntimeMap } from '../runtime';
-import { RouteProvider, defaultRouteProvider } from './ga';
+import { RouteProvider } from './ga';
 import { Graph } from '../store/store';
 
 const template = require('lodash.template');
