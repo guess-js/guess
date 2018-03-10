@@ -7,7 +7,7 @@ import { RuntimePrefetchPlugin, RuntimePrefetchConfig } from './runtime';
 import { ClusterizeChunksPlugin } from './build';
 
 export interface BuildConfig {
-  totalClusters: number;
+  minChunks: number;
   algorithm?: ClusterizationAlgorithm;
 }
 
@@ -23,9 +23,23 @@ export interface PageGraphMLPluginConfig {
   data: Graph;
 }
 
-const defaultRouteProvider: (path: string) => RouteProvider = (path: string) => {
-  const type: ProjectType = ProjectType.Angular;
-  const tsconfigPath = path;
+const defaultRouteProvider = (): RouteProvider => {
+  let type: ProjectType | undefined = undefined;
+  let tsconfigPath = '';
+  try {
+    require('@angular/core');
+    type = ProjectType.Angular;
+    tsconfigPath = 'src/tsconfig.app.json';
+  } catch (e) {
+    try {
+      require('react');
+      type = ProjectType.React;
+      tsconfigPath = 'tsconfig.json';
+    } catch (e) {}
+  }
+  if (type === undefined) {
+    throw new Error('Unable to discover the project type');
+  }
   return () => parseRoutes(tsconfigPath, type);
 };
 
@@ -35,7 +49,7 @@ export class PageGraphMLPlugin {
 
   constructor(private _config: PageGraphMLPluginConfig) {
     const runtime = _config.runtime;
-    const routeProvider = _config.routeProvider || defaultRouteProvider('tsconfig.json');
+    const routeProvider = _config.routeProvider || defaultRouteProvider();
     const routes = routeProvider();
     if (runtime !== false) {
       this._runtime = new RuntimePrefetchPlugin({
@@ -48,7 +62,7 @@ export class PageGraphMLPlugin {
     const build = this._config.build;
     if (build !== false) {
       this._build = new ClusterizeChunksPlugin({
-        totalChunks: build.totalClusters,
+        minChunks: build.minChunks,
         algorithm: build.algorithm,
         moduleGraph: toBundleGraph(this._config.data, routes),
         debug: _config.debug,

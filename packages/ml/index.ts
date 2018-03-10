@@ -83,7 +83,7 @@ const normalizeEntryPoints = (
   }
 };
 
-export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cluster | Clusters => {
+export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Clusters => {
   if (n <= 0) {
     throw new Error('The number of bundles should be a positive number');
   }
@@ -100,16 +100,24 @@ export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cl
     throw new Error('The number of clusters should be smaller or equal to the number of modules');
   }
 
-  const result: string[] = [];
   if (n === nodes.size) {
+    const result: string[][] = [];
     for (const r of nodes.values()) {
-      result.push(r);
+      result.push([r]);
     }
     return result;
   }
 
+  if (n === 1) {
+    const cluster: string[] = [];
+    for (const r of nodes.values()) {
+      cluster.push(r);
+    }
+    return [cluster];
+  }
+
   // Build a Markov chain
-  normalize(bundleGraph);
+  // normalize(bundleGraph);
 
   // Each node in the bundle tree is an entry point of a bundle.
   // The node contains all the routes defined in this entry point.

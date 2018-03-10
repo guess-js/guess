@@ -12,14 +12,7 @@
     "type": "git",
     "url": "git+https://github.com/mgechev/smarty.git"
   },
-  "keywords": [
-    "bundling",
-    "webpack",
-    "ml",
-    "ai",
-    "analytics",
-    "recommendation"
-  ],
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -56,21 +49,13 @@
     "ts-loader": "^3.5.0",
     "typescript": "~2.5.0",
     "webpack": "^3.11.0",
-    "webpack-cli": "^2.0.11",
-    "webpack-node-externals": "^1.6.0"
+    "webpack-cli": "^2.0.11"
   },
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }
