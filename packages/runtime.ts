@@ -40,7 +40,8 @@ const type = cli.flags.type;
 
 export interface Neighbor {
   route: string;
-  file: string;
+  file?: string;
+  chunk?: string;
   probability: number;
 }
 

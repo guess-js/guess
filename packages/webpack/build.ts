@@ -20,7 +20,7 @@ export interface ClusterizeChunksConfig {
   totalChunks: number;
 }
 
-export default class ClusterizeChunks {
+export default class ClusterizeChunksPlugin {
   private _clusters: Clusters | Cluster;
 
   constructor(config: ClusterizeChunksConfig) {
