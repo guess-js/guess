@@ -60,8 +60,8 @@ const normalizeEntryPoints = (
         continue;
       }
       // We can keep sibings in the same chunk
-      const nodeA = tree.find(entryPointModule[a].module);
-      const nodeB = tree.find(entryPointModule[b].module);
+      const nodeA = tree.find(entryPointModule[a].modulePath);
+      const nodeB = tree.find(entryPointModule[b].modulePath);
       if (nodeA.parent === nodeB.parent) {
         continue;
       }
@@ -69,7 +69,7 @@ const normalizeEntryPoints = (
       if (!ancestor) {
         throw new Error('Cannot find LCA');
       }
-      const entry = ancestor[0].module;
+      const entry = ancestor[0].modulePath;
       if (cluster.indexOf(entry) < 0) {
         while ((pathCluster[entry] || []).length) {
           cluster.push(pathCluster[entry].pop());
@@ -84,8 +84,8 @@ const normalizeEntryPoints = (
 };
 
 export interface Module {
-  module: string;
-  parentModule: string;
+  modulePath: string;
+  parentModulePath: string;
 }
 
 export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cluster | Clusters => {
@@ -102,7 +102,7 @@ export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cl
   });
 
   if (n > nodes.size) {
-    throw new Error('The number of bundles should be less than the number of routes');
+    throw new Error('The number of clusters should be smaller or equal to the number of modules');
   }
 
   const result: string[] = [];
@@ -124,7 +124,7 @@ export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cl
   // Path to module mapping
   const entryPointModule: { [key: string]: Module } = {};
   modules.forEach(m => {
-    entryPointModule[m.module] = m;
+    entryPointModule[m.modulePath] = m;
   });
 
   while (true) {

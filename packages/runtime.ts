@@ -52,7 +52,7 @@ const buildMap = (routes: RoutingModule[], graph: Graph) => {
   const result: RuntimeMap = {};
   const routeFile = {} as { [key: string]: string };
   routes.forEach(r => {
-    routeFile[r.path] = r.module;
+    routeFile[r.path] = r.modulePath;
   });
   Object.keys(graph).forEach(k => {
     result[k] = [];

@@ -51,7 +51,7 @@ const toBundleGraph = (graph: Graph, defs: RoutingModule[]): Graph => {
   const res: Graph = {};
   const routeFile = defs.reduce(
     (a, c: RoutingModule) => {
-      a[c.path.replace('/.', '')] = c.module;
+      a[c.path.replace('/.', '')] = c.modulePath;
       return a;
     },
     {} as { [key: string]: string }

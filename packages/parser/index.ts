@@ -26,7 +26,7 @@ export const getLazyRoutes = (tsconfig: string, projectType: ProjectType) => {
   if (!result) {
     throw new Error('Unknown project type');
   }
-  const res = unique(result.filter(r => r.lazy || !r.parentModule || r.path === '/'));
-  const roots = res.filter(r => !r.parentModule || r.path === '/').forEach(r => (r.parentModule = null));
+  const res = unique(result.filter(r => r.lazy || !r.parentModulePath || r.path === '/'));
+  const roots = res.filter(r => !r.parentModulePath || r.path === '/').forEach(r => (r.parentModulePath = null));
   return res;
 };

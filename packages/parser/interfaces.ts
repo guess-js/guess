@@ -1,6 +1,6 @@
 export interface RoutingModule {
   path: string;
-  module: string;
-  parentModule: string;
+  modulePath: string;
+  parentModulePath: string;
   lazy: boolean;
 }

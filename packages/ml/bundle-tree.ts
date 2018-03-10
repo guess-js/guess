@@ -12,28 +12,28 @@ export class BundleTree {
   root: BundleNode = null;
 
   build(m: Module[]) {
-    const roots = m.filter(c => !c.parentModule);
+    const roots = m.filter(c => !c.parentModulePath);
     if (roots.length !== 1) {
       throw new Error('One root module allowed');
     }
 
     const root = roots[0];
-    this.root = new BundleNode(root.module, null);
+    this.root = new BundleNode(root.modulePath, null);
     this.root.defs.push(root);
-    m = m.filter(c => c.parentModule);
+    m = m.filter(c => c.parentModulePath);
 
     // Build neighbors list
     const graph: NeighborListGraph = {};
     for (const c of m) {
-      graph[c.module] = [];
+      graph[c.modulePath] = [];
     }
     const moduleMap: { [module: string]: Module[] } = {};
     for (const c of m) {
-      if (c.parentModule !== root.module) {
-        graph[c.parentModule].push(c.module);
+      if (c.parentModulePath !== root.modulePath) {
+        graph[c.parentModulePath].push(c.modulePath);
       }
-      moduleMap[c.module] = moduleMap[c.module] || [];
-      moduleMap[c.module].push(c);
+      moduleMap[c.modulePath] = moduleMap[c.modulePath] || [];
+      moduleMap[c.modulePath].push(c);
     }
 
     // Remove duplicates
@@ -44,7 +44,7 @@ export class BundleTree {
     const insertionOrder = topologicalSort(graph);
 
     for (const c of insertionOrder) {
-      const parentEntry = moduleMap[c][0].parentModule;
+      const parentEntry = moduleMap[c][0].parentModulePath;
       const parent = this.find(parentEntry);
       if (!parent) {
         throw new Error(`Cannot find parent bundle for ${c}`);
@@ -56,8 +56,8 @@ export class BundleTree {
   }
 
   lca(a: Module, b: Module): Module[] | null {
-    let na = this.find(a.module);
-    let nb = this.find(b.module);
+    let na = this.find(a.modulePath);
+    let nb = this.find(b.modulePath);
     if (!na || !nb) {
       return null;
     }

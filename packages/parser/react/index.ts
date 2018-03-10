@@ -55,7 +55,11 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
         el = c as ts.JsxSelfClosingElement;
       }
       if ((el.tagName as ts.Identifier).text === 'Route') {
-        const module: Partial<RoutingModule> = { lazy: false, parentModule: file.fileName, module: file.fileName };
+        const module: Partial<RoutingModule> = {
+          lazy: false,
+          parentModulePath: file.fileName,
+          modulePath: file.fileName
+        };
         el.attributes.properties.forEach(p => {
           const { text } = p.name as ts.Identifier;
           if (text === 'path') {
@@ -66,7 +70,7 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
             parts.pop();
             const tempName = extractModule(p as ts.JsxAttribute);
             const name = tempName + '.tsx';
-            module.module = '/' + path.join(...parts.concat([name]));
+            module.modulePath = '/' + path.join(...parts.concat([name]));
             module.lazy = true;
           }
           result.push(module as RoutingModule);

@@ -110,9 +110,9 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
       const currentPath = normalize('/' + join(c.parent, path));
       result.push({
         path: currentPath,
-        module,
+        modulePath: module,
         lazy: !!c.route.loadChildren,
-        parentModule: currentPath === '/' ? null : modulePath
+        parentModulePath: currentPath === '/' ? null : modulePath
       });
 
       if (c.route.loadChildren) {
