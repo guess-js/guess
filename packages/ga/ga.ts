@@ -1,6 +1,6 @@
 import { getClient, Period } from './client';
 import { normalize } from './normalize';
-import { Connection } from '../store';
+import { Connection, Graph } from '../store';
 import { dbStorage } from '../store';
 
 const PageSize = 1000;
@@ -33,7 +33,7 @@ export function fetch(
   period: Period,
   formatter = noop,
   routeDeclarations: string[] = []
-): Promise<void> {
+): Promise<Graph> {
   return new Promise((resolve, reject) => {
     const { google } = require('googleapis');
 
@@ -50,7 +50,11 @@ export function fetch(
         reject(err);
         return;
       }
-      fetchData(routeDeclarations, formatter, jwtClient, viewId, period).then(resolve, reject);
+      fetchData(routeDeclarations, formatter, jwtClient, viewId, period).then(() => {
+        dbStorage(key)
+          .all()
+          .then(resolve, reject);
+      }, reject);
     });
   });
 }

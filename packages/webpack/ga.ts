@@ -3,7 +3,6 @@ import { Graph } from '../store/store';
 import { Module } from '../ml/clusterize';
 import RuntimePrefetchPlugin, { RuntimePrefetchConfig } from './runtime';
 import ClusterizeChunksPlugin from './build';
-import { fetch } from '../ga';
 
 export interface RouteProvider {
   (): RoutingModule[];
@@ -29,9 +28,7 @@ export interface GAMLPluginConfig {
   runtime?: false | RuntimeConfig;
   build: false | BuildConfig;
   routeProvider?: RouteProvider;
-  credentials: { key: string; viewId: string };
-  metric?: string;
-  period: { start: string; end: string };
+  data: Graph;
 }
 
 class MLPlugin {}
@@ -41,42 +38,16 @@ export const defaultRouteProvider: RouteProvider = undefined;
 export class GAMLPlugin {
   private _runtime: RuntimePrefetchPlugin;
   private _build: ClusterizeChunksPlugin;
-  private _routes: RoutingModule[];
 
-  constructor(private _config: GAMLPluginConfig) {}
-
-  apply(compiler: any) {
-    if (this._build) {
-      this._build.apply(compiler);
-    }
-    if (this._runtime) {
-      this._runtime.apply(compiler);
-    }
-  }
-
-  private _fetchData() {
-    const { key, viewId } = this._config.credentials;
-    const { start, end } = this._config.period;
-    this._routes = (this._config.routeProvider || defaultRouteProvider)();
-    fetch(
-      key,
-      viewId,
-      {
-        startDate: new Date(start),
-        endDate: new Date(end)
-      },
-      r => r.replace('/app', ''),
-      this._routes.map(r => r.path)
-    );
-  }
-
-  private _init(data: Graph) {
+  constructor(private _config: GAMLPluginConfig) {
     const runtime = this._config.runtime;
+    const routeProvider = this._config.routeProvider || defaultRouteProvider;
+    const routes = routeProvider();
     if (runtime !== false) {
       this._runtime = new RuntimePrefetchPlugin({
-        data,
+        data: this._config.data,
         basePath: runtime ? runtime.basePath : '/',
-        routes: this._routes
+        routes
       });
     }
     const build = this._config.build;
@@ -84,9 +55,18 @@ export class GAMLPlugin {
       this._build = new ClusterizeChunksPlugin({
         totalChunks: build.totalClusters,
         algorithm: build.algorithm,
-        moduleGraph: toBundleGraph(data, this._routes),
-        modules: this._routes
+        moduleGraph: toBundleGraph(this._config.data, routes),
+        modules: routeProvider()
       });
+    }
+  }
+
+  apply(compiler: any) {
+    if (this._build) {
+      this._build.apply(compiler);
+    }
+    if (this._runtime) {
+      this._runtime.apply(compiler);
     }
   }
 }
