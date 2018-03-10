@@ -39,7 +39,7 @@
         continue;
       }
       if (route.chunk) {
-        console.log('Prefetchink', route.chunk);
+        console.log('Pre-fetching', route.chunk);
         import(basepath + route.chunk);
       }
     }

@@ -3,6 +3,7 @@ import { RuntimeMap } from './interfaces';
 
 const template = require('lodash.template');
 const runtimeTemplate = require('./runtime.tpl');
+const ConcatSource = require('webpack-sources').ConcatSource;
 
 export interface PrefetchConfig {
   '4g': number;
@@ -33,13 +34,22 @@ export class RuntimePrefetchPlugin {
     const fileChunk: { [path: string]: string } = {};
 
     compiler.plugin('emit', (compilation: any, cb: any) => {
+      let main: any = null;
       compilation.chunks.forEach((chunk: any) => {
+        if (chunk.name === 'main') {
+          main = chunk;
+        }
         if (chunk.blocks && chunk.blocks.length > 0) {
           for (const block of chunk.blocks) {
-            fileChunk[block.dependencies[0].request] = chunk.id + '.chunk.js';
+            const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
+            fileChunk[block.dependencies[0].module.userRequest] = name;
           }
         }
       });
+
+      if (!main) {
+        throw new Error('Cannot find the main chunk in the runtime ML plugn');
+      }
 
       const newConfig: any = {};
       const graph = buildMap(this._config.routes, this._config.data);
@@ -53,21 +63,14 @@ export class RuntimePrefetchPlugin {
         });
       });
 
-      const old = compilation.assets['main.bundle.js'];
+      const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
+      const old = compilation.assets[mainName];
       const prefetchLogic = template(runtimeTemplate)({
         BASE_PATH: this._config.basePath || '/',
         GRAPH: JSON.stringify(newConfig),
         THRESHOLDS: JSON.stringify(this._config.prefetchConfig || defaultPrefetchConfig)
       });
-      const result = prefetchLogic + '\n' + old.source();
-      compilation.assets['main.bundle.js'] = {
-        source() {
-          return result;
-        },
-        size() {
-          return result.length;
-        }
-      };
+      compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
       cb();
     });
   }

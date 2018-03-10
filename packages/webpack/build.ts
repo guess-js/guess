@@ -31,8 +31,8 @@ export class ClusterizeChunksPlugin {
       if (!valid(a) || !valid(b)) {
         return false;
       }
-      const fileA = a.blocks[0].dependencies[0].request;
-      const fileB = b.blocks[0].dependencies[0].request;
+      const fileA = a.blocks[0].dependencies[0].module.userRequest;
+      const fileB = b.blocks[0].dependencies[0].module.userRequest;
       for (const c of this._clusters) {
         if (c.indexOf(fileA) >= 0 && c.indexOf(fileB) >= 0) {
           this._debug && console.debug('Merging', fileA, fileB);
@@ -49,12 +49,12 @@ export class ClusterizeChunksPlugin {
           if (valid(a)) {
             let found = false;
             allFilesFromChunks.forEach((f: string) => {
-              if (f === a.blocks[0].dependencies[0].request) {
+              if (f === a.blocks[0].dependencies[0].module.userRequest) {
                 found = true;
               }
             });
             if (!found) {
-              this._debug && console.debug('Not found in clusters', a.blocks[0].dependencies[0].request);
+              this._debug && console.debug('Not found in clusters', a.blocks[0].dependencies[0].module.userRequest);
             }
           }
         }
