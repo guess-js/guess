@@ -1,20 +1,13 @@
-import { RoutingModule, ProjectType } from '../parser';
-import { Graph } from '../store/store';
-import { Module } from '../ml/clusterize';
-import RuntimePrefetchPlugin, { RuntimePrefetchConfig } from './runtime';
-import ClusterizeChunksPlugin from './build';
+import { ProjectType } from '../parser';
+import { RuntimePrefetchPlugin, RuntimePrefetchConfig } from './runtime';
+import { ClusterizeChunksPlugin, ClusterizationAlgorithm } from './build';
+import { Graph, RoutingModule } from '../common/interfaces';
+
 import { parseRoutes as parseNgRoutes } from '../parser/ng';
 import { parseRoutes as parseReactRoutes } from '../parser/react';
 
 export interface RouteProvider {
   (): RoutingModule[];
-}
-
-export type Cluster = string[];
-export type Clusters = Cluster[];
-
-export interface ClusterizationAlgorithm {
-  (graph: Graph, modules: Module[], totalClusters: number): Clusters;
 }
 
 export interface BuildConfig {

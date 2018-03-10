@@ -1,5 +1,5 @@
-import { Graph } from '../store/store';
-import { Module, clusterize } from '../ml/clusterize';
+import { Graph, Module } from '../common/interfaces';
+import { clusterize } from 'bundle-clusterizer';
 
 export type Cluster = string[];
 export type Clusters = Cluster[];
@@ -20,7 +20,7 @@ export interface ClusterizeChunksConfig {
   totalChunks: number;
 }
 
-export default class ClusterizeChunksPlugin {
+export class ClusterizeChunksPlugin {
   private _clusters: Clusters | Cluster;
 
   constructor(config: ClusterizeChunksConfig) {
@@ -32,7 +32,7 @@ export default class ClusterizeChunksPlugin {
   }
 
   apply(compiler: any) {
-    const valid = a => a.blocks && a.blocks[0] && a.blocks[0].dependencies && a.blocks[0].dependencies[0];
+    const valid = (a: any) => a.blocks && a.blocks[0] && a.blocks[0].dependencies && a.blocks[0].dependencies[0];
 
     const inSameCluster = (a: any, b: any) => {
       if (!valid(a) || !valid(b)) {
@@ -40,7 +40,7 @@ export default class ClusterizeChunksPlugin {
       }
       const fileA = a.blocks[0].dependencies[0].request;
       const fileB = b.blocks[0].dependencies[0].request;
-      const values = Object.keys(this._clusters).map(k => this._clusters[k]);
+      const values = Object.keys(this._clusters).map((k: any) => this._clusters[k]);
       for (const c of values) {
         if (c.indexOf(fileA) >= 0 && c.indexOf(fileB) >= 0) {
           return true;

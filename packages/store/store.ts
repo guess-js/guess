@@ -1,6 +1,6 @@
-import { Connection } from './network';
 import { join } from 'path';
 import { exists as nodeExists, readFile as nodeReadFile, writeFile as nodeWriteFile } from 'fs';
+import { Graph, Connection } from '../common/interfaces';
 
 const Root = join('db');
 
@@ -38,12 +38,6 @@ async function writeFile(file: string, content: string): Promise<void> {
 
 async function readGraph(file: string) {
   return JSON.parse(await readFile(file)) as Graph;
-}
-
-export type Neighbors = { [key: string]: number };
-
-export interface Graph {
-  [key: string]: Neighbors;
 }
 
 export const dbStorage = (name: string) => {

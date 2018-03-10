@@ -1,10 +1,10 @@
-import { RoutingModule } from '../interfaces';
 import { ProjectSymbols } from 'ngast';
 import { readFileSync, readFile, writeFileSync } from 'fs';
 import { CompileIdentifierMetadata, CompileProviderMetadata } from '@angular/compiler';
 import { Route } from '@angular/compiler/src/core';
 import { join, normalize } from 'path';
 import { constructDependencies } from '@angular/core/src/di/reflective_provider';
+import { RoutingModule } from '../../common/interfaces';
 
 export interface RawModuleData {
   provider: CompileProviderMetadata;

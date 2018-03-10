@@ -1,9 +1,19 @@
-import { RoutingModule } from '../parser';
-import { RuntimeMap } from '../runtime';
 import { RouteProvider } from './ga';
-import { Graph } from '../store/store';
+import { Graph, RoutingModule } from '../common/interfaces';
 
 const template = require('lodash.template');
+const runtimeTemplate = require('./runtime.tpl');
+
+export interface Neighbor {
+  route: string;
+  file?: string;
+  chunk?: string;
+  probability: number;
+}
+
+export interface RuntimeMap {
+  [route: string]: Neighbor[];
+}
 
 export interface PrefetchConfig {
   '4g': number;
@@ -19,18 +29,18 @@ export interface RuntimePrefetchConfig {
   routes: RoutingModule[];
 }
 
-export default class RuntimePrefetchPlugin {
+export class RuntimePrefetchPlugin {
   constructor(private _config: RuntimePrefetchConfig) {
     if (!this._config.data) {
       throw new Error('Page graph not provided');
     }
   }
 
-  apply(compiler) {
+  apply(compiler: any) {
     const fileChunk: { [path: string]: string } = {};
 
-    compiler.plugin('emit', (compilation, cb) => {
-      compilation.chunks.forEach(chunk => {
+    compiler.plugin('emit', (compilation: any, cb: any) => {
+      compilation.chunks.forEach((chunk: any) => {
         if (chunk.blocks && chunk.blocks.length > 0) {
           for (const block of chunk.blocks) {
             fileChunk[block.dependencies[0].request] = chunk.id + '.chunk.js';
@@ -38,7 +48,7 @@ export default class RuntimePrefetchPlugin {
         }
       });
 
-      const newConfig = {};
+      const newConfig: any = {};
       const graph = buildMap(this._config.routes, this._config.data);
       Object.keys(graph).forEach(c => {
         newConfig[c] = [];

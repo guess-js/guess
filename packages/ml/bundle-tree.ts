@@ -1,6 +1,6 @@
-import { Module } from './clusterize';
 import { NeighborListGraph } from './graph/tarjan';
 import { topologicalSort } from './graph/topological-sort';
+import { Module } from '../common/interfaces';
 
 export class BundleNode {
   defs: Module[] = [];

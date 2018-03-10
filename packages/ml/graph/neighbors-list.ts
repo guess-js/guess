@@ -1,5 +1,5 @@
 import { NeighborListGraph } from './tarjan';
-import { Graph } from './../../store/store';
+import { Graph } from '../../common/interfaces';
 
 const connected = (a: string, b: string, graph: Graph) => {
   return (graph[a] && graph[a][b] && graph[a][b] > 0) || (graph[b] && graph[b][a] && graph[b][a] > 0);

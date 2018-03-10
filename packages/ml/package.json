@@ -1,0 +1,24 @@
+{
+  "name": "bundle-clusterizer",
+  "version": "<%= VERSION %>",
+  "description": "Clusterizes bundles based on an aggregated data",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+<%= REPO_URL %>"
+  },
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
+  "author": "Minko Gechev <mgechev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "<%= REPO_URL %>/issues"
+  },
+  "homepage": "<%= REPO_URL %>#readme",
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+  }
+}

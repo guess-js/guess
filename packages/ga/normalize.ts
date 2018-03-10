@@ -1,4 +1,4 @@
-import { Connection } from '../store';
+import { Connection } from '../common/interfaces';
 
 export const matchRoute = (route: string, declaration: string): boolean => {
   const routeParts: string[] = route.split('/');

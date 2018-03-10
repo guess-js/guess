@@ -1,5 +1,5 @@
-import { clusterize } from './ml/clusterize';
-import { dbStorage, Graph } from './store/store';
+import { clusterize } from './ml';
+import { dbStorage } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
 

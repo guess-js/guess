@@ -1,7 +1,6 @@
 import { getClient, Period } from './client';
 import { normalize } from './normalize';
-import { Connection, Graph } from '../store';
-import { dbStorage } from '../store';
+import { Graph } from '../common/interfaces';
 
 const PageSize = 1000;
 
@@ -13,16 +12,19 @@ async function fetchData(
   period: Period
 ) {
   const client = getClient(jwtClient, PageSize, viewId, period);
-  const db = dbStorage(viewId.toString());
+  const graph: Graph = {};
   for await (const val of client()) {
     if (val.error) {
       throw val.error;
     }
     const result = val.report;
-    if (result) {
-      await db.addNodes(normalize(result.data, formatter, routeDeclarations));
-    }
+    normalize(result.data, formatter, routeDeclarations).forEach((n: any) => {
+      const r = graph[n.from] || {};
+      r[n.to] = n.weight + (r[n.to] || 0);
+      graph[n.from] = r;
+    });
   }
+  return graph;
 }
 
 const noop = (r: string) => r;
@@ -50,11 +52,7 @@ export function fetch(
         reject(err);
         return;
       }
-      fetchData(routeDeclarations, formatter, jwtClient, viewId, period).then(() => {
-        dbStorage(key)
-          .all()
-          .then(resolve, reject);
-      }, reject);
+      fetchData(routeDeclarations, formatter, jwtClient, viewId, period).then(resolve, reject);
     });
   });
 }

@@ -1,8 +1,6 @@
-import { RoutingModule } from './interfaces';
 import { parseRoutes as ngParseRoutes } from './ng';
 import { parseRoutes as reactParseRoutes } from './react';
-
-export * from './interfaces';
+import { RoutingModule } from '../common/interfaces';
 
 export enum ProjectType {
   Angular,

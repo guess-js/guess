@@ -1,0 +1,27 @@
+{
+  "name": "ga-fetcher",
+  "version": "<%= VERSION %>",
+  "description": "Fetch structured data from Google Analytics",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+<%= REPO_URL %>"
+  },
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
+  "author": "Minko Gechev <mgechev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "<%= REPO_URL %>/issues"
+  },
+  "homepage": "<%= REPO_URL %>#readme",
+  "dependencies": {
+    "googleapis": "^26.0.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+  }
+}

@@ -1,5 +1,5 @@
 import { BundleTree } from '../bundle-tree';
-import { Module } from '../clusterize';
+import { Module } from '../../common/interfaces';
 
 describe(BundleTree.name, () => {
   it('should index modules', () => {

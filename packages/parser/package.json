@@ -1,0 +1,33 @@
+{
+  "name": "route-parser",
+  "version": "<%= VERSION %>",
+  "description": "Finds the route declarations in your application.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+<%= REPO_URL %>"
+  },
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
+  "author": "Minko Gechev <mgechev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "<%= REPO_URL %>/issues"
+  },
+  "homepage": "<%= REPO_URL %>#readme",
+  "dependencies": {
+    "@angular/compiler": "^5.2.6",
+    "@angular/compiler-cli": "^5.2.6",
+    "@angular/core": "^5.2.6",
+    "ngast": "^0.1.3",
+    "rxjs": "^5.5.6",
+    "zone.js": "^0.8.20",
+    "typescript": "~2.5.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+  }
+}

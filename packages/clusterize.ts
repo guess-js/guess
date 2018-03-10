@@ -1,10 +1,11 @@
-import { clusterize } from './ml/clusterize';
-import { getLazyRoutes, RoutingModule, ProjectType } from './parser';
-import { dbStorage, Graph } from './store/store';
+import { clusterize } from './ml';
+import { getLazyRoutes, ProjectType } from './parser';
+import { dbStorage } from './store/store';
 import * as minimist from 'minimist';
 import chalk from 'chalk';
 
 import * as meow from 'meow';
+import { Graph, RoutingModule } from './common/interfaces';
 
 const error = (s: string) => {
   console.error(chalk.red(s));

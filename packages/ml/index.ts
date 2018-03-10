@@ -1,7 +1,7 @@
 import { tarjan, NeighborListGraph } from './graph/tarjan';
-import { Graph } from './../store/store';
 import { BundleNode, BundleTree } from './bundle-tree';
 import { neighborsList } from './graph/neighbors-list';
+import { Graph, Module } from '../common/interfaces';
 
 const trimGraph = (graph: Graph) => {
   let minEdge = Infinity;
@@ -82,11 +82,6 @@ const normalizeEntryPoints = (
     normalizeEntryPoints(cluster, tree, pathCluster, entryPointModule);
   }
 };
-
-export interface Module {
-  modulePath: string;
-  parentModulePath: string;
-}
 
 export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Cluster | Clusters => {
   if (n <= 0) {
