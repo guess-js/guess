@@ -3,6 +3,7 @@ import { Graph } from '../store/store';
 import { Module } from '../ml/clusterize';
 import RuntimePrefetchPlugin, { RuntimePrefetchConfig } from './runtime';
 import ClusterizeChunksPlugin from './build';
+import { fetch } from '../ga';
 
 export interface RouteProvider {
   (): RoutingModule[];
@@ -26,9 +27,11 @@ export interface RuntimeConfig {
 
 export interface GAMLPluginConfig {
   runtime?: false | RuntimeConfig;
-  build?: false | BuildConfig;
+  build: false | BuildConfig;
   routeProvider?: RouteProvider;
-  data: Graph;
+  credentials: { key: string; viewId: string };
+  metric?: string;
+  period: { start: string; end: string };
 }
 
 class MLPlugin {}
@@ -38,28 +41,9 @@ export const defaultRouteProvider: RouteProvider = undefined;
 export class GAMLPlugin {
   private _runtime: RuntimePrefetchPlugin;
   private _build: ClusterizeChunksPlugin;
+  private _routes: RoutingModule[];
 
-  constructor(private _config: GAMLPluginConfig) {
-    const runtime = this._config.runtime;
-    const routeProvider = this._config.routeProvider || defaultRouteProvider;
-    if (runtime !== false) {
-      this._runtime = new RuntimePrefetchPlugin({
-        data: this._config.data,
-        basePath: runtime.basePath,
-        routeProvider
-      });
-    }
-    const build = this._config.build;
-    const routes = routeProvider();
-    if (build !== false) {
-      this._build = new ClusterizeChunksPlugin({
-        totalChunks: build.totalClusters,
-        algorithm: build.algorithm,
-        moduleGraph: toBundleGraph(this._config.data, routes),
-        modules: routeProvider()
-      });
-    }
-  }
+  constructor(private _config: GAMLPluginConfig) {}
 
   apply(compiler: any) {
     if (this._build) {
@@ -67,6 +51,42 @@ export class GAMLPlugin {
     }
     if (this._runtime) {
       this._runtime.apply(compiler);
+    }
+  }
+
+  private _fetchData() {
+    const { key, viewId } = this._config.credentials;
+    const { start, end } = this._config.period;
+    this._routes = (this._config.routeProvider || defaultRouteProvider)();
+    fetch(
+      key,
+      viewId,
+      {
+        startDate: new Date(start),
+        endDate: new Date(end)
+      },
+      r => r.replace('/app', ''),
+      this._routes.map(r => r.path)
+    );
+  }
+
+  private _init(data: Graph) {
+    const runtime = this._config.runtime;
+    if (runtime !== false) {
+      this._runtime = new RuntimePrefetchPlugin({
+        data,
+        basePath: runtime ? runtime.basePath : '/',
+        routes: this._routes
+      });
+    }
+    const build = this._config.build;
+    if (build !== false) {
+      this._build = new ClusterizeChunksPlugin({
+        totalChunks: build.totalClusters,
+        algorithm: build.algorithm,
+        moduleGraph: toBundleGraph(data, this._routes),
+        modules: this._routes
+      });
     }
   }
 }

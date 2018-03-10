@@ -1,4 +1,4 @@
-import { getRoutes, RoutingModule, ProjectType } from './parser';
+import { getLazyRoutes, RoutingModule, ProjectType } from './parser';
 import chalk from 'chalk';
 import { fetch } from './ga';
 
@@ -81,7 +81,7 @@ if (aggregate && !project) {
 
 let applicationRoutes: RoutingModule[] = [];
 if (aggregate) {
-  applicationRoutes = getRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
+  applicationRoutes = getLazyRoutes(project, type === 'angular' ? ProjectType.Angular : ProjectType.React);
 }
 
 fetch(

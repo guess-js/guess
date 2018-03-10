@@ -14,9 +14,9 @@ export interface PrefetchConfig {
 
 export interface RuntimePrefetchConfig {
   data: Graph;
-  routeProvider?: RouteProvider;
   basePath?: string;
   prefetchConfig?: PrefetchConfig;
+  routes: RoutingModule[];
 }
 
 export default class RuntimePrefetchPlugin {
@@ -38,9 +38,8 @@ export default class RuntimePrefetchPlugin {
         }
       });
 
-      const routeProvider = this._config.routeProvider || defaultRouteProvider;
       const newConfig = {};
-      const graph = buildMap(routeProvider(), this._config.data);
+      const graph = buildMap(this._config.routes, this._config.data);
       Object.keys(graph).forEach(c => {
         newConfig[c] = [];
         graph[c].forEach(p => {
