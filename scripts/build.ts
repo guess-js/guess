@@ -24,13 +24,12 @@ $ npm run build -- --publish true
 );
 
 const Confirm = require('prompt-confirm');
-const template = require('lodash.template');
 
 const publish = (path: string) => {
   console.log(execSync(`cd ${path} && npm publish .`).toString());
 };
 
-const packageNames = {
+const packageNames: { [key: string]: boolean } = {
   '@mlx/ga': true,
   '@mlx/parser': true,
   '@mlx/clusterize': true,
@@ -52,7 +51,7 @@ const build = (hook = (path: string) => {}) => {
     const deps = packageJson.dependencies || {};
     Object.keys(deps).forEach(d => {
       if (packageNames[d]) {
-        packageNames[d] = config.version;
+        deps[d] = config.version;
       }
     });
 
