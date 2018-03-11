@@ -1,20 +1,29 @@
 {
   "name": "@mlx/ga",
-  "version": "<%= version %>",
+  "version": "0.0.8",
   "description": "Fetch structured data from Google Analytics",
   "main": "ga/index.js",
   "types": "ga/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+<%= repository %>"
+    "url": "git+https://github.com/mgechev/mlx"
   },
-  "keywords": ["bundling", "webpack", "ml", "ai", "google analytics", "ga", "analytics", "recommendation"],
+  "keywords": [
+    "bundling",
+    "webpack",
+    "ml",
+    "ai",
+    "google analytics",
+    "ga",
+    "analytics",
+    "recommendation"
+  ],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "<%= repository %>/issues"
+    "url": "https://github.com/mgechev/mlx/issues"
   },
-  "homepage": "<%= repository %>#readme",
+  "homepage": "https://github.com/mgechev/mlx#readme",
   "dependencies": {
     "googleapis": "^26.0.1"
   },
@@ -23,6 +32,13 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

@@ -30,6 +30,13 @@ const publish = (path: string) => {
   console.log(execSync(`cd ${path} && npm publish .`).toString());
 };
 
+const packageNames = {
+  '@mlx/ga': true,
+  '@mlx/parser': true,
+  '@mlx/clusterize': true,
+  '@mlx/webpack': true
+};
+
 const build = (hook = (path: string) => {}) => {
   const Packages = ['ga', 'clusterize', 'parser', 'webpack'];
   const PackagesDir = join(process.cwd(), 'packages');
@@ -39,11 +46,21 @@ const build = (hook = (path: string) => {}) => {
     const path = join(PackagesDir, p);
     console.log(execSync(`cd ${path} && rm -rf dist && webpack`).toString());
     const packageJsonPath = join(path, 'package.json');
-    const packageJson = fs.readFileSync(packageJsonPath).toString();
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
+    packageJson.version = config.version;
+
+    const deps = packageJson.dependencies || {};
+    Object.keys(deps).forEach(d => {
+      if (packageNames[d]) {
+        packageNames[d] = config.version;
+      }
+    });
+
+    const packageJsonReplacedContent = JSON.stringify(packageJson, null, 2);
+    fs.writeFileSync(packageJsonPath, packageJsonReplacedContent);
 
     const publishPath = join(path, 'dist');
-
-    fs.writeFileSync(join(publishPath, 'package.json'), template(packageJson)(config));
+    fs.writeFileSync(join(publishPath, 'package.json'), packageJsonReplacedContent);
 
     hook(publishPath);
   }

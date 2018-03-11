@@ -1,23 +1,30 @@
 {
   "name": "@mlx/webpack",
-  "version": "<%= version %>",
+  "version": "0.0.8",
   "description": "Webpack plugins for the Machine Learning-driven bundler",
   "main": "webpack/index.js",
   "types": "webpack/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+<%= repository %>"
+    "url": "git+https://github.com/mgechev/mlx"
   },
-  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
+  "keywords": [
+    "bundling",
+    "webpack",
+    "ml",
+    "ai",
+    "analytics",
+    "recommendation"
+  ],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "<%= repository %>/issues"
+    "url": "https://github.com/mgechev/mlx/issues"
   },
-  "homepage": "<%= repository %>#readme",
+  "homepage": "https://github.com/mgechev/mlx#readme",
   "dependencies": {
-    "@mlx/parser": "<% version %>",
-    "@mlx/clusterize": "<% version %>",
+    "@mlx/parser": "0.0.7",
+    "@mlx/clusterize": "0.0.7",
     "lodash.template": "^4.4.0"
   },
   "jest": {
@@ -25,6 +32,13 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }
