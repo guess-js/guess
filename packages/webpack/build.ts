@@ -1,5 +1,5 @@
 import { Graph } from '../common/interfaces';
-import { clusterize } from '@mlx/clusterizer';
+import { clusterize } from '@mlx/clusterize';
 import { ClusterizationAlgorithm, Cluster, Clusters, Module } from './interfaces';
 
 export interface ClusterizeChunksConfig {

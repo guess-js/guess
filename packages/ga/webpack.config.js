@@ -3,7 +3,8 @@ module.exports = {
   entry: './index.ts',
   target: 'node',
   output: {
-    filename: './dist/index.js'
+    filename: './dist/index.js',
+    libraryTarget: 'umd'
   },
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.

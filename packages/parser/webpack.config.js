@@ -3,7 +3,7 @@ module.exports = {
   entry: './index.ts',
   target: 'node',
   output: {
-    filename: './dist/parser/index.js',
+    filename: './dist/index.js',
     libraryTarget: 'umd'
   },
   resolve: {
