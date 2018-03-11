@@ -1,6 +1,6 @@
 {
   "name": "@mlx/webpack",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Webpack plugins for the Machine Learning-driven bundler",
   "main": "webpack/index.js",
   "types": "webpack/index.d.ts",
@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/mgechev/mlx#readme",
   "dependencies": {
-    "@mlx/parser": "0.0.9",
-    "@mlx/clusterize": "0.0.9",
+    "@mlx/parser": "0.0.10",
+    "@mlx/clusterize": "0.0.10",
     "lodash.template": "^4.4.0"
   },
   "jest": {

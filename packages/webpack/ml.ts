@@ -17,7 +17,7 @@ export interface RuntimeConfig {
   basePath: string;
 }
 
-export interface PageGraphMLPluginConfig {
+export interface MLPluginConfig {
   debug?: boolean;
   runtime?: false | RuntimeConfig;
   build: false | BuildConfig;
@@ -47,11 +47,11 @@ const defaultRouteProvider = (): RouteProvider => {
   return () => parseRoutes(tsconfigPath, type);
 };
 
-export class PageGraphMLPlugin {
+export class MLPlugin {
   private _runtime: RuntimePrefetchPlugin;
   private _build: ClusterizeChunksPlugin;
 
-  constructor(private _config: PageGraphMLPluginConfig) {
+  constructor(private _config: MLPluginConfig) {
     const runtime = _config.runtime;
     const routeProvider = _config.routeProvider || defaultRouteProvider();
     const routes = routeProvider();
