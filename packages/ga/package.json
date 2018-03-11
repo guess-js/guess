@@ -2,7 +2,8 @@
   "name": "@mlx/ga",
   "version": "<%= version %>",
   "description": "Fetch structured data from Google Analytics",
-  "main": "index.js",
+  "main": "ga/index.js",
+  "types": "ga/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+<%= repository %>"

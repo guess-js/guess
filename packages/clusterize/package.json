@@ -2,7 +2,8 @@
   "name": "@mlx/clusterize",
   "version": "<%= version %>",
   "description": "Clusterizes bundles based on an aggregated data",
-  "main": "index.js",
+  "main": "clusterize/index.js",
+  "types": "clusterize/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+<%= repository %>"

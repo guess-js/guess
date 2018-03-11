@@ -1,8 +1,9 @@
 #!/bin/bash
 
-cd ../packages/node_modules
-rm -rf *
-mkdir \@mlx && cd \@mlx
-ln -s ../../parser/dist/parser parser
-ln -s ../../clusterize/dist/clusterize clusterize
-ln -s ../../ga/dist/ga ga
+rm -rf ./packages/node_modules
+mkdir ./packages/node_modules && mkdir ./packages/node_modules/\@mlx
+
+
+ln -s $(pwd)/packages/parser/dist $(pwd)/packages/node_modules/\@mlx/parser
+ln -s $(pwd)/packages/clusterize/dist $(pwd)/packages/node_modules/\@mlx/clusterize
+ln -s $(pwd)/packages/ga/dist $(pwd)/packages/node_modules/\@mlx/ga

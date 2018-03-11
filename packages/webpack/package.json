@@ -2,7 +2,8 @@
   "name": "@mlx/webpack",
   "version": "<%= version %>",
   "description": "Webpack plugins for the Machine Learning-driven bundler",
-  "main": "index.js",
+  "main": "webpack/index.js",
+  "types": "webpack/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+<%= repository %>"

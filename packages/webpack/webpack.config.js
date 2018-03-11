@@ -1,9 +1,8 @@
 module.exports = {
-  devtool: 'inline-source-map',
   entry: './index.ts',
   target: 'node',
   output: {
-    filename: './dist/index.js',
+    filename: './dist/webpack/index.js',
     libraryTarget: 'umd'
   },
   externals: [/^(@|\w).*$/i],

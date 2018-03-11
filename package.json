@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watch",
-    "build": "ts-node scripts/build.ts"
+    "build": "ts-node scripts/build.ts",
+    "sym": "./scripts/symlinks"
   },
   "repository": {
     "type": "git",

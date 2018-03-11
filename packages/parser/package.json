@@ -2,7 +2,8 @@
   "name": "@mlx/parser",
   "version": "<%= version %>",
   "description": "Finds the route declarations in your application.",
-  "main": "index.js",
+  "main": "parser/index.js",
+  "types": "parser/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+<%= repository %>"

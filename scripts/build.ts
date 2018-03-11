@@ -31,7 +31,7 @@ const publish = (path: string) => {
 };
 
 const build = (hook = (path: string) => {}) => {
-  const Packages = ['ga', 'clusterize', 'webpack', 'parser'];
+  const Packages = ['ga', 'clusterize', 'parser', 'webpack'];
   const PackagesDir = join(process.cwd(), 'packages');
   const config = JSON.parse(fs.readFileSync(join('config.json')).toString());
 
