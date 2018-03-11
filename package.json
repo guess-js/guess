@@ -6,13 +6,21 @@
   "scripts": {
     "c": "ts-node lib/index.ts fetch -c ../credentials.json -v 128035004 -s 2016-1-1 -e 2018-2-24 -a true",
     "start": "ts-node lib/index.ts report -p 3001",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "build": "ts-node scripts/build.ts"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mgechev/mlx.git"
   },
-  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
+  "keywords": [
+    "bundling",
+    "webpack",
+    "ml",
+    "ai",
+    "analytics",
+    "recommendation"
+  ],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -44,6 +52,7 @@
     "@types/minimist": "^1.2.0",
     "@types/node": "^9.4.6",
     "jest": "^22.4.2",
+    "prompt-confirm": "^1.2.0",
     "raw-loader": "^0.5.1",
     "ts-jest": "^22.4.1",
     "ts-loader": "^3.5.0",
@@ -56,6 +65,13 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

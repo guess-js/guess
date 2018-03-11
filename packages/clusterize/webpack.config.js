@@ -2,7 +2,7 @@ module.exports = {
   devtool: 'inline-source-map',
   entry: './index.ts',
   output: {
-    filename: './dist/ml/index.js',
+    filename: './dist/clusterize/index.js',
     libraryTarget: 'umd'
   },
   resolve: {
