@@ -16,7 +16,8 @@
   "homepage": "<%= repository %>#readme",
   "dependencies": {
     "@mlx/parser": "<% version %>",
-    "@mlx/clusterize": "<% version %>"
+    "@mlx/clusterize": "<% version %>",
+    "lodash.template": "^4.4.0"
   },
   "jest": {
     "transform": {
