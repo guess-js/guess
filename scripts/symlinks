@@ -1,9 +1,0 @@
-#!/bin/bash
-
-rm -rf ./packages/node_modules
-mkdir ./packages/node_modules && mkdir ./packages/node_modules/\@mlx
-
-
-ln -s $(pwd)/packages/parser/dist $(pwd)/packages/node_modules/\@mlx/parser
-ln -s $(pwd)/packages/clusterize/dist $(pwd)/packages/node_modules/\@mlx/clusterize
-ln -s $(pwd)/packages/ga/dist $(pwd)/packages/node_modules/\@mlx/ga
