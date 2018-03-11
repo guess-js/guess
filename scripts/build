@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -a packages=("ga" "ml" "webpack" "parser")
+declare -a packages=("ga" "clusterizer" "webpack" "parser")
 
 cd ..
 

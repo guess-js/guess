@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd ../packages/node_modules
+rm -rf *
+mkdir \@mlx && cd \@mlx
+ln -s ../../parser/dist/parser parser
+ln -s ../../clusterizer/dist/clusterizer clusterizer
+ln -s ../../ga/dist/ga ga

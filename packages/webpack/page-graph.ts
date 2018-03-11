@@ -1,4 +1,4 @@
-import { ProjectType, parseRoutes } from 'route-parser';
+import { ProjectType, parseRoutes } from '@mlx/parser';
 
 import { Graph, RoutingModule } from '../common/interfaces';
 import { RouteProvider, ClusterizationAlgorithm } from './interfaces';

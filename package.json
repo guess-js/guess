@@ -1,5 +1,5 @@
 {
-  "name": "smarty",
+  "name": "mlx",
   "version": "0.0.0",
   "description": "Smart bundling",
   "main": "index.js",
@@ -10,15 +10,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mgechev/smarty.git"
+    "url": "git+https://github.com/mgechev/mlx.git"
   },
   "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mgechev/smarty/issues"
+    "url": "https://github.com/mgechev/mlx/issues"
   },
-  "homepage": "https://github.com/mgechev/smarty#readme",
+  "homepage": "https://github.com/mgechev/mlx#readme",
   "dependencies": {
     "@angular/compiler": "^5.2.6",
     "@angular/compiler-cli": "^5.2.6",
