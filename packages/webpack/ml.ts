@@ -3,24 +3,25 @@ import { ProjectType, parseRoutes } from '@mlx/parser';
 import { Graph, RoutingModule } from '../common/interfaces';
 import { RouteProvider, ClusterizationAlgorithm } from './interfaces';
 
-import { RuntimePrefetchPlugin, RuntimePrefetchConfig } from './runtime';
+import { RuntimePrefetchPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
 import { ClusterizeChunksPlugin } from './build';
 
 import { existsSync, readFileSync } from 'fs';
 
 export interface BuildConfig {
-  minChunks: number;
+  minChunks?: number;
   algorithm?: ClusterizationAlgorithm;
 }
 
 export interface RuntimeConfig {
-  basePath: string;
+  basePath?: string;
+  prefetchConfig?: PrefetchConfig;
 }
 
 export interface MLPluginConfig {
   debug?: boolean;
   runtime?: false | RuntimeConfig;
-  build: false | BuildConfig;
+  build?: false | BuildConfig;
   routeProvider?: RouteProvider;
   data: Graph;
 }
@@ -59,6 +60,7 @@ export class MLPlugin {
       this._runtime = new RuntimePrefetchPlugin({
         data: _config.data,
         basePath: runtime ? runtime.basePath : '/',
+        prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
         debug: _config.debug,
         routes
       });
@@ -66,8 +68,8 @@ export class MLPlugin {
     const build = this._config.build;
     if (build !== false) {
       this._build = new ClusterizeChunksPlugin({
-        minChunks: build.minChunks,
-        algorithm: build.algorithm,
+        minChunks: build ? build.minChunks : undefined,
+        algorithm: build ? build.algorithm : undefined,
         moduleGraph: toBundleGraph(this._config.data, routes, this._config.debug),
         debug: _config.debug,
         modules: routes

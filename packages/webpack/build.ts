@@ -16,6 +16,7 @@ export class ClusterizeChunksPlugin {
 
   constructor(config: ClusterizeChunksConfig) {
     this._debug = !!config.debug;
+    const minChunks = config.minChunks || Math.ceil(config.modules.length * 0.3);
     if (config.algorithm) {
       this._clusters = config.algorithm(config.moduleGraph, config.modules, config.minChunks);
     } else {

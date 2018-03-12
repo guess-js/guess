@@ -1,6 +1,6 @@
 {
   "name": "@mlx/ga",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Fetch structured data from Google Analytics",
   "main": "ga/index.js",
   "types": "ga/index.d.ts",
