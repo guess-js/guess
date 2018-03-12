@@ -16,11 +16,11 @@ export class ClusterizeChunksPlugin {
 
   constructor(config: ClusterizeChunksConfig) {
     this._debug = !!config.debug;
-    const minChunks = config.minChunks || Math.ceil(config.modules.length * 0.3);
+    const minChunks = config.minChunks || Math.ceil(config.modules.length * 0.15);
     if (config.algorithm) {
-      this._clusters = config.algorithm(config.moduleGraph, config.modules, config.minChunks);
+      this._clusters = config.algorithm(config.moduleGraph, config.modules, minChunks);
     } else {
-      this._clusters = clusterize(config.moduleGraph, config.modules, config.minChunks);
+      this._clusters = clusterize(config.moduleGraph, config.modules, minChunks);
     }
     this._debug && console.debug('Clusters', this._clusters);
   }
