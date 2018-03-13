@@ -1,6 +1,6 @@
 {
   "name": "@mlx/clusterize",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Clusterizes bundles based on an aggregated data",
   "main": "clusterize/index.js",
   "types": "clusterize/index.d.ts",
