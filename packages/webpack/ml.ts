@@ -1,7 +1,7 @@
 import { ProjectType, parseRoutes } from '@mlx/parser';
 
 import { Graph, RoutingModule } from '../common/interfaces';
-import { RouteProvider, ClusterizationAlgorithm } from './interfaces';
+import { RouteProvider, ClusteringAlgorithm } from './interfaces';
 
 import { RuntimePrefetchPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
 import { ClusterizeChunksPlugin } from './build';
@@ -10,7 +10,7 @@ import { existsSync, readFileSync } from 'fs';
 
 export interface BuildConfig {
   minChunks?: number;
-  algorithm?: ClusterizationAlgorithm;
+  algorithm?: ClusteringAlgorithm;
 }
 
 export interface RuntimeConfig {

@@ -1,12 +1,12 @@
 import { Graph } from '../common/interfaces';
 import { clusterize } from '@mlx/clusterize';
-import { ClusterizationAlgorithm, Cluster, Clusters, Module } from './interfaces';
+import { ClusteringAlgorithm, Cluster, Clusters, Module } from './interfaces';
 
 export interface ClusterizeChunksConfig {
   debug?: boolean;
   moduleGraph: Graph;
   modules: Module[];
-  algorithm: ClusterizationAlgorithm;
+  algorithm: ClusteringAlgorithm;
   minChunks: number;
 }
 

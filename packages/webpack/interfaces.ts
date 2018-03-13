@@ -18,7 +18,7 @@ export interface RuntimeMap {
 export type Cluster = string[];
 export type Clusters = Cluster[];
 
-export interface ClusterizationAlgorithm {
+export interface ClusteringAlgorithm {
   (graph: Graph, modules: Module[], totalClusters: number): Clusters;
 }
 
