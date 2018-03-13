@@ -1,4 +1,6 @@
-(function(history, basepath, graph, thresholds) {
+(function(history, basePath, graph, thresholds) {
+  const preFetched = {};
+  const parentElement = document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
   const polyfillConnection = {
     effectiveType: '3g'
   };
@@ -33,14 +35,18 @@
     if (!current) {
       return;
     }
-    const c = navigator.connection || polyfillConnection
+    const c = navigator.connection || polyfillConnection;
     for (const route of graph[current]) {
-      if (route.probability < thresholds[c.effectiveType]) {
+      if (route.probability < thresholds[c.effectiveType] || preFetched[route.chunk]) {
         continue;
       }
       if (route.chunk) {
         console.log('Pre-fetching', route.chunk);
-        import(basepath + route.chunk);
+        preFetched[route.chunk] = true;
+        const link = document.createElement('link');
+        link.setAttribute('rel', 'prefetch');
+        link.setAttribute('href', basePath + route.chunk);
+        parentElement.appendChild(link);
       }
     }
   };
