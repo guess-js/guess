@@ -4,7 +4,7 @@ import { Graph, RoutingModule } from '../common/interfaces';
 import { RouteProvider, ClusteringAlgorithm } from './interfaces';
 
 import { RuntimePrefetchPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
-import { ClusterizeChunksPlugin } from './build';
+import { ClusterChunksPlugin } from './build';
 
 import { existsSync, readFileSync } from 'fs';
 
@@ -50,7 +50,7 @@ const defaultRouteProvider = (): RouteProvider => {
 
 export class MLPlugin {
   private _runtime: RuntimePrefetchPlugin;
-  private _build: ClusterizeChunksPlugin;
+  private _build: ClusterChunksPlugin;
 
   constructor(private _config: MLPluginConfig) {
     const runtime = _config.runtime;
@@ -67,7 +67,7 @@ export class MLPlugin {
     }
     const build = this._config.build;
     if (build !== false) {
-      this._build = new ClusterizeChunksPlugin({
+      this._build = new ClusterChunksPlugin({
         minChunks: build ? build.minChunks : undefined,
         algorithm: build ? build.algorithm : undefined,
         moduleGraph: toBundleGraph(this._config.data, routes, this._config.debug),

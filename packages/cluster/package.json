@@ -1,9 +1,9 @@
 {
-  "name": "@mlx/clusterize",
+  "name": "@mlx/cluster",
   "version": "0.0.14",
-  "description": "Clusterizes bundles based on an aggregated data",
-  "main": "clusterize/index.js",
-  "types": "clusterize/index.d.ts",
+  "description": "Clusters chunks based on an aggregated data",
+  "main": "cluster/index.js",
+  "types": "cluster/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mgechev/mlx"

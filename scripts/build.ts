@@ -32,12 +32,12 @@ const publish = (path: string) => {
 const packageNames: { [key: string]: boolean } = {
   '@mlx/ga': true,
   '@mlx/parser': true,
-  '@mlx/clusterize': true,
+  '@mlx/cluster': true,
   '@mlx/webpack': true
 };
 
 const build = (hook = (path: string) => {}) => {
-  const Packages = ['ga', 'clusterize', 'parser', 'webpack'];
+  const Packages = ['ga', 'cluster', 'parser', 'webpack'];
   const PackagesDir = join(process.cwd(), 'packages');
   const config = JSON.parse(fs.readFileSync(join('config.json')).toString());
 

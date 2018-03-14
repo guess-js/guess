@@ -59,7 +59,7 @@ const normalizeEntryPoints = (
       if (a === b) {
         continue;
       }
-      // We can keep sibings in the same chunk
+      // We can keep siblings in the same chunk
       const nodeA = tree.find(entryPointModule[a].modulePath);
       const nodeB = tree.find(entryPointModule[b].modulePath);
       if (nodeA.parent === nodeB.parent) {
@@ -83,7 +83,7 @@ const normalizeEntryPoints = (
   }
 };
 
-export const clusterize = (bundleGraph: Graph, modules: Module[], n: number): Clusters => {
+export const cluster = (bundleGraph: Graph, modules: Module[], n: number): Clusters => {
   if (n <= 0) {
     throw new Error('The number of bundles should be a positive number');
   }

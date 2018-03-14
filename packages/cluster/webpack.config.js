@@ -1,7 +1,7 @@
 module.exports = {
   entry: './index.ts',
   output: {
-    filename: './dist/clusterize/index.js',
+    filename: './dist/cluster/index.js',
     libraryTarget: 'umd'
   },
   externals: [/^(@|\w).*$/i],

@@ -12,7 +12,7 @@
     "lib": ["es2015", "esnext", "dom"],
     "paths": {
       "@mlx/parser": ["parser"],
-      "@mlx/clusterize": ["clusterize"]
+      "@mlx/cluster": ["cluster"]
     }
   },
   "files": ["index.ts"],

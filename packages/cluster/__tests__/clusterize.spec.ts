@@ -1,4 +1,4 @@
-import { clusterize } from '..';
+import { cluster } from '..';
 import { Graph, Module } from '../../common/interfaces';
 
 const g11: Graph = {
@@ -82,15 +82,15 @@ const m2: Module[] = [
   }
 ];
 
-describe('clusterize', () => {
+describe('cluster', () => {
   it('should work with 1 cluster', () => {
-    const res = clusterize(g11, m1, 1);
+    const res = cluster(g11, m1, 1);
     expect(res.length).toBe(1);
     expect(res[0].length).toBe(3);
   });
 
   it('should work with n cluster for n bundles', () => {
-    const res = clusterize(g11, m1, 3);
+    const res = cluster(g11, m1, 3);
     expect(res.length).toBe(3);
     expect(res[0].length).toBe(1);
     expect(res[1].length).toBe(1);
@@ -99,21 +99,21 @@ describe('clusterize', () => {
 
   describe('arbitrary cluster number', () => {
     it('should combine siblings', () => {
-      const res = clusterize(g11, m1, 2);
+      const res = cluster(g11, m1, 2);
       expect(res.length).toBe(2);
       expect(res[1]).toContain('bar.js');
       expect(res[1]).toContain('baz.js');
     });
 
     it('should combine parent and child', () => {
-      const res = clusterize(g12, m1, 2);
+      const res = cluster(g12, m1, 2);
       expect(res.length).toBe(2);
       expect(res[0]).toContain('foo.js');
       expect(res[0]).toContain('bar.js');
     });
 
     it('should work with multi-level structure', () => {
-      const res = clusterize(g21, m2, 2);
+      const res = cluster(g21, m2, 2);
       expect(res.length).toBe(2);
       expect(res[0].length).toBe(2);
       expect(res[0]).toContain('foo.js');

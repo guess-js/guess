@@ -1,8 +1,8 @@
 import { Graph } from '../common/interfaces';
-import { clusterize } from '@mlx/clusterize';
+import { cluster } from '@mlx/cluster';
 import { ClusteringAlgorithm, Cluster, Clusters, Module } from './interfaces';
 
-export interface ClusterizeChunksConfig {
+export interface ClusterChunksConfig {
   debug?: boolean;
   moduleGraph: Graph;
   modules: Module[];
@@ -10,17 +10,17 @@ export interface ClusterizeChunksConfig {
   minChunks: number;
 }
 
-export class ClusterizeChunksPlugin {
+export class ClusterChunksPlugin {
   private _clusters: Clusters;
   private _debug: boolean;
 
-  constructor(config: ClusterizeChunksConfig) {
+  constructor(config: ClusterChunksConfig) {
     this._debug = !!config.debug;
     const minChunks = config.minChunks || Math.ceil(config.modules.length * 0.15);
     if (config.algorithm) {
       this._clusters = config.algorithm(config.moduleGraph, config.modules, minChunks);
     } else {
-      this._clusters = clusterize(config.moduleGraph, config.modules, minChunks);
+      this._clusters = cluster(config.moduleGraph, config.modules, minChunks);
     }
     this._debug && console.debug('Clusters', this._clusters);
   }
@@ -64,7 +64,7 @@ export class ClusterizeChunksPlugin {
           for (let j = i + 1; j < chunks.length; j += 1) {
             const b = chunks[j];
             if (inSameCluster(a, b)) {
-              if (a.integrate(b, 'clusterize-chunks')) {
+              if (a.integrate(b, 'cluster-chunks')) {
                 chunks.splice(j--, 1);
                 this._debug && console.debug('Merged chunks. Total: ', chunks.length);
               } else {
