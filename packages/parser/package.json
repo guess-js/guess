@@ -1,6 +1,6 @@
 {
   "name": "@mlx/parser",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "description": "Finds the route declarations in your application.",
   "main": "parser/index.js",
   "types": "parser/index.d.ts",
