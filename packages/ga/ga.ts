@@ -35,7 +35,7 @@ export interface FetchConfig {
   viewId: string;
   period: Period;
   formatter?: (route: string) => string;
-  routeDeclarations?: string[];
+  routes?: string[];
   expression?: string;
 }
 
@@ -57,7 +57,7 @@ export function fetch(config: FetchConfig): Promise<Graph> {
         return;
       }
       fetchData(
-        config.routeDeclarations || [],
+        config.routes || [],
         config.formatter || noop,
         jwtClient,
         config.viewId,

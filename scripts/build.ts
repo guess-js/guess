@@ -55,11 +55,14 @@ const build = (hook = (path: string) => {}) => {
       }
     });
 
+    const readme = fs.readFileSync(join(path, 'README.md')).toString();
+
     const packageJsonReplacedContent = JSON.stringify(packageJson, null, 2);
     fs.writeFileSync(packageJsonPath, packageJsonReplacedContent);
 
     const publishPath = join(path, 'dist');
     fs.writeFileSync(join(publishPath, 'package.json'), packageJsonReplacedContent);
+    fs.writeFileSync(join(publishPath, 'README.md'), readme);
 
     hook(publishPath);
   }
