@@ -1,6 +1,6 @@
 {
   "name": "@mlx/cluster",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Clusters chunks based on an aggregated data",
   "main": "cluster/index.js",
   "types": "cluster/index.d.ts",

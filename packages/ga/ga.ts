@@ -3,15 +3,18 @@ import { normalize } from './normalize';
 import { Graph } from '../common/interfaces';
 
 const PageSize = 1000;
+const noop = (r: string) => r;
+const DefaultExpression = 'ga:users';
 
 async function fetchData(
   routeDeclarations: string[],
   formatter: (r: string) => string,
   jwtClient: any,
   viewId: string,
-  period: Period
+  period: Period,
+  expression: string
 ) {
-  const client = getClient(jwtClient, PageSize, viewId, period);
+  const client = getClient(jwtClient, PageSize, viewId, period, expression);
   const graph: Graph = {};
   for await (const val of client()) {
     if (val.error) {
@@ -27,22 +30,23 @@ async function fetchData(
   return graph;
 }
 
-const noop = (r: string) => r;
+export interface FetchConfig {
+  key: any;
+  viewId: string;
+  period: Period;
+  formatter?: (route: string) => string;
+  routeDeclarations?: string[];
+  expression?: string;
+}
 
-export function fetch(
-  key: any,
-  viewId: string,
-  period: Period,
-  formatter = noop,
-  routeDeclarations: string[] = []
-): Promise<Graph> {
+export function fetch(config: FetchConfig): Promise<Graph> {
   return new Promise((resolve, reject) => {
     const { google } = require('googleapis');
 
     const jwtClient = new google.auth.JWT(
-      key.client_email,
+      config.key.client_email,
       null,
-      key.private_key,
+      config.key.private_key,
       ['https://www.googleapis.com/auth/analytics.readonly'],
       null
     );
@@ -52,7 +56,14 @@ export function fetch(
         reject(err);
         return;
       }
-      fetchData(routeDeclarations, formatter, jwtClient, viewId, period).then(resolve, reject);
+      fetchData(
+        config.routeDeclarations || [],
+        config.formatter || noop,
+        jwtClient,
+        config.viewId,
+        config.period,
+        config.expression || DefaultExpression
+      ).then(resolve, reject);
     });
   });
 }

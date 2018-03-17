@@ -17,7 +17,7 @@ const formatNumber = (n: number) => (n.toString().length === 1 ? '0' + n : n);
 
 const formatDate = (d: Date) => `${d.getFullYear()}-${formatNumber(d.getMonth() + 1)}-${formatNumber(d.getDate())}`;
 
-function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, period: Period) {
+function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, period: Period, expression: string) {
   return {
     auth: jwtClient,
     resource: {
@@ -32,16 +32,26 @@ function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, 
           }
         ],
         dimensions: [{ name: 'ga:previousPagePath' }, { name: 'ga:pagePath' }],
-        metrics: [{ expression: 'ga:users' }],
-        orderBys: [{ fieldName: 'ga:users', sortOrder: 'DESCENDING' }]
+        metrics: [{ expression }],
+        orderBys: [{ fieldName: expression, sortOrder: 'DESCENDING' }]
       }
     }
   };
 }
 
-async function fetchReport(client: any, jwtClient: any, viewId: string, pageConfig: PageConfig, period: Period) {
+async function fetchReport(
+  client: any,
+  jwtClient: any,
+  viewId: string,
+  pageConfig: PageConfig,
+  period: Period,
+  expression: string
+) {
   return new Promise<AnalyticsResult>((resolve, reject) => {
-    client.reports.batchGet(requestBuilder(jwtClient, viewId, pageConfig, period), function(err: any, response: any) {
+    client.reports.batchGet(requestBuilder(jwtClient, viewId, pageConfig, period, expression), function(
+      err: any,
+      response: any
+    ) {
       if (err) {
         reject(err);
         return;
@@ -65,7 +75,7 @@ export interface ClientResult {
   report?: any;
 }
 
-export function getClient(jwtClient: any, pageSize: number, viewId: string, period: Period) {
+export function getClient(jwtClient: any, pageSize: number, viewId: string, period: Period, expression: string) {
   const { google } = require('googleapis');
   const client = google.analyticsreporting('v4');
   const pageConfig: PageConfig = {
@@ -77,7 +87,7 @@ export function getClient(jwtClient: any, pageSize: number, viewId: string, peri
     while (true) {
       const clientResult: ClientResult = {};
       try {
-        const result = await fetchReport(client, jwtClient, viewId, pageConfig, period);
+        const result = await fetchReport(client, jwtClient, viewId, pageConfig, period, expression);
         clientResult.report = result.report;
         if (result.nextPage) {
           pageConfig.pageToken = result.nextPage;

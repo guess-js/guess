@@ -68,7 +68,7 @@ export class RuntimePrefetchPlugin {
       const prefetchLogic = template(runtimeTemplate)({
         BASE_PATH: this._config.basePath || '/',
         GRAPH: JSON.stringify(newConfig),
-        THRESHOLDS: JSON.stringify(this._config.prefetchConfig || defaultPrefetchConfig)
+        THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
       });
       compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
       cb();
