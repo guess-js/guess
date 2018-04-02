@@ -144,3 +144,24 @@ I am an author that likes to build static sites using a JavaScript framework wis
 I am a lead for a large site wishing to prefetch useful next pages ahead of time. We require an easy drop-in solution (like static sites) but wish to have on-going technical consultancy and support for our integration. We ideally just consume an API that provides us everything we require.
 
 
+##Common infrastructure
+
+Where possible, we will focus on creating focused, reusable modules and libraries that can be shared across implementations.
+
+Logic for getting Google Analytics predictions for next/prev page are pieces that Minko explored in his excellent frameworks write-up and the work Addy has started with Katie. Perhaps we should generalize this piece? Could be a module that runs in both Node and the browser.
+
+
+Wiring up prefetch statements. Interesting to learn how both Minko and Kyle currently handle this problem. Is there anything here worth further generalizing? Addy wrote [https://github.com/GoogleChromeLabs/preload-webpack-plugin](https://github.com/GoogleChromeLabs/preload-webpack-plugin&sa=D&ust=1522637949826000) a while back for pre[load/fetch].
+
+Mapping predicted pages from Google Analytics API back to a router. Minko seems to have solved this problem well (or has a good shape of what this might look like). It will be interesting to learn whether those “maps” are highly framework router specific or there is something work generalizing there too.
+
+
+##Approach to predictive fetching
+
+In order to predict the next page a user is likely to visit, a solution could use the  [Google Analytics API](https://developers.google.com/analytics/devguides/reporting/core/v4/&sa=D&ust=1522637949828000). Google Analytics session data can be used to create a model to predict the most likely page a user is going to visit next on a site. The benefit of this session data is that it can evolve over time, so that if particular navigation paths change, the predictions can stay up to date too.
+
+With the availability of this data, an engine could insert `<link rel="[prerender/prefetch/preload]">` tags to speed up the load time for the next page request. In some tests, such as Mark Edmondson's  [Supercharging Page-Loads with R](http://code.markedmondson.me/predictClickOpenCPU/supercharge.html&sa=D&ust=1522637949828000), this led to a 30% improvement in page load times. The approach Mark used in his research involved using GTM tags and machine-learning to train a model for page predictions. This is an idea Mark continued in  [Machine Learning meets the Cloud - Intelligent Prefetching](https://iihnordic.com/blog/machine-learning-meets-the-cloud-intelligent-prefetching/&sa=D&ust=1522637949828000).
+
+
+While this approach is sound, the methodology used could be deemed a little complex. Another approach that could be taken (which is simpler) is attempting to get accurate prediction data from the Google Analytics API. If you ran a report for the  [Page](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_pagepath&sa=D&ust=1522637949829000) and  [Previous Page Path](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_previouspagepath&sa=D&ust=1522637949829000) dimension combined with the  [Pageviews](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_pageviews&sa=D&ust=1522637949830000) and  [Exits](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_exits&sa=D&ust=1522637949830000) metrics this should provide enough data to wire up prefetches for most popular pages.
+
