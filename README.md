@@ -215,3 +215,49 @@ This is an approach used by  [Gatsby](https://www.gatsbyjs.org/&sa=D&ust=1522637
 
 A page could begin speculatively prefetching resources when a user indicates they are interested in some content. This can take many forms, including when a user chooses to hover over a link or some portion of UI that would navigate them to a separate page. The browser could begin fetching content for the link as soon as there was a clear indication of interest. This is an approach taken by JavaScript libraries such as  [InstantClick](http://instantclick.io/&sa=D&ust=1522637949837000).
 
+
+##Metrics for success
+
+- 1000 sites are using data-driven prefetching (via Guess.js modules/libraries) in production
+- Sites observe at least a 10-20% improvement in subsequent navigation page-load times. We will observe the impact on FCP and TTI
+- 10K installs of Guess.js or associated modules
+- 30K unique visits to primary demo applications (like Wikipedia Gatsby app or Doodles)
+
+## References
+
+-  [Supercharging page-loads with R](http://code.markedmondson.me/predictClickOpenCPU/supercharge.html&sa=D&ust=1522637949840000)
+-  [Using Google Analytics to predict clicks](https://www.noisetosignal.io/2016/11/using-google-analytics-to-predict-clicks-and-speed-up-your-website/&sa=D&ust=1522637949841000)
+-  [Gatsby's Link](https://github.com/gatsbyjs/gatsby/tree/master/packages/gatsby-link&sa=D&ust=1522637949841000)
+-  [Eve Dynamic Prerender](https://wordpress.org/plugins/eve-dynamic-prerender/&sa=D&ust=1522637949841000)
+-  [InstartLogic - Multi-page Predictive Prefetching](https://www.instartlogic.com/blog/predicting-future-multi-page-predictive-prefetching&sa=D&ust=1522637949841000)
+-  [Sirko Engine](https://github.com/sirko-io/engine&sa=D&ust=1522637949842000) - relies on Service Worker
+
+<h2>Team</h2>
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top">
+        <img width="100" height="100" src="https://github.com/mgechev.png?s=150">
+        <br>
+        <a href="https://github.com/mgechev">Minko Gechev</a>
+      </td>
+      <td align="center" valign="top">
+        <img width="100" height="100" src="https://github.com/addyosmani.png?s=150">
+        <br>
+        <a href="https://github.com/addyosmani">Addy Osmani</a>
+      </td>
+      <td align="center" width="20%" valign="top">
+        <img width="100" height="100" src="https://github.com/khempenius.png?s=150">
+        <br>
+        <a href="https://github.com/khempenius">Katie Hempenius</a>
+      </td>
+      <td align="center" valign="top">
+        <img width="100" height="100" src="https://github.com/kyleamathews.png?s=150">
+        <br>
+        <a href="https://github.com/kyleamathews">Kyle Mathews</a>
+      </td>
+     </tr>
+  </tbody>
+</table>
+
