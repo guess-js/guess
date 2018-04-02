@@ -112,3 +112,35 @@ Borges, Levene [2007] “[Evaluating Variable-Length Markov Chain Models for Ana
 Banu Deniz Gunel [2010] ” [Investigating the Effect of Duration, Page Size and Frequency on Next Page Recommendation with Page Rank Algorithm](https://www.researchgate.net/publication/268366760_Investigating_the_Effect_of_Duration_Page_Size_and_Frequency_on_Next_Page_Recommendation_with_Page_Rank_Algorithm&sa=D&ust=1522637949817000)”. Extends the use of a page-rank algorithm with numerous navigational attributes: size of the page, duration time of the page, duration of transition (two page visits sequentially), frequency of page and transition. Defines a Duration Based Rank (DPR) and Popularity Based Page Rank (PPR). Author looked at the popularity of transitions and pages using duration information, using it with page size and visit frequency. Using the popularity value of pages, this paper attempts to improve conventional page rank algorithms and model a next page prediction under a given Top-N value.
 
 
+##Initial priority: Data-driven Prefetching For Improved Performance
+
+The first large priority for Guess.js will be focusing on the first of these contexts: improving web performance through predictive prefetching of content.
+
+By building a model of pages a user is likely to visit, given an arbitrary entry-page, a solution could calculate the likelihood a user will visit a given next page or set of pages and prefetch resources for them while the user is still viewing their current page. This has the possibility of improving page-load performance for subsequent page visits as there's a strong chance a page will already be in the user's cache.
+
+
+The initial goals for this effort will be prototyping and ecosystem activation.
+
+
+##Developer Stories
+
+We will provide prototype solutions for the following developer stories:
+
+### Single-page apps (e.g React, Angular)
+
+I am a JavaScript framework or library user wishing to prefetch bundles for useful next routes ahead of time. I am using a router and a module bundler like webpack. I am comfortable using Google Analytics and configuring my router and webpack config to use a third-party plugin.
+
+### Static content sites
+
+I am a static site author wishing to prefetch useful next pages ahead of time. I’m comfortable with Google Analytics and dropping in a client-side script for enabling prefetching. I am not using any advanced build-time tooling.
+
+### Framework-based static sites
+
+I am an author that likes to build static sites using a JavaScript framework wishing to prefetch useful next pages ahead of time. I rely on a third-party framework (e.g Gatsby) and its CLI to abstract away my tooling for me. I would like to just drop in a Google Analytics ID and minimal configuration. I am likely to use similar tooling to single-page apps (above), but do not wish to interact heavily with it.
+
+
+### Enterprise sites
+
+I am a lead for a large site wishing to prefetch useful next pages ahead of time. We require an easy drop-in solution (like static sites) but wish to have on-going technical consultancy and support for our integration. We ideally just consume an API that provides us everything we require.
+
+
