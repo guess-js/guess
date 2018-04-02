@@ -1,8 +1,8 @@
-#Guess.js
+# Guess.js
 
 Libraries & tools for enabling data-driven user-experiences on the web.
 
-##Introduction
+## Introduction
 
 Guess.js provides libraries & tools to simplify predictive data-analytics driven approaches to improving user-experiences on the web. This data can be driven from any number of sources, including analytics or [machine learning](https://en.wikipedia.org/wiki/Machine_learning&sa=D&ust=1522637949792000) models. Guess.js aims to lower the friction of consuming and applying this thinking to all modern sites and apps, including building libraries & tools for popular workflows.
 
@@ -17,7 +17,7 @@ Applying predictive data-analytics thinking to sites could be applied in a numbe
 By collaborating across different touch-points in the ecosystem where data-driven approaches could be easily applied, we hope to generalize common pieces of infrastructure to maximize their applicability in different tech stacks.
 
 
-##Problems
+## Problems
 
 - Developers using [`<link rel=prefetch>`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Link_prefetching_FAQ&sa=D&ust=1522637949794000) for future navigations heavily rely on manually reading descriptive analytics to inform their decisions for what to prefetch.
 - These decisions are often made at a point in time and.. 
@@ -41,27 +41,27 @@ By collaborating across different touch-points in the ecosystem where data-drive
     -  [Machine Learning-Driven Bundling. The Future of JavaScript Tooling](http://blog.mgechev.com/2018/03/18/machine-learning-data-driven-bundling-webpack-javascript-markov-chain-angular-react/&sa=D&ust=1522637949801000) by Minko
 
 
-##Data Analytics
+## Data Analytics
 
 There are  [three primary types](https://halobi.com/blog/descriptive-predictive-and-prescriptive-analytics-explained/&sa=D&ust=1522637949802000) of data analytics worth being aware of in this problem space: descriptive, predictive and prescriptive. Each type is related and help teams leverage different kinds of insight.
 
-###Descriptive - what has happened?
+### Descriptive - what has happened?
 
 Descriptive analytics summarizes raw data and turns it into something interpretable by humans. It can look at past events, regardless of when the events have occurred. Descriptive analytics allow teams to learn from past behaviors and this can help them influence future outcomes. Descriptive analytics could determine what pages on a site users have previously viewed and what navigation paths they have taken given any given entry page.
 
-###Predictive - what will happen?
+### Predictive - what will happen?
 
 Predictive analytics “predicts” what can happen next. Predictive analytics helps us understand the future and gives teams actionable insights using data. It provides estimates of the likelihood of a future outcome being useful. It’s important to keep in mind, few algorithms can predict future events with complete accuracy, but we can use as many signals that are available to us as possible to help improve baseline accuracy. The foundation of predictive analytics is based on probabilities we determine from data. Predictive analytics could predict the next page or set of pages a user is likely to visit given an arbitrary entry page.
 
 
-###Prescriptive - what should we do?
+### Prescriptive - what should we do?
 
 Prescriptive analytics enables prescribing different possible actions to guide towards a solution. Prescriptive analytics provides advice, attempting to quantify the impact future decisions may have to advise on possible outcomes before these decisions are made. Prescriptive analytics aims to not just predict what is going to happen but goes further; informing why it will happen and providing recommendations about actions that can take advantage of such predictions. Prescriptive analytics could predict the next page a user will visit, but also suggest actions such as informing you of ways you can customize their experience to take advantage of this knowledge.
 
 
-##Prediction Models
+## Prediction Models
 
-###Markov Models
+### Markov Models
 
 The key objective of a prediction model in the prefetching problem space is to identify what the subsequent requests a user may need, given a specific page request. This allows a server or client to pre-fetch the next set of pages and attempt to ensure they are in a user’s cache before they directly navigate to the page. The idea is to reduce overall loading time. When this is implemented with care, this technique can reduce page access times and latency, improving the overall user experience.
 
@@ -92,7 +92,7 @@ In  [Mabroukeh and Ezeife](http://ieeexplore.ieee.org/document/5360449/?reload%3
 
 Observing navigation patterns can allow us to analyze user behavior. This approach requires access to user-session identification, clustering sessions into similar clusters and developing a model for prediction using current and earlier access patterns. Much of the previous work in this field has relied on clustering schemes like the  [K-means clustering](https://en.wikipedia.org/wiki/K-means_clustering&sa=D&ust=1522637949810000) technique with  [Euclidean distance](https://en.wikipedia.org/wiki/Euclidean_distance&sa=D&ust=1522637949810000) for improving confidence of predictions. One of the drawbacks to using K-means is difficulty deciding on the number of clusters, selecting the initial random center and the order of page visits is not always considered.  [Kumar et al](http://ieeexplore.ieee.org/document/7519368/&sa=D&ust=1522637949811000) investigated this, proposing a hierarchical clustering technique with a modified  [Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance&sa=D&ust=1522637949811000), pagerank using access time length, frequency and higher order Markov models for prediction.
 
-##Research review
+## Research review
 
 Many of the papers referenced in the following section are centered around the Markov model, association rules and clustering. Papers highlighting relevant work related to pattern discovery for evolving page prediction accuracy are our focus.
 
@@ -112,7 +112,7 @@ Borges, Levene [2007] “[Evaluating Variable-Length Markov Chain Models for Ana
 Banu Deniz Gunel [2010] ” [Investigating the Effect of Duration, Page Size and Frequency on Next Page Recommendation with Page Rank Algorithm](https://www.researchgate.net/publication/268366760_Investigating_the_Effect_of_Duration_Page_Size_and_Frequency_on_Next_Page_Recommendation_with_Page_Rank_Algorithm&sa=D&ust=1522637949817000)”. Extends the use of a page-rank algorithm with numerous navigational attributes: size of the page, duration time of the page, duration of transition (two page visits sequentially), frequency of page and transition. Defines a Duration Based Rank (DPR) and Popularity Based Page Rank (PPR). Author looked at the popularity of transitions and pages using duration information, using it with page size and visit frequency. Using the popularity value of pages, this paper attempts to improve conventional page rank algorithms and model a next page prediction under a given Top-N value.
 
 
-##Initial priority: Data-driven Prefetching For Improved Performance
+## Initial priority: Data-driven Prefetching For Improved Performance
 
 The first large priority for Guess.js will be focusing on the first of these contexts: improving web performance through predictive prefetching of content.
 
@@ -122,7 +122,7 @@ By building a model of pages a user is likely to visit, given an arbitrary entry
 The initial goals for this effort will be prototyping and ecosystem activation.
 
 
-##Developer Stories
+## Developer Stories
 
 We will provide prototype solutions for the following developer stories:
 
@@ -144,7 +144,7 @@ I am an author that likes to build static sites using a JavaScript framework wis
 I am a lead for a large site wishing to prefetch useful next pages ahead of time. We require an easy drop-in solution (like static sites) but wish to have on-going technical consultancy and support for our integration. We ideally just consume an API that provides us everything we require.
 
 
-##Common infrastructure
+## Common infrastructure
 
 Where possible, we will focus on creating focused, reusable modules and libraries that can be shared across implementations.
 
@@ -156,7 +156,7 @@ Wiring up prefetch statements. Interesting to learn how both Minko and Kyle curr
 Mapping predicted pages from Google Analytics API back to a router. Minko seems to have solved this problem well (or has a good shape of what this might look like). It will be interesting to learn whether those “maps” are highly framework router specific or there is something work generalizing there too.
 
 
-##Approach to predictive fetching
+## Approach to predictive fetching
 
 In order to predict the next page a user is likely to visit, a solution could use the  [Google Analytics API](https://developers.google.com/analytics/devguides/reporting/core/v4/&sa=D&ust=1522637949828000). Google Analytics session data can be used to create a model to predict the most likely page a user is going to visit next on a site. The benefit of this session data is that it can evolve over time, so that if particular navigation paths change, the predictions can stay up to date too.
 
@@ -165,7 +165,7 @@ With the availability of this data, an engine could insert `<link rel="[prerende
 
 While this approach is sound, the methodology used could be deemed a little complex. Another approach that could be taken (which is simpler) is attempting to get accurate prediction data from the Google Analytics API. If you ran a report for the  [Page](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_pagepath&sa=D&ust=1522637949829000) and  [Previous Page Path](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_previouspagepath&sa=D&ust=1522637949829000) dimension combined with the  [Pageviews](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_pageviews&sa=D&ust=1522637949830000) and  [Exits](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_exits&sa=D&ust=1522637949830000) metrics this should provide enough data to wire up prefetches for most popular pages.
 
-####Machine Learning for predictive fetching.
+#### Machine Learning for predictive fetching.
 
 ML could help improve the overall accuracy of a solution's predictions, but is not a necessity for an initial implementation. Predictive fetching could be accomplished by training a model on the pages users are likely to visit and improving on this model over time.
 
@@ -174,17 +174,17 @@ Deep neural networks are particularly good at teasing out the complexities that 
 
 Model updates tend to be done periodically, so one might setup a nightly/weekly job to refresh based on new user behaviour. This could be done in real-time, but is likely complex, so doing it periodically might be sufficient. One could imagine a generic model representing behavioural patterns for users on a site that can either be driven by a trained status set, Google Analytics, or a custom description you plugin using a new layer into a router giving the site the ability to predictively fetch future pages, improving page load performance.
 
-##Risks
-####Data consumption
+## Risks
+#### Data consumption
 
 As with any mechanism for prefetching content ahead of time, this needs to be approached very carefully. A user on a restricted data-plan may not appreciate or benefit as much from pages being fetched ahead of time, in particular if they start to eat up their data. There are mechanisms a site/solution could take to be mindful of this concern, such as respecting the  [Save-Data](https://developers.google.com/web/updates/2016/02/save-data&sa=D&ust=1522637949832000) header.
 
-####Prefetching undesirable pages
+#### Prefetching undesirable pages
 
 Prefetching links to "logout" pages is likely undesirable. The same could be said of any pages that trigger an action on page-load (e.g one-click purchase). Solutions may wish to include a blacklist of URLs which are never prefetched to increase the likelihood of a prefetched page being useful.
 
-####Web Standards
-#####Future of rel=prerender
+#### Web Standards
+##### Future of rel=prerender
 
 Some of the attempts to accomplish similar proposals in the past have relied on `<link rel=prerender>`. The Chrome team is currently exploring  [deprecating rel=prerender](https://groups.google.com/a/chromium.org/forum/%23!topic/blink-dev/0nSxuuv9bBw&sa=D&ust=1522637949833000) in favor of  [NoStatePrefetch](https://docs.google.com/document/d/16VCYGGWau483IMSxODpg5faZny1FJ6vNK2v-BuM5EhU/edit%23&sa=D&ust=1522637949833000) - a lighter version of this mechanism that only prefetches to the HTTP cache but uses no other state of the web platform. A solution should factor in whether it will be relying on the replacement to rel=prerender or using prefetch/preload/other approaches.
 
@@ -192,16 +192,16 @@ Some of the attempts to accomplish similar proposals in the past have relied on 
 There are two key differences between NoStatePrefetch and Prefetch 1. nostate-prefetch is a mechanism, and `<link rel=prefetch>` is an API. The nostate-prefetch can be requested by other entry points: omnibox prediction, custom tabs, `<link rel=prerender>`.
 2. The implementation is different: `<link rel=prefetch>` prefetches one resource, but nostate-prefetch on top of that runs the preload scanner on the resource (in a fresh new renderer), discovers subresources and prefetches them as well (without recursing into preload scanner).
 
-##Methods of predictively fetching content
+## Methods of predictively fetching content
 
-####Speculative prefetch on page load
+#### Speculative prefetch on page load
 
 Speculative prefetch can prefetch pages likely be navigated to on page load. This assumes the existence of knowledge about the probability a page will need a certain next page or set of pages, or a training model that can provide a data-driven approach to determining such probabilities.
 
 
 Prefetching on page load can be accomplished in a number of ways, from deferring to the UA to decide when to prefetch resources (e.g at low priority with `<link rel=prefetch>`), during page idle time (via  [requestIdleCallback()](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback&sa=D&ust=1522637949834000)()) or at some other interval. No further interaction is required by the user.
 
-####Speculative prefetch when links come into the viewport
+#### Speculative prefetch when links come into the viewport
 
 A page could speculatively begin prefetching content when links in the page are visible in the viewport, signifying that the user may have a higher chance of wanting to click on them.
 
@@ -211,12 +211,12 @@ This is an approach used by  [Gatsby](https://www.gatsbyjs.org/&sa=D&ust=1522637
 - e.g. the top nav if a page is linked to multiple times, its vote count goes higher the prefetcher takes the top page and starts prefetching resources.
 - It's restricted to prefetching one page at a time so as to reduce contention over bandwidth with on page stuff (not a problem on fast networks. If a user visits a page and its resources haven't been fully downloaded, prefetching stops until the page is loaded to ensure the user waits as little time as possible.
 
-####Speculative prefetch on user interaction
+#### Speculative prefetch on user interaction
 
 A page could begin speculatively prefetching resources when a user indicates they are interested in some content. This can take many forms, including when a user chooses to hover over a link or some portion of UI that would navigate them to a separate page. The browser could begin fetching content for the link as soon as there was a clear indication of interest. This is an approach taken by JavaScript libraries such as  [InstantClick](http://instantclick.io/&sa=D&ust=1522637949837000).
 
 
-##Metrics for success
+## Metrics for success
 
 - 1000 sites are using data-driven prefetching (via Guess.js modules/libraries) in production
 - Sites observe at least a 10-20% improvement in subsequent navigation page-load times. We will observe the impact on FCP and TTI
