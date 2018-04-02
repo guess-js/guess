@@ -40,7 +40,6 @@ By collaborating across different touch-points in the ecosystem where data-drive
       - The benefit of training ML models in the cloud is ease of scale as additional machines, GPUs and processors can be added as needed.
     -  [Machine Learning-Driven Bundling. The Future of JavaScript Tooling](http://blog.mgechev.com/2018/03/18/machine-learning-data-driven-bundling-webpack-javascript-markov-chain-angular-react/&sa=D&ust=1522637949801000) by Minko
 
-
 ## Data Analytics
 
 There are  [three primary types](https://halobi.com/blog/descriptive-predictive-and-prescriptive-analytics-explained/&sa=D&ust=1522637949802000) of data analytics worth being aware of in this problem space: descriptive, predictive and prescriptive. Each type is related and help teams leverage different kinds of insight.
