@@ -1,3 +1,5 @@
+import { Period } from '../common/interfaces';
+
 interface PageConfig {
   pageToken: number;
   pageSize: number;
@@ -6,11 +8,6 @@ interface PageConfig {
 interface AnalyticsResult {
   report: any;
   nextPage: number;
-}
-
-export interface Period {
-  startDate: Date;
-  endDate: Date;
 }
 
 const formatNumber = (n: number) => (n.toString().length === 1 ? '0' + n : n);

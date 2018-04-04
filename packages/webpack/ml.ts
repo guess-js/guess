@@ -1,17 +1,15 @@
 import { ProjectType, parseRoutes } from '@mlx/parser';
+import { fetch } from '@mlx/ga';
 
-import { Graph, RoutingModule } from '../common/interfaces';
+import { Graph, RoutingModule, Period } from '../common/interfaces';
 import { RouteProvider, ClusteringAlgorithm } from './interfaces';
+import { auth } from 'google-oauth2-node';
+const { google } = require('googleapis');
 
 import { RuntimePrefetchPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
 import { ClusterChunksPlugin } from './build';
 
 import { existsSync, readFileSync } from 'fs';
-
-export interface BuildConfig {
-  minChunks?: number;
-  algorithm?: ClusteringAlgorithm;
-}
 
 export interface RuntimeConfig {
   basePath?: string;
@@ -19,12 +17,16 @@ export interface RuntimeConfig {
 }
 
 export interface MLPluginConfig {
+  routeFormatter?: (path: string) => string;
+  period?: Period;
   debug?: boolean;
   runtime?: false | RuntimeConfig;
-  build?: false | BuildConfig;
   routeProvider?: RouteProvider;
-  data: Graph;
+  viewId: string;
 }
+
+const id = <T>(r: T) => r;
+const Year = 365 * 24 * 60 * 60 * 1000;
 
 const defaultRouteProvider = (): RouteProvider => {
   let type: ProjectType | undefined = undefined;
@@ -50,79 +52,43 @@ const defaultRouteProvider = (): RouteProvider => {
 
 export class MLPlugin {
   private _runtime: RuntimePrefetchPlugin;
-  private _build: ClusterChunksPlugin;
 
-  constructor(private _config: MLPluginConfig) {
-    const runtime = _config.runtime;
-    const routeProvider = _config.routeProvider || defaultRouteProvider();
-    const routes = routeProvider();
-    if (runtime !== false) {
-      this._runtime = new RuntimePrefetchPlugin({
-        data: _config.data,
-        basePath: runtime ? runtime.basePath : '/',
-        prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
-        debug: _config.debug,
-        routes
-      });
-    }
-    const build = this._config.build;
-    if (build !== false) {
-      this._build = new ClusterChunksPlugin({
-        minChunks: build ? build.minChunks : undefined,
-        algorithm: build ? build.algorithm : undefined,
-        moduleGraph: toBundleGraph(this._config.data, routes, this._config.debug),
-        debug: _config.debug,
-        modules: routes
-      });
-    }
-  }
+  constructor(private _config: MLPluginConfig) {}
 
   apply(compiler: any) {
-    if (this._build) {
-      this._config.debug && console.debug('Applying the build-time plugin');
-      this._build.apply(compiler);
-    }
+    auth({
+      clientId: '329457372673-hda3mp2vghisfobn213jpj8ck1uohi2d.apps.googleusercontent.com',
+      clientSecret: '4camaoQPOz9edR-Oz19vg-lN',
+      scope: 'https://www.googleapis.com/auth/analytics.readonly'
+    }).then((auth: any) => {
+      const oauth2Client = new google.auth.OAuth2();
+      oauth2Client.setCredentials(auth);
+      const runtime = this._config.runtime;
+      const routes = (this._config.routeProvider || defaultRouteProvider())();
+      fetch({
+        viewId: this._config.viewId,
+        auth: oauth2Client,
+        period: this._config.period || { startDate: new Date(), endDate: new Date(Date.now() - Year) },
+        routes: routes.map(r => r.path),
+        formatter: this._config.routeFormatter || id
+      }).then(
+        data => {
+          this._runtime = new RuntimePrefetchPlugin({
+            data,
+            basePath: this._config.runtime ? this._config.runtime.basePath : '/',
+            prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
+            debug: this._config.debug,
+            routes
+          });
+        },
+        err => {
+          throw err;
+        }
+      );
+    });
     if (this._runtime) {
       this._config.debug && console.debug('Applying the runtime-time plugin');
       this._runtime.apply(compiler);
     }
   }
 }
-
-const toBundleGraph = (graph: Graph, defs: RoutingModule[], debug: boolean): Graph => {
-  const res: Graph = {};
-  const routeFile = defs.reduce(
-    (a, c: RoutingModule) => {
-      a[c.path.replace('/.', '')] = c.modulePath;
-      return a;
-    },
-    {} as { [key: string]: string }
-  );
-  Object.keys(graph).forEach((k: string) => {
-    const from = routeFile[k];
-    if (from === undefined) {
-      debug && console.warn('Cannot find file for the route ' + k);
-      return;
-    }
-    res[from] = res[from] || {};
-    Object.keys(graph[k]).forEach(n => {
-      const to = routeFile[n];
-      if (to === undefined) {
-        debug && console.warn('Cannot find file for the route ' + n);
-        return;
-      }
-      res[from][to] = (res[from][to] || 0) + graph[k][n];
-    });
-  });
-  return res;
-};
-
-const nameBundles = (clusters: (string | string[])[]) => {
-  return clusters.reduce(
-    (a, c, i) => {
-      a[i.toString()] = c;
-      return a;
-    },
-    {} as { [key: string]: string | string[] }
-  );
-};

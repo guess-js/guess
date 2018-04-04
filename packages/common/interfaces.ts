@@ -21,3 +21,8 @@ export interface Connection {
   weight: number;
   to: string;
 }
+
+export interface Period {
+  startDate: Date;
+  endDate: Date;
+}
