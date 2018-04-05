@@ -1,19 +1,16 @@
 import { ProjectType, parseRoutes } from '@mlx/parser';
 import { fetch } from '@mlx/ga';
 
-import { Graph, RoutingModule, Period } from '../common/interfaces';
-import { auth } from 'google-oauth2-node';
-const { google } = require('googleapis');
-
-import { RuntimePrefetchPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
-import { ClusterChunksPlugin } from './build';
-
 import { existsSync, readFileSync } from 'fs';
-
-import { defaultRouteProvider } from './default-route-provider';
-import { Mode, RouteProvider } from './declarations';
-
+import { auth } from 'google-oauth2-node';
 import { shim } from 'promise.prototype.finally';
+
+import { ClusterChunksPlugin } from './build';
+import { Mode, RouteProvider } from './declarations';
+import { defaultRouteProvider } from './default-route-provider';
+import { PrefetchChunksPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
+import { Graph, RoutingModule, Period } from '../common/interfaces';
+
 shim();
 
 export interface RuntimeConfig {
@@ -47,10 +44,10 @@ export class MLPlugin {
       clientSecret: '4camaoQPOz9edR-Oz19vg-lN',
       scope: 'https://www.googleapis.com/auth/analytics.readonly'
     }).then((auth: any) => {
+      const { google } = require('googleapis');
       const oauth2Client = new google.auth.OAuth2();
       oauth2Client.setCredentials(auth);
 
-      const runtimeConfig = this._config.runtime;
       const routes = (this._config.routeProvider || defaultRouteProvider(this._config.mode || Mode.Auto))();
 
       fetch({
@@ -61,21 +58,23 @@ export class MLPlugin {
         formatter: this._config.routeFormatter || id
       })
         .then(
-          data => {
-            const runtime = new RuntimePrefetchPlugin({
-              data,
-              basePath: this._config.runtime ? this._config.runtime.basePath : '/',
-              prefetchConfig: runtimeConfig ? runtimeConfig.prefetchConfig : undefined,
-              debug: this._config.debug,
-              routes
-            });
-            runtime.apply(compilation);
-          },
+          data => this._executeRuntimePlugin(data, routes, compilation),
           err => {
             throw err;
           }
         )
         .finally(cb);
     });
+  }
+
+  private _executeRuntimePlugin(data: Graph, routes: RoutingModule[], compilation: any) {
+    const runtimeConfig = this._config.runtime;
+    new PrefetchChunksPlugin({
+      data,
+      basePath: this._config.runtime ? this._config.runtime.basePath : '/',
+      prefetchConfig: runtimeConfig ? runtimeConfig.prefetchConfig : undefined,
+      debug: this._config.debug,
+      routes
+    }).apply(compilation);
   }
 }

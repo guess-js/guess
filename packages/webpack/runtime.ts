@@ -20,7 +20,7 @@ export interface RuntimePrefetchConfig {
   routes: RoutingModule[];
 }
 
-export class RuntimePrefetchPlugin {
+export class PrefetchChunksPlugin {
   private _debug: boolean;
 
   constructor(private _config: RuntimePrefetchConfig) {
