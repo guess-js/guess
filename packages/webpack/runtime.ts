@@ -1,5 +1,5 @@
 import { Graph, RoutingModule } from '../common/interfaces';
-import { RuntimeMap } from './interfaces';
+import { RuntimeMap } from './declarations';
 
 const template = require('lodash.template');
 const runtimeTemplate = require('./runtime.tpl');
@@ -30,49 +30,46 @@ export class RuntimePrefetchPlugin {
     }
   }
 
-  apply(compiler: any) {
+  apply(compilation: any) {
     const fileChunk: { [path: string]: string } = {};
 
-    compiler.plugin('emit', (compilation: any, cb: any) => {
-      let main: any = null;
-      compilation.chunks.forEach((chunk: any) => {
-        if (chunk.name === 'main') {
-          main = chunk;
-        }
-        if (chunk.blocks && chunk.blocks.length > 0) {
-          for (const block of chunk.blocks) {
-            const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
-            fileChunk[block.dependencies[0].module.userRequest] = name;
-          }
-        }
-      });
-
-      if (!main) {
-        throw new Error('Cannot find the main chunk in the runtime ML plugn');
+    let main: any = null;
+    compilation.chunks.forEach((chunk: any) => {
+      if (chunk.name === 'main') {
+        main = chunk;
       }
-
-      const newConfig: any = {};
-      const graph = buildMap(this._config.routes, this._config.data);
-      Object.keys(graph).forEach(c => {
-        newConfig[c] = [];
-        graph[c].forEach(p => {
-          const newTransition = Object.assign({}, p);
-          newTransition.chunk = fileChunk[p.file];
-          delete newTransition.file;
-          newConfig[c].push(newTransition);
-        });
-      });
-
-      const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
-      const old = compilation.assets[mainName];
-      const prefetchLogic = template(runtimeTemplate)({
-        BASE_PATH: this._config.basePath || '/',
-        GRAPH: JSON.stringify(newConfig),
-        THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
-      });
-      compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
-      cb();
+      if (chunk.blocks && chunk.blocks.length > 0) {
+        for (const block of chunk.blocks) {
+          const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
+          fileChunk[block.dependencies[0].module.userRequest] = name;
+        }
+      }
     });
+
+    if (!main) {
+      throw new Error('Cannot find the main chunk in the runtime ML plugn');
+    }
+
+    const newConfig: any = {};
+    const graph = buildMap(this._config.routes, this._config.data);
+    Object.keys(graph).forEach(c => {
+      newConfig[c] = [];
+      graph[c].forEach(p => {
+        const newTransition = Object.assign({}, p);
+        newTransition.chunk = fileChunk[p.file];
+        delete newTransition.file;
+        newConfig[c].push(newTransition);
+      });
+    });
+
+    const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
+    const old = compilation.assets[mainName];
+    const prefetchLogic = template(runtimeTemplate)({
+      BASE_PATH: this._config.basePath || '/',
+      GRAPH: JSON.stringify(newConfig),
+      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
+    });
+    compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
   }
 }
 

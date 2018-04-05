@@ -1,6 +1,6 @@
 import { Graph } from '../common/interfaces';
 import { cluster } from '@mlx/cluster';
-import { ClusteringAlgorithm, Cluster, Clusters, Module } from './interfaces';
+import { ClusteringAlgorithm, Cluster, Clusters, Module } from './declarations';
 
 export interface ClusterChunksConfig {
   debug?: boolean;

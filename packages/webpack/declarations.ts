@@ -1,5 +1,12 @@
 import { Graph, RoutingModule } from '../common/interfaces';
 
+export enum Mode {
+  Angular = 'angular',
+  ReactTypescript = 'react-typescript',
+  Gatsby = 'gatsby',
+  Auto = 'auto'
+}
+
 export interface RouteProvider {
   (): RoutingModule[];
 }

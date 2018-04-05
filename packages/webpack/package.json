@@ -27,7 +27,8 @@
     "@mlx/ga": "0.0.20",
     "@mlx/parser": "0.0.20",
     "google-oauth2-node": "0.0.2",
-    "lodash.template": "^4.4.0"
+    "lodash.template": "^4.4.0",
+    "promise.prototype.finally": "^3.1.0"
   },
   "jest": {
     "transform": {
@@ -42,5 +43,8 @@
       "json",
       "node"
     ]
+  },
+  "devDependencies": {
+    "@types/promise.prototype.finally": "^2.0.2"
   }
 }
