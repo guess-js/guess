@@ -14,22 +14,32 @@ import { Graph, RoutingModule, Period } from '../common/interfaces';
 shim();
 
 export interface RuntimeConfig {
+  /** @internal */
   basePath?: string;
+  /** @internal */
   prefetchConfig?: PrefetchConfig;
 }
 
 export interface MLPluginConfig {
-  viewId: string;
+  GA: string;
   mode?: Mode;
   period?: Period;
+  /** @internal */
   routeFormatter?: (path: string) => string;
+  /** @internal */
   debug?: boolean;
+  /** @internal */
   runtime?: false | RuntimeConfig;
+  /** @internal */
   routeProvider?: RouteProvider;
 }
 
+const clientId = '329457372673-hda3mp2vghisfobn213jpj8ck1uohi2d.apps.googleusercontent.com';
+const clientSecret = '4camaoQPOz9edR-Oz19vg-lN';
+const scope = 'https://www.googleapis.com/auth/analytics.readonly';
+const year = 365 * 24 * 60 * 60 * 1000;
+
 const id = <T>(r: T) => r;
-const Year = 365 * 24 * 60 * 60 * 1000;
 
 export class MLPlugin {
   constructor(private _config: MLPluginConfig) {}
@@ -40,9 +50,9 @@ export class MLPlugin {
 
   private _execute(compilation: any, cb: any) {
     auth({
-      clientId: '329457372673-hda3mp2vghisfobn213jpj8ck1uohi2d.apps.googleusercontent.com',
-      clientSecret: '4camaoQPOz9edR-Oz19vg-lN',
-      scope: 'https://www.googleapis.com/auth/analytics.readonly'
+      clientId,
+      clientSecret,
+      scope
     }).then((auth: any) => {
       const { google } = require('googleapis');
       const oauth2Client = new google.auth.OAuth2();
@@ -51,9 +61,9 @@ export class MLPlugin {
       const routes = (this._config.routeProvider || defaultRouteProvider(this._config.mode || Mode.Auto))();
 
       fetch({
-        viewId: this._config.viewId,
+        viewId: this._config.GA,
         auth: oauth2Client,
-        period: this._config.period || { startDate: new Date(), endDate: new Date(Date.now() - Year) },
+        period: this._config.period || { startDate: new Date(), endDate: new Date(Date.now() - year) },
         routes: routes.map(r => r.path),
         formatter: this._config.routeFormatter || id
       })
