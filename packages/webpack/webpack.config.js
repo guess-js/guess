@@ -1,14 +1,10 @@
-module.exports = {
-  entry: './index.ts',
-  target: 'node',
-  output: {
-    filename: './dist/webpack/index.js',
-    libraryTarget: 'umd'
-  },
+const webpack = require('webpack');
+
+const common = {
   externals: [/^(@|\w).*$/i],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
-    extensions: ['.ts', '.js']
+    extensions: ['.ts']
   },
   module: {
     rules: [
@@ -21,3 +17,39 @@ module.exports = {
     ]
   }
 };
+
+module.exports = [
+  Object.assign(
+    {
+      entry: {
+        runtime: './runtime.ts'
+      },
+      target: 'web',
+      output: {
+        filename: 'runtime-code.js',
+        path: __dirname + '/dist/webpack/',
+        libraryTarget: 'var',
+        library: '__GUESS__'
+      }
+    },
+    common
+  ),
+  Object.assign(
+    {
+      entry: {
+        index: './index.ts'
+      },
+      output: {
+        filename: '[name].js',
+        path: __dirname + '/dist/webpack/',
+        libraryTarget: 'umd'
+      },
+      target: 'node',
+      node: {
+        __dirname: false,
+        __filename: false
+      }
+    },
+    common
+  )
+];

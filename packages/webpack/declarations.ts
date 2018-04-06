@@ -22,3 +22,17 @@ export interface Module {
   modulePath: string;
   parentModulePath: string;
 }
+
+export type CompressedPrefetchGraph = number[][][];
+
+export interface CompressedGraphMap {
+  chunks: { [chunkId: number]: string };
+  routes: { [routeId: number]: string };
+}
+
+export interface PrefetchConfig {
+  '4g': number;
+  '3g': number;
+  '2g': number;
+  'slow-2g': number;
+}

@@ -6,9 +6,9 @@ import { auth } from 'google-oauth2-node';
 import { shim } from 'promise.prototype.finally';
 
 import { ClusterChunksPlugin } from './build';
-import { Mode, RouteProvider } from './declarations';
+import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
-import { PrefetchChunksPlugin, RuntimePrefetchConfig, PrefetchConfig } from './runtime';
+import { PrefetchPlugin, PrefetchPluginConfig } from './prefetch-plugin';
 import { Graph, RoutingModule, Period } from '../common/interfaces';
 
 shim();
@@ -79,7 +79,7 @@ export class MLPlugin {
 
   private _executeRuntimePlugin(data: Graph, routes: RoutingModule[], compilation: any) {
     const runtimeConfig = this._config.runtime;
-    new PrefetchChunksPlugin({
+    new PrefetchPlugin({
       data,
       basePath: this._config.runtime ? this._config.runtime.basePath : '/',
       prefetchConfig: runtimeConfig ? runtimeConfig.prefetchConfig : undefined,

@@ -1,169 +1,128 @@
-import { Graph, RoutingModule } from '../common/interfaces';
+import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from './declarations';
 
-const template = require('lodash.template');
-const runtimeTemplate = require('./runtime.tpl');
-const ConcatSource = require('webpack-sources').ConcatSource;
+export class GraphNode {
+  constructor(private _node: number[], private _map: CompressedGraphMap) {}
 
-export interface PrefetchConfig {
-  '4g': number;
-  '3g': number;
-  '2g': number;
-  'slow-2g': number;
-}
-
-export interface RuntimePrefetchConfig {
-  debug?: boolean;
-  data: Graph;
-  basePath?: string;
-  prefetchConfig?: PrefetchConfig;
-  routes: RoutingModule[];
-}
-
-interface BundleEntryNeighbor {
-  route: string;
-  probability: number;
-  file: string;
-}
-
-interface BundleEntryGraph {
-  [node: string]: BundleEntryNeighbor[];
-}
-
-interface PrefetchNeighbor {
-  route: string;
-  probability: number;
-  chunk: string;
-}
-
-interface PrefetchGraph {
-  [node: string]: PrefetchNeighbor[];
-}
-
-interface CompressedPrefetchGraph {
-  [node: number]: number[][];
-}
-
-interface PrefetchGraphMap {
-  chunks: { [chunkId: number]: string };
-  routes: { [routeId: number]: string };
-}
-
-const compressGraph = (input: PrefetchGraph, precision: number) => {
-  let currentChunk = 0;
-  let currentRoute = 0;
-  const chunks: { [chunkId: number]: string } = {};
-  const routes: { [routeId: number]: string } = {};
-  const chunkToID: { [chunk: string]: number } = {};
-  const routeToID: { [route: string]: number } = {};
-  const graphMap: PrefetchGraphMap = { chunks, routes };
-  const graph: CompressedPrefetchGraph = [];
-  Object.keys(input).forEach(route => {
-    if (routeToID[route] === undefined) {
-      routes[currentRoute] = route;
-      routeToID[route] = currentRoute++;
-    }
-    graph[routeToID[route]] = [];
-    input[route].forEach(n => {
-      if (routeToID[n.route] === undefined) {
-        routes[currentRoute] = n.route;
-        routeToID[n.route] = currentRoute++;
-      }
-      if (chunkToID[n.chunk] === undefined) {
-        chunks[currentChunk] = n.chunk;
-        chunkToID[n.chunk] = currentChunk++;
-      }
-      graph[routeToID[route]].push([
-        parseFloat(n.probability.toFixed(precision)),
-        routeToID[n.route],
-        chunkToID[n.chunk]
-      ]);
-    });
-  });
-  return { graph, graphMap };
-};
-
-export class PrefetchChunksPlugin {
-  private _debug: boolean;
-
-  constructor(private _config: RuntimePrefetchConfig) {
-    this._debug = !!_config.debug;
-    if (!_config.data) {
-      throw new Error('Page graph not provided');
-    }
+  get probability() {
+    return this._node[0];
   }
 
-  apply(compilation: any) {
-    const fileChunk: { [path: string]: string } = {};
+  get route() {
+    return this._map.routes[this._node[1]];
+  }
 
-    let main: any = null;
-    compilation.chunks.forEach((chunk: any) => {
-      if (chunk.name === 'main') {
-        main = chunk;
-      }
-      if (chunk.blocks && chunk.blocks.length > 0) {
-        for (const block of chunk.blocks) {
-          const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
-          fileChunk[block.dependencies[0].module.userRequest] = name;
-        }
-      }
-    });
-
-    if (!main) {
-      throw new Error('Cannot find the main chunk in the runtime ML plugn');
-    }
-
-    const newConfig: PrefetchGraph = {};
-    const initialGraph = buildMap(this._config.routes, this._config.data);
-    Object.keys(initialGraph).forEach(c => {
-      newConfig[c] = [];
-      initialGraph[c].forEach(p => {
-        const newTransition: PrefetchNeighbor = {
-          probability: p.probability,
-          route: p.route,
-          chunk: fileChunk[p.file]
-        };
-        newConfig[c].push(newTransition);
-      });
-    });
-
-    const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
-    const old = compilation.assets[mainName];
-    const { graph, graphMap } = compressGraph(newConfig, 3);
-    const prefetchLogic = template(runtimeTemplate)({
-      BASE_PATH: this._config.basePath || '/',
-      GRAPH: JSON.stringify(graph),
-      GRAPH_MAP: JSON.stringify(graphMap),
-      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
-    });
-    compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
+  get chunk() {
+    return this._map.chunks[this._node[2]];
   }
 }
 
-const defaultPrefetchConfig: PrefetchConfig = {
-  '4g': 0.15,
-  '3g': 0.3,
-  '2g': 0.45,
-  'slow-2g': 0.6
+export class Graph {
+  constructor(private _graph: CompressedPrefetchGraph, private _map: CompressedGraphMap) {}
+
+  findMatch(route: string) {
+    const result = this._graph.filter((_, i) => matchRoute(this._map.routes[i], route)).pop();
+    if (!result) {
+      return null;
+    }
+    return result.map(n => new GraphNode(n, this._map));
+  }
+}
+
+export const support = (feature: string) => {
+  const fakeLink = document.createElement('link') as any;
+  try {
+    if (fakeLink.relList && typeof fakeLink.relList.supports === 'function') {
+      return fakeLink.relList.supports(feature);
+    }
+  } catch (err) {
+    return false;
+  }
 };
 
-const buildMap = (routes: RoutingModule[], graph: Graph): BundleEntryGraph => {
-  const result: BundleEntryGraph = {};
-  const routeFile = {} as { [key: string]: string };
-  routes.forEach(r => {
-    routeFile[r.path] = r.modulePath;
-  });
-  Object.keys(graph).forEach(k => {
-    result[k] = [];
+const linkPrefetchStrategy = (url: string) => {
+  const link = document.createElement('link');
+  link.setAttribute('rel', 'prefetch');
+  link.setAttribute('href', url);
+  const parentElement = document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
+  parentElement.appendChild(link);
+};
 
-    const sum = Object.keys(graph[k]).reduce((a, n) => a + graph[k][n], 0);
-    Object.keys(graph[k]).forEach(n => {
-      result[k].push({
-        route: n,
-        probability: graph[k][n] / sum,
-        file: routeFile[n]
-      });
-    });
-    result[k] = result[k].sort((a, b) => b.probability - a.probability);
-  });
-  return result;
+const importPrefetchStrategy = (url: string) => import(url);
+
+const supportedPrefetchStrategy = support('prefetch') ? linkPrefetchStrategy : importPrefetchStrategy;
+
+const preFetched: { [key: string]: boolean } = {};
+
+export const prefetch = (basePath: string, url: string) => {
+  url = basePath + url;
+  if (preFetched[url]) {
+    return;
+  }
+  console.log('Pre-fetching', url);
+  preFetched[url] = true;
+  supportedPrefetchStrategy(url);
+};
+
+export const matchRoute = (route: string, declaration: string) => {
+  const routeParts = route.split('/');
+  const declarationParts = declaration.split('/');
+  if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
+    routeParts.pop();
+  }
+
+  if (declarationParts.length > 0 && declarationParts[declarationParts.length - 1] === '') {
+    declarationParts.pop();
+  }
+
+  if (routeParts.length !== declarationParts.length) {
+    return false;
+  } else {
+    return declarationParts.reduce((a, p, i) => {
+      if (p.startsWith(':')) {
+        return a;
+      }
+      return a && p === routeParts[i];
+    }, true);
+  }
+};
+
+const polyfillConnection = {
+  effectiveType: '3g'
+};
+export const handleNavigationChange = (graph: Graph, basePath: string, thresholds: PrefetchConfig, route: string) => {
+  const nodes = graph.findMatch(route);
+  if (!nodes) {
+    return;
+  }
+  const c = (navigator as any).connection || polyfillConnection;
+  const threshold = (thresholds as any)[c.effectiveType];
+  for (const node of nodes) {
+    if (node.probability < threshold || preFetched[node.chunk]) {
+      continue;
+    }
+    if (node.chunk) {
+      prefetch(basePath, node.chunk);
+    }
+  }
+};
+
+export const initialize = (
+  history: History,
+  compressed: CompressedPrefetchGraph,
+  map: CompressedGraphMap,
+  basePath: string,
+  thresholds: PrefetchConfig
+) => {
+  const graph = new Graph(compressed, map);
+
+  window.addEventListener('popstate', e => handleNavigationChange(graph, basePath, thresholds, location.pathname));
+
+  const pushState = history.pushState;
+  history.pushState = function(state) {
+    if (typeof (history as any).onpushstate == 'function') {
+      (history as any).onpushstate({ state: state });
+    }
+    handleNavigationChange(graph, basePath, thresholds, arguments[2]);
+    return pushState.apply(history, arguments);
+  };
 };
