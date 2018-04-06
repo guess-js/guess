@@ -1,8 +1,37 @@
 (function(history, basePath, graph, thresholds) {
   const preFetched = {};
-  const parentElement = document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
   const polyfillConnection = {
     effectiveType: '3g'
+  };
+
+  const support = function support(feature){
+    const fakeLink = document.createElement('link');
+    try {
+      if (fakeLink.relList && typeof fakeLink.relList.supports === 'function') {
+        return fakeLink.relList.supports(feature);
+      }
+    } catch (err){
+      return false;
+    }
+  };
+
+  const linkPrefetchStrategy = url => {
+    const link = document.createElement('link');
+    link.setAttribute('rel', 'prefetch');
+    link.setAttribute('href', url);
+    const parentElement = document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
+    parentElement.appendChild(link);
+  };
+
+  const importPrefetchStrategy = url => import(url);
+
+  const supportedPrefetchStrategy = support('prefetch') ? linkPrefetchStrategy : importPrefetchStrategy;
+
+  const prefetch = url => {
+    url = basePath + url;
+    console.log('Pre-fetching', url);
+    preFetched[url] = true;
+    supportedPrefetchStrategy(url);
   };
 
   const matchRoute = (route, declaration) => {
@@ -41,12 +70,7 @@
         continue;
       }
       if (route.chunk) {
-        console.log('Pre-fetching', route.chunk);
-        preFetched[route.chunk] = true;
-        const link = document.createElement('link');
-        link.setAttribute('rel', 'prefetch');
-        link.setAttribute('href', basePath + route.chunk);
-        parentElement.appendChild(link);
+        prefetch(route.chunk);
       }
     }
   };
