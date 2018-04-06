@@ -1,4 +1,39 @@
-(function(history, basePath, graph, thresholds) {
+(function(history, basePath, g, m, thresholds) {
+  class Node {
+    constructor(node, map) {
+      this.node = node;
+      this.map = map;
+    }
+
+    get probability() {
+      return this.node[0];
+    }
+
+    get route() {
+      return this.map.routes[this.node[1]];
+    }
+
+    get chunk() {
+      return this.map.chunks[this.node[2]];
+    }
+  }
+
+  class Graph {
+    constructor(graph, map) {
+      this.graph = graph;
+      this.map = map;
+    }
+
+    findMatch(route) {
+      const result = this.graph.filter((_, i) => matchRoute(this.map.routes[i], route)).pop();
+      if (!result) {
+        return null;
+      }
+      return result.map(n => new Node(n, this.map));
+    }
+  }
+
+  const graph = new Graph(g, m);
   const preFetched = {};
   const polyfillConnection = {
     effectiveType: '3g'
@@ -29,6 +64,9 @@
 
   const prefetch = url => {
     url = basePath + url;
+    if (preFetched[url]) {
+      return;
+    }
     console.log('Pre-fetching', url);
     preFetched[url] = true;
     supportedPrefetchStrategy(url);
@@ -58,19 +96,17 @@
   };
 
   const handleNavigationChange = route => {
-    const current = Object.keys(graph)
-      .filter(matchRoute.bind(null, route))
-      .pop();
-    if (!current) {
+    const nodes = graph.findMatch(route);
+    if (!nodes) {
       return;
     }
     const c = navigator.connection || polyfillConnection;
-    for (const route of graph[current]) {
-      if (route.probability < thresholds[c.effectiveType] || preFetched[route.chunk]) {
+    for (const node of nodes) {
+      if (node.probability < thresholds[c.effectiveType] || preFetched[node.chunk]) {
         continue;
       }
-      if (route.chunk) {
-        prefetch(route.chunk);
+      if (node.chunk) {
+        prefetch(node.chunk);
       }
     }
   };
@@ -85,4 +121,4 @@
     handleNavigationChange(arguments[2]);
     return pushState.apply(history, arguments);
   };
-})(window.history, '<%= BASE_PATH %>', <%= GRAPH %>, <%= THRESHOLDS %>);
+})(window.history, '<%= BASE_PATH %>', <%= GRAPH %>, <%= GRAPH_MAP %>, <%= THRESHOLDS %>);
