@@ -1,72 +1,19 @@
 import { readFileSync } from 'fs';
-import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from './declarations';
+import {
+  CompressedPrefetchGraph,
+  CompressedGraphMap,
+  PrefetchConfig,
+  PrefetchPluginConfig,
+  PrefetchGraph,
+  PrefetchNeighbor,
+  BundleEntryGraph
+} from './declarations';
 import { Graph, RoutingModule } from '../common/interfaces';
+import { compressGraph } from './compress';
 
 const template = require('lodash.template');
 const runtimeTemplate = require('./runtime.tpl');
 const ConcatSource = require('webpack-sources').ConcatSource;
-
-export interface PrefetchPluginConfig {
-  debug?: boolean;
-  data: Graph;
-  basePath?: string;
-  prefetchConfig?: PrefetchConfig;
-  routes: RoutingModule[];
-}
-
-interface BundleEntryNeighbor {
-  route: string;
-  probability: number;
-  file: string;
-}
-
-interface BundleEntryGraph {
-  [node: string]: BundleEntryNeighbor[];
-}
-
-interface PrefetchNeighbor {
-  route: string;
-  probability: number;
-  chunk: string;
-}
-
-interface PrefetchGraph {
-  [node: string]: PrefetchNeighbor[];
-}
-
-const compressGraph = (input: PrefetchGraph, precision: number) => {
-  let currentChunk = 0;
-  let currentRoute = 0;
-  const chunks: { [chunkId: number]: string } = {};
-  const routes: { [routeId: number]: string } = {};
-  const chunkToID: { [chunk: string]: number } = {};
-  const routeToID: { [route: string]: number } = {};
-  const graphMap: CompressedGraphMap = { chunks, routes };
-  const graph: CompressedPrefetchGraph = [];
-  Object.keys(input).forEach(route => {
-    if (routeToID[route] === undefined) {
-      routes[currentRoute] = route;
-      routeToID[route] = currentRoute++;
-    }
-    graph[routeToID[route]] = [];
-    input[route].forEach(n => {
-      if (routeToID[n.route] === undefined) {
-        routes[currentRoute] = n.route;
-        routeToID[n.route] = currentRoute++;
-      }
-      if (chunkToID[n.chunk] === undefined) {
-        chunks[currentChunk] = n.chunk;
-        chunkToID[n.chunk] = currentChunk++;
-      }
-      graph[routeToID[route]].push([
-        parseFloat(n.probability.toFixed(precision)),
-        routeToID[n.route],
-        chunkToID[n.chunk]
-      ]);
-    });
-  });
-  return { graph, graphMap };
-};
 
 export class PrefetchPlugin {
   private _debug: boolean;

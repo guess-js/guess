@@ -26,8 +26,8 @@ export interface Module {
 export type CompressedPrefetchGraph = number[][][];
 
 export interface CompressedGraphMap {
-  chunks: { [chunkId: number]: string };
-  routes: { [routeId: number]: string };
+  chunks: string[];
+  routes: string[];
 }
 
 export interface PrefetchConfig {
@@ -35,4 +35,32 @@ export interface PrefetchConfig {
   '3g': number;
   '2g': number;
   'slow-2g': number;
+}
+
+export interface PrefetchPluginConfig {
+  debug?: boolean;
+  data: Graph;
+  basePath?: string;
+  prefetchConfig?: PrefetchConfig;
+  routes: RoutingModule[];
+}
+
+export interface BundleEntryNeighbor {
+  route: string;
+  probability: number;
+  file: string;
+}
+
+export interface BundleEntryGraph {
+  [node: string]: BundleEntryNeighbor[];
+}
+
+export interface PrefetchNeighbor {
+  route: string;
+  probability: number;
+  chunk: string;
+}
+
+export interface PrefetchGraph {
+  [node: string]: PrefetchNeighbor[];
 }
