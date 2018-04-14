@@ -30,4 +30,4 @@ To publish the packages, make sure you've updated `config.json` which contains t
 npm run build -- -p
 ```
 
-Once you confirm the prompt, the `scripts/build.ts` will build all the packages and publish them.
+Once you confirm the prompt, the `infra/build.ts` will build all the packages and publish them.
