@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { ProjectType, parseRoutes } from '@mlx/parser';
+import { ProjectType, parseRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
 import { RoutingModule } from 'common/interfaces';
 

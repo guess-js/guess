@@ -1,10 +1,10 @@
 # GA
 
-Allows you to fetch data from Google analytics. Combined with `@mlx/parser` you can aggregate the route information and map it to your application's parametrized routes:
+Allows you to fetch data from Google analytics. Combined with `guess-parser` you can aggregate the route information and map it to your application's parametrized routes:
 
 ```ts
-const { fetch } = require('@mlx/ga');
-const { parseRoutes, ProjectType } = require('@mlx/parser');
+const { fetch } = require('guess-ga');
+const { parseRoutes, ProjectType } = require('guess-parser');
 const { writeFileSync } = require('fs');
 
 const key = require('./credentials.json');
@@ -26,7 +26,7 @@ fetch({
 });
 ```
 
-For more details visit [https://github.com/mgechev/mlx](https://github.com/mgechev/mlx).
+For more details visit [https://github.com/guess-js/guess](https://github.com/guess-js/guess).
 
 ## License
 

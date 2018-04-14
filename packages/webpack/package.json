@@ -1,12 +1,12 @@
 {
-  "name": "@mlx/webpack",
+  "name": "guess-webpack",
   "version": "0.0.20",
   "description": "Webpack plugins for the Machine Learning-driven bundler",
   "main": "webpack/index.js",
   "types": "webpack/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mgechev/mlx"
+    "url": "git+https://github.com/guess-js/guess"
   },
   "keywords": [
     "bundling",
@@ -19,12 +19,12 @@
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mgechev/mlx/issues"
+    "url": "https://github.com/guess-js/guess/issues"
   },
-  "homepage": "https://github.com/mgechev/mlx#readme",
+  "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
-    "@mlx/ga": "0.0.20",
-    "@mlx/parser": "0.0.20",
+    "guess-ga": "0.0.20",
+    "guess-parser": "0.0.20",
     "google-oauth2-node": "0.0.2",
     "lodash.template": "^4.4.0",
     "promise.prototype.finally": "^3.1.0"

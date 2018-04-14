@@ -30,9 +30,9 @@ const publish = (path: string) => {
 };
 
 const packageNames: { [key: string]: boolean } = {
-  '@mlx/ga': true,
-  '@mlx/parser': true,
-  '@mlx/webpack': true
+  'guess-ga': true,
+  'guess-parser': true,
+  'guess-webpack': true
 };
 
 const build = (hook = (path: string) => {}) => {

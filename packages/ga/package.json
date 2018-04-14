@@ -1,12 +1,12 @@
 {
-  "name": "@mlx/ga",
+  "name": "guess-ga",
   "version": "0.0.20",
   "description": "Fetch structured data from Google Analytics",
   "main": "ga/index.js",
   "types": "ga/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mgechev/mlx"
+    "url": "git+https://github.com/guess-js/guess"
   },
   "keywords": [
     "bundling",
@@ -21,9 +21,9 @@
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mgechev/mlx/issues"
+    "url": "https://github.com/guess-js/guess/issues"
   },
-  "homepage": "https://github.com/mgechev/mlx#readme",
+  "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
     "googleapis": "^26.0.1"
   },

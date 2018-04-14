@@ -1,5 +1,5 @@
-import { ProjectType, parseRoutes } from '@mlx/parser';
-import { fetch } from '@mlx/ga';
+import { ProjectType, parseRoutes } from 'guess-parser';
+import { fetch } from 'guess-ga';
 
 import { existsSync, readFileSync } from 'fs';
 import { auth } from 'google-oauth2-node';

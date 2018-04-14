@@ -1,12 +1,12 @@
 {
-  "name": "@mlx/parser",
+  "name": "guess-parser",
   "version": "0.0.20",
   "description": "Finds the route declarations in your application.",
   "main": "parser/index.js",
   "types": "parser/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mgechev/mlx"
+    "url": "git+https://github.com/guess-js/guess"
   },
   "keywords": [
     "bundling",
@@ -19,9 +19,9 @@
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mgechev/mlx/issues"
+    "url": "https://github.com/guess-js/guess/issues"
   },
-  "homepage": "https://github.com/mgechev/mlx#readme",
+  "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
     "@angular/compiler": "^5.2.9",
     "@angular/compiler-cli": "^5.2.9",

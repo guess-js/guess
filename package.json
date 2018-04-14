@@ -11,22 +11,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mgechev/mlx.git"
+    "url": "git+https://github.com/guess-js/guess.git"
   },
-  "keywords": [
-    "bundling",
-    "webpack",
-    "ml",
-    "ai",
-    "analytics",
-    "recommendation"
-  ],
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mgechev/mlx/issues"
+    "url": "https://github.com/guess-js/guess/issues"
   },
-  "homepage": "https://github.com/mgechev/mlx#readme",
+  "homepage": "https://github.com/guess-js/guess#readme",
   "devDependencies": {
     "@types/jest": "^22.2.0",
     "@types/meow": "^4.0.1",
@@ -46,13 +39,6 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }
