@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/mgechev/mlx#readme",
   "dependencies": {
-    "@mlx/cluster": "0.0.20",
     "@mlx/ga": "0.0.20",
     "@mlx/parser": "0.0.20",
     "google-oauth2-node": "0.0.2",

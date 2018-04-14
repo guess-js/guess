@@ -12,7 +12,6 @@
     "lib": ["es2015", "esnext", "dom"],
     "paths": {
       "@mlx/parser": ["parser"],
-      "@mlx/cluster": ["cluster"],
       "@mlx/ga": ["ga"]
     }
   },

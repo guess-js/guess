@@ -13,7 +13,14 @@
     "type": "git",
     "url": "git+https://github.com/mgechev/mlx.git"
   },
-  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
+  "keywords": [
+    "bundling",
+    "webpack",
+    "ml",
+    "ai",
+    "analytics",
+    "recommendation"
+  ],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -30,7 +37,7 @@
     "raw-loader": "^0.5.1",
     "ts-jest": "^22.4.1",
     "ts-loader": "^3.5.0",
-    "typescript": "~2.5.0",
+    "typescript": "^2.8.1",
     "webpack": "^3.11.0",
     "webpack-cli": "^2.0.11"
   },
@@ -39,6 +46,13 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

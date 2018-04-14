@@ -5,10 +5,9 @@ import { existsSync, readFileSync } from 'fs';
 import { auth } from 'google-oauth2-node';
 import { shim } from 'promise.prototype.finally';
 
-import { ClusterChunksPlugin } from './build';
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
-import { PrefetchPlugin, PrefetchPluginConfig } from './prefetch-plugin';
+import { Prefetch } from './prefetch';
 import { Graph, RoutingModule, Period } from '../common/interfaces';
 
 shim();
@@ -41,7 +40,7 @@ const year = 365 * 24 * 60 * 60 * 1000;
 
 const id = <T>(r: T) => r;
 
-export class MLPlugin {
+export class GuessPlugin {
   constructor(private _config: MLPluginConfig) {}
 
   apply(compiler: any) {
@@ -79,7 +78,7 @@ export class MLPlugin {
 
   private _executeRuntimePlugin(data: Graph, routes: RoutingModule[], compilation: any) {
     const runtimeConfig = this._config.runtime;
-    new PrefetchPlugin({
+    new Prefetch({
       data,
       basePath: this._config.runtime ? this._config.runtime.basePath : '/',
       prefetchConfig: runtimeConfig ? runtimeConfig.prefetchConfig : undefined,

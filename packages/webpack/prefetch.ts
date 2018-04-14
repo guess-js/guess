@@ -15,7 +15,7 @@ const template = require('lodash.template');
 const runtimeTemplate = require('./runtime.tpl');
 const ConcatSource = require('webpack-sources').ConcatSource;
 
-export class PrefetchPlugin {
+export class Prefetch {
   private _debug: boolean;
 
   constructor(private _config: PrefetchPluginConfig) {
