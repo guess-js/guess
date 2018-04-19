@@ -1,0 +1,44 @@
+{
+  "name": "guess-ga",
+  "version": "0.0.20",
+  "description": "Fetch structured data from Google Analytics",
+  "main": "ga/index.js",
+  "types": "ga/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guess-js/guess"
+  },
+  "keywords": [
+    "bundling",
+    "webpack",
+    "ml",
+    "ai",
+    "google analytics",
+    "ga",
+    "analytics",
+    "recommendation"
+  ],
+  "author": "Minko Gechev <mgechev@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/guess-js/guess/issues"
+  },
+  "homepage": "https://github.com/guess-js/guess#readme",
+  "dependencies": {
+    "googleapis": "^26.0.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}
