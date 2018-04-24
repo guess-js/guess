@@ -12,8 +12,8 @@ export interface AppMetadata {
   details?: AppDetails;
 }
 
-const dep = (p: any, name: string) => (p.dependencies ? p.dependencies[name] : undefined);
-const devDep = (p: any, name: string) => (p.devDependencies ? p.devDependencies[name] : undefined);
+const dep = (p: any) => (name: string) => (p.dependencies ? p.dependencies[name] : undefined);
+const devDep = (p: any) => (name: string) => (p.devDependencies ? p.devDependencies[name] : undefined);
 
 export const detect = (base: string): AppMetadata | undefined => {
   const path = ['package.json', '../package.json']
@@ -25,8 +25,8 @@ export const detect = (base: string): AppMetadata | undefined => {
     throw new Error('Unable to discover the project type');
   }
   const content = JSON.parse(readFileSync(path).toString()) as any;
-  const d = dep.bind(null, content);
-  const dd = devDep.bind(null, content);
+  const d = dep(content);
+  const dd = devDep(content);
   if (dd('@angular/cli')) {
     return {
       type: ProjectType.AngularCLI,
