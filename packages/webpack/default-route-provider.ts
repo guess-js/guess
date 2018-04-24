@@ -1,40 +1,27 @@
 import { readFileSync, existsSync } from 'fs';
-import { ProjectType, parseRoutes } from 'guess-parser';
+import { parseRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
-import { RoutingModule } from 'common/interfaces';
+import { RoutingModule, ProjectType } from 'common/interfaces';
+import { detect } from 'guess-detector';
 
 type RoutingStrategies = { [strategy in Mode]: () => RoutingModule[] };
 
 const defaultParsers: RoutingStrategies = {
   [Mode.Angular]() {
-    return parseRoutes('src/tsconfig.app.json', ProjectType.Angular);
+    return parseRoutes({ type: ProjectType.AngularCLI, version: '' });
   },
   [Mode.ReactTypescript]() {
-    return parseRoutes('tsconfig.json', ProjectType.React);
+    return parseRoutes({ type: ProjectType.CreateReactAppTypeScript, version: '' });
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');
   },
   [Mode.Auto]() {
-    const path = ['package.json', '../package.json'].filter(existsSync).pop();
-    let type: ProjectType | undefined = undefined;
-    let tsconfigPath = '';
-    if (!path) {
+    const app = detect('.');
+    if (!app) {
       throw new Error('Unable to discover the project type');
     }
-    const content = JSON.parse(readFileSync(path).toString()) as any;
-    if (content.dependencies['@angular/core']) {
-      type = ProjectType.Angular;
-      tsconfigPath = 'src/tsconfig.app.json';
-    }
-    if (content.dependencies['react']) {
-      type = ProjectType.React;
-      tsconfigPath = 'tsconfig.json';
-    }
-    if (type === undefined) {
-      throw new Error('Unable to discover the project type');
-    }
-    return parseRoutes(tsconfigPath, type);
+    return parseRoutes(app);
   }
 };
 

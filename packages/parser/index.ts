@@ -1,11 +1,7 @@
 import { parseRoutes as ngParseRoutes } from './ng';
 import { parseRoutes as reactParseRoutes } from './react';
-import { RoutingModule } from '../common/interfaces';
-
-export enum ProjectType {
-  Angular,
-  React
-}
+import { RoutingModule, ProjectType } from '../common/interfaces';
+import { AppMetadata } from 'guess-detector';
 
 const unique = (a: RoutingModule[]) => {
   const map: { [path: string]: RoutingModule } = {};
@@ -13,13 +9,13 @@ const unique = (a: RoutingModule[]) => {
   return Object.keys(map).map(k => map[k]);
 };
 
-export const parseRoutes = (tsconfig: string, projectType: ProjectType) => {
+export const parseRoutes = (app: AppMetadata) => {
   let result: RoutingModule[] | undefined = undefined;
-  if (projectType === ProjectType.Angular) {
-    result = ngParseRoutes(tsconfig);
+  if (app.type === ProjectType.AngularCLI) {
+    result = ngParseRoutes('src/tsconfig.json');
   }
-  if (projectType === ProjectType.React) {
-    result = reactParseRoutes(tsconfig);
+  if (app.type === ProjectType.CreateReactAppTypeScript) {
+    result = reactParseRoutes('tsconfig.json');
   }
   if (!result) {
     throw new Error('Unknown project type');

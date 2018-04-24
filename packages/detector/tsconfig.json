@@ -10,6 +10,6 @@
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"]
   },
-  "files": ["lib/index.ts"],
-  "exclude": ["packages/detector/__tests__/fixtures"]
+  "files": ["index.ts"],
+  "exclude": ["./__tests__/fixtures"]
 }
