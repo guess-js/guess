@@ -5,7 +5,7 @@
     "sourceMap": true,
     "declaration": true,
     "experimentalDecorators": true,
-    "noImplicitAny": true,
+    "strict": true,
     "outDir": "./dist",
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"]

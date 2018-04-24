@@ -25,7 +25,7 @@ export const matchRoute = (route: string, declaration: string): boolean => {
 
 // TODO optimize
 const findRoute = (d: string[], r: string) => {
-  const res = d.filter(d => d.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c));
+  const res = d.filter(def => def.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c));
   if (!res && r && r !== '(entrance)' && d.length) {
     console.warn(`No declaration for ${r}`);
   }
@@ -42,7 +42,7 @@ export const normalize = (data: any, formatter: (s: string) => string, declarati
       return {
         from: processRoute(declarations, formatter(r.dimensions[0])),
         to: processRoute(declarations, formatter(r.dimensions[1])),
-        weight: parseInt(r.metrics[0].values[0])
+        weight: parseInt(r.metrics[0].values[0], 10)
       };
     })
     .filter((node: Connection) => node.from !== '(entrance)' && node.from !== node.to);

@@ -13,7 +13,7 @@ const defaultParsers: RoutingStrategies = {
     return parseRoutes('tsconfig.json', ProjectType.React);
   },
   [Mode.Gatsby](): RoutingModule[] {
-    throw 'Not supported';
+    throw new Error('Not supported');
   },
   [Mode.Auto]() {
     const path = ['package.json', '../package.json'].filter(existsSync).pop();

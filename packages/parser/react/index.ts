@@ -49,6 +49,9 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
 
   while (stack.length) {
     const c = stack.pop();
+    if (!c) {
+      return result;
+    }
     if (c.kind === ts.SyntaxKind.JsxElement || c.kind === ts.SyntaxKind.JsxSelfClosingElement) {
       let el: ts.JsxSelfClosingElement | ts.JsxOpeningElement = (c as ts.JsxElement).openingElement;
       if (c.kind === ts.SyntaxKind.JsxSelfClosingElement) {
@@ -93,7 +96,7 @@ export const parseRoutes = (tsconfig: string) => {
   const parsed = ts.parseJsonConfigFileContent(config, parseConfigHost, basePath);
   const program = ts.createProgram(parsed.fileNames, parsed.options);
   const jsxFiles = program.getSourceFiles().filter(f => f.fileName.endsWith('.tsx') || f.fileName.endsWith('.jsx'));
-  const routes = jsxFiles.reduce((a, f) => a.concat(extractRoutes(f)), []);
+  const routes = jsxFiles.reduce((a, f) => a.concat(extractRoutes(f)), [] as RoutingModule[]);
   const modules = routes.reduce(
     (a, r) => {
       a[r.modulePath] = true;
@@ -101,12 +104,14 @@ export const parseRoutes = (tsconfig: string) => {
     },
     {} as { [key: string]: boolean }
   );
-  const rootModulePath = routes.filter(r => !modules[r.parentModulePath]).pop().parentModulePath;
-  routes.push({
-    path: '/',
-    parentModulePath: null,
-    modulePath: rootModulePath,
-    lazy: false
-  });
+  const rootModule = routes.filter(r => r.parentModulePath && !modules[r.parentModulePath]).pop();
+  if (rootModule) {
+    routes.push({
+      path: '/',
+      parentModulePath: null,
+      modulePath: rootModule.parentModulePath,
+      lazy: false
+    } as RoutingModule);
+  }
   return routes;
 };

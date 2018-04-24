@@ -7,16 +7,12 @@ export enum Mode {
   Auto = 'auto'
 }
 
-export interface RouteProvider {
-  (): RoutingModule[];
-}
+export type RouteProvider = () => RoutingModule[];
 
 export type Cluster = string[];
 export type Clusters = Cluster[];
 
-export interface ClusteringAlgorithm {
-  (graph: Graph, modules: Module[], totalClusters: number): Clusters;
-}
+export type ClusteringAlgorithm = (graph: Graph, modules: Module[], totalClusters: number) => Clusters;
 
 export interface Module {
   modulePath: string;
