@@ -40,7 +40,10 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": ["<rootDir>/packages/detector/__tests__/fixtures"],
+    "testPathIgnorePatterns": [
+      "<rootDir>/packages/detector/__tests__/fixtures",
+      "<rootDir>/packages/parser/__tests__/fixtures"
+    ],
     "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }
