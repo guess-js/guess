@@ -1,4 +1,3 @@
-import { ProjectType, parseRoutes } from 'guess-parser';
 import { fetch } from 'guess-ga';
 
 import { existsSync, readFileSync } from 'fs';
@@ -52,10 +51,10 @@ export class GuessPlugin {
       clientId,
       clientSecret,
       scope
-    }).then((auth: any) => {
+    }).then((token: any) => {
       const { google } = require('googleapis');
       const oauth2Client = new google.auth.OAuth2();
-      oauth2Client.setCredentials(auth);
+      oauth2Client.setCredentials(token);
 
       const routes = (this._config.routeProvider || defaultRouteProvider(this._config.mode || Mode.Auto))();
 

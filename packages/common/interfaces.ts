@@ -1,4 +1,6 @@
-export type Neighbors = { [key: string]: number };
+export interface Neighbors {
+  [key: string]: number;
+}
 
 export interface Graph {
   [key: string]: Neighbors;
@@ -12,7 +14,7 @@ export interface Module {
 export interface RoutingModule {
   path: string;
   modulePath: string;
-  parentModulePath: string;
+  parentModulePath: string | null;
   lazy: boolean;
 }
 

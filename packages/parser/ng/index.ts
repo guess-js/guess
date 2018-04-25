@@ -1,4 +1,4 @@
-import { ProjectSymbols } from 'ngast';
+import { ProjectSymbols, ModuleSymbol } from 'ngast';
 import { readFileSync, readFile, writeFileSync } from 'fs';
 import { CompileIdentifierMetadata, CompileProviderMetadata } from '@angular/compiler';
 import { Route } from '@angular/compiler/src/core';
@@ -43,8 +43,11 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
       get(name: string) {
         return new Promise((resolve: any, reject: any) => {
           readFile(name, (e, data) => {
-            if (e) reject(e);
-            else resolve(data.toString());
+            if (e) {
+              reject(e);
+            } else {
+              resolve(data.toString());
+            }
           });
         });
       },
@@ -55,20 +58,25 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     e => console.error(e)
   );
 
-  const m = s.getModules().map(m => {
-    return m.getModuleSummary().providers.filter(p => {
-      return p.provider.token.identifier.reference.name === 'ROUTES';
-    });
+  const m = s.getModules().map((module: ModuleSymbol) => {
+    const summary = module.getModuleSummary();
+    if (summary) {
+      return summary.providers.filter(p => {
+        return p.provider.token.identifier && p.provider.token.identifier.reference.name === 'ROUTES';
+      });
+    }
+    return [];
   });
 
   const flattened = m.concat.apply([], m) as RawModuleData[];
 
   const rawMap: { [key: string]: RawModuleData } = {};
-  flattened.forEach(m => {
-    rawMap[key(m.module.reference)] = m;
+  flattened.forEach(module => {
+    rawMap[key(module.module.reference)] = module;
   });
 
-  const root = flattened.find(m => m.module.reference.name === 'AppModule');
+  // Relying on a convention established in https://angular.io/styleguide
+  const root = flattened.find(module => module.module.reference.name === 'AppModule');
 
   const result: RoutingModule[] = [];
 
@@ -76,8 +84,8 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     modulePath: string,
     routes: Route[],
     parentRoute: string,
-    rawMap: { [key: string]: RawModuleData },
-    result: RoutingModule[],
+    rawModuleMap: { [key: string]: RawModuleData },
+    routingModules: RoutingModule[],
     parentModule: string | null
   ) => {
     const parts = modulePath.split('/');
@@ -89,26 +97,26 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
       parent: string;
     }
 
-    const r: RouteWithParent[] = routes.map(r => ({
-      route: r,
+    const r: RouteWithParent[] = routes.map(currentRoute => ({
+      route: currentRoute,
       parent: parentRoute
     }));
 
     while (r.length) {
-      const c = r.pop();
+      const c = r.pop() as RouteWithParent;
       const path = (c.route as any).path;
 
       let module = modulePath;
       if (c.route.loadChildren) {
-        const path = c.route.loadChildren.split('#')[0] + '.ts';
+        const routePath = c.route.loadChildren.split('#')[0] + '.ts';
         const parentParts = modulePath.split('/');
         parentParts.pop();
         const parentPath = parentParts.join('/');
-        module = join(parentPath, path);
+        module = join(parentPath, routePath);
       }
 
       const currentPath = normalize('/' + join(c.parent, path));
-      result.push({
+      routingModules.push({
         path: currentPath,
         modulePath: module,
         lazy: !!c.route.loadChildren,
@@ -116,15 +124,15 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
       });
 
       if (c.route.loadChildren) {
-        const parts = c.route.loadChildren.split('#');
-        const childModule = join(filePath, parts[0]) + '.ts';
-        const key = childModule + '#' + parts[1];
+        const routeParts = c.route.loadChildren.split('#');
+        const childModule = join(filePath, routeParts[0]) + '.ts';
+        const moduleKey = childModule + '#' + routeParts[1];
         findRoutes(
           childModule,
-          rawMap[key].provider.useValue as Route[],
+          rawModuleMap[moduleKey].provider.useValue as Route[],
           join(c.parent, (c.route as any).path),
-          rawMap,
-          result,
+          rawModuleMap,
+          routingModules,
           modulePath
         );
       }
@@ -137,7 +145,9 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     }
   };
 
-  findRoutes(root.module.reference.filePath, root.provider.useValue as Route[], '', rawMap, result, null);
+  if (root) {
+    findRoutes(root.module.reference.filePath, root.provider.useValue as Route[], '', rawMap, result, null);
+  }
 
   return result;
 };

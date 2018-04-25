@@ -119,7 +119,7 @@ export const initialize = (
 
   const pushState = history.pushState;
   history.pushState = function(state) {
-    if (typeof (history as any).onpushstate == 'function') {
+    if (typeof (history as any).onpushstate === 'function') {
       (history as any).onpushstate({ state: state });
     }
     handleNavigationChange(graph, basePath, thresholds, arguments[2]);

@@ -1,7 +1,7 @@
 import { Period } from '../common/interfaces';
 
 interface PageConfig {
-  pageToken: number;
+  pageToken: number | undefined;
   pageSize: number;
 }
 
