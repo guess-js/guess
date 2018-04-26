@@ -97,7 +97,7 @@ const getRoutingModules = (projectSymbols: ProjectSymbols) => {
   });
 };
 
-export const parseRoutes = (tsconfig: string): RoutingModule[] => {
+export const parseRoutes = (tsconfig: string = 'src/tsconfig.json'): RoutingModule[] => {
   const projectSymbols = getProjectSymbols(tsconfig);
   const allRoutingModules = getRoutingModules(projectSymbols);
   const flattened = allRoutingModules.concat.apply([], allRoutingModules) as RawModuleData[];

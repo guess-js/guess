@@ -1,4 +1,4 @@
-import { parseRoutes } from '../ng';
+import { parseRoutes } from '../angular-cli';
 
 const fixtureRoutes = new Set<string>(['/', '/bar', '/foo']);
 

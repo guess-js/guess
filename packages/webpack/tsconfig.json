@@ -12,8 +12,7 @@
     "lib": ["es2015", "esnext", "dom"],
     "paths": {
       "guess-parser": ["parser"],
-      "guess-ga": ["ga"],
-      "guess-detector": ["detector"]
+      "guess-ga": ["ga"]
     }
   },
   "files": ["index.ts"]

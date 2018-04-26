@@ -1,7 +1,10 @@
-import { parseRoutes as ngParseRoutes } from './ng';
-import { parseRoutes as reactParseRoutes } from './react';
+import { parseRoutes as ngParseRoutes } from './angular-cli';
+import { parseRoutes as reactParseRoutes } from './react-ts';
 import { RoutingModule, ProjectType } from '../common/interfaces';
-import { AppMetadata } from 'guess-detector';
+import { AppMetadata, detect } from './detector';
+
+export { parseRoutes as ngParseRoutes } from './angular-cli';
+export { parseRoutes as reactParseRoutes } from './react-ts';
 
 const unique = (a: RoutingModule[]) => {
   const map: { [path: string]: RoutingModule } = {};
@@ -9,8 +12,12 @@ const unique = (a: RoutingModule[]) => {
   return Object.keys(map).map(k => map[k]);
 };
 
-export const parseRoutes = (app: AppMetadata) => {
+export const parseRoutes = (base: string) => {
   let result: RoutingModule[] | undefined = undefined;
+  const app = detect(base);
+  if (!app) {
+    throw new Error('Cannot detect the application type');
+  }
   if (app.type === ProjectType.AngularCLI) {
     result = ngParseRoutes('src/tsconfig.json');
   }
