@@ -4,21 +4,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RoutingModule } from '../../common/interfaces';
 
-const parseConfigHost = {
-  useCaseSensitiveFileNames: true,
-  fileExists: fs.existsSync,
-  readDirectory: ts.sys.readDirectory,
-  readFile: ts.sys.readFile
-};
-
-const calcProjectFileAndBasePath = (project: string): { projectFile: string; basePath: string } => {
-  const projectIsDir = fs.lstatSync(project).isDirectory();
-  const projectFile = projectIsDir ? path.join(project, 'tsconfig.json') : project;
-  const projectDir = projectIsDir ? project : path.dirname(project);
-  const basePath = path.resolve(process.cwd(), projectDir);
-  return { projectFile, basePath };
-};
-
 const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
   const result: RoutingModule[] = [];
   const stack: ts.Node[] = [file];
@@ -92,14 +77,8 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
   return result;
 };
 
-export const parseRoutes = (tsconfig: string) => {
-  const { config, error } = ts.readConfigFile(tsconfig, (f: string) => readFileSync(f).toString());
-  if (error) {
-    throw error;
-  }
-  const { basePath } = calcProjectFileAndBasePath(tsconfig);
-  const parsed = ts.parseJsonConfigFileContent(config, parseConfigHost, basePath);
-  const program = ts.createProgram(parsed.fileNames, parsed.options);
+export const parseReactRoutes = (files: string[], options: ts.CompilerOptions) => {
+  const program = ts.createProgram(files, options);
   const jsxFiles = program.getSourceFiles().filter(f => f.fileName.endsWith('.tsx') || f.fileName.endsWith('.jsx'));
   const routes = jsxFiles.reduce((a, f) => a.concat(extractRoutes(f)), [] as RoutingModule[]);
   const modules = routes.reduce(

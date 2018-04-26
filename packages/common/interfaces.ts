@@ -39,6 +39,7 @@ export enum ProjectType {
 export interface ProjectConfig {
   typescript?: string;
   tsconfigPath?: string;
+  sourceDir?: string;
 }
 
 export interface ProjectMetadata {

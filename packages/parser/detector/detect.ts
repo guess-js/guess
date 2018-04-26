@@ -24,7 +24,8 @@ export const detect = (base: string): ProjectMetadata | undefined => {
       version: dd('@angular/cli'),
       details: {
         typescript: dd('typescript'),
-        tsconfigPath: join(base, 'src', 'tsconfig.app.json')
+        tsconfigPath: join(base, 'src', 'tsconfig.app.json'),
+        sourceDir: 'src'
       }
     };
   }
@@ -40,14 +41,18 @@ export const detect = (base: string): ProjectMetadata | undefined => {
       version: d('react-scripts-ts'),
       details: {
         typescript: dd('typescript'),
-        tsconfigPath: join(base, 'tsconfig.json')
+        tsconfigPath: join(base, 'tsconfig.json'),
+        sourceDir: 'src'
       }
     };
   }
   if (d('react') && d('react-scripts')) {
     return {
       type: ProjectType.CreateReactApp,
-      version: d('react-scripts')
+      version: d('react-scripts'),
+      details: {
+        sourceDir: 'src'
+      }
     };
   }
   return undefined;
