@@ -1,18 +1,18 @@
 import { readFileSync, existsSync } from 'fs';
 import { parseRoutes, ngParseRoutes, reactParseRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
-import { RoutingModule, ProjectType, ProjectConfig } from 'common/interfaces';
+import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
 
-type RoutingStrategies = { [strategy in Mode]: (config?: ProjectConfig) => RoutingModule[] };
+type RoutingStrategies = { [strategy in Mode]: (config?: ProjectLayout) => RoutingModule[] };
 
 const defaultParsers: RoutingStrategies = {
-  [Mode.Angular](config?: ProjectConfig) {
+  [Mode.Angular](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
       throw new Error('For Angular project specify a tsconfig file');
     }
     return ngParseRoutes(config.tsconfigPath);
   },
-  [Mode.ReactTypescript](config?: ProjectConfig) {
+  [Mode.ReactTypescript](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
       throw new Error('For React TypeScript project specify a tsconfig file');
     }
@@ -26,5 +26,5 @@ const defaultParsers: RoutingStrategies = {
   }
 };
 
-export const defaultRouteProvider = (mode: Mode, config?: ProjectConfig): (() => RoutingModule[]) => () =>
+export const defaultRouteProvider = (mode: Mode, config?: ProjectLayout): (() => RoutingModule[]) => () =>
   defaultParsers[mode](config);

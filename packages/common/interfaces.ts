@@ -36,7 +36,7 @@ export enum ProjectType {
   CreateReactAppTypeScript = 'create-react-app-typescript'
 }
 
-export interface ProjectConfig {
+export interface ProjectLayout {
   typescript?: string;
   tsconfigPath?: string;
   sourceDir?: string;
@@ -45,5 +45,5 @@ export interface ProjectConfig {
 export interface ProjectMetadata {
   type: ProjectType;
   version: string;
-  details?: ProjectConfig;
+  details?: ProjectLayout;
 }
