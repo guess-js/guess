@@ -4,6 +4,7 @@ import { ProjectType } from '../../common/interfaces';
 
 export interface AppDetails {
   typescript?: string;
+  tsconfigPath?: string;
 }
 
 export interface AppMetadata {
@@ -25,14 +26,16 @@ export const detect = (base: string): AppMetadata | undefined => {
     throw new Error('Unable to discover the project type');
   }
   const content = JSON.parse(readFileSync(path).toString()) as any;
+  const exists = (file: string) => existsSync(join(base, file));
   const d = dep(content);
   const dd = devDep(content);
-  if (dd('@angular/cli')) {
+  if (dd('@angular/cli') && exists(join('src', 'tsconfig.app.json'))) {
     return {
       type: ProjectType.AngularCLI,
       version: dd('@angular/cli'),
       details: {
-        typescript: dd('typescript')
+        typescript: dd('typescript'),
+        tsconfigPath: join(base, 'src', 'tsconfig.app.json')
       }
     };
   }
@@ -42,16 +45,17 @@ export const detect = (base: string): AppMetadata | undefined => {
       version: d('gatsby')
     };
   }
-  if (d('react') && dd('typescript')) {
+  if (d('react') && d('react-scripts-ts') && exists('tsconfig.json')) {
     return {
       type: ProjectType.CreateReactAppTypeScript,
       version: d('react-scripts-ts'),
       details: {
-        typescript: dd('typescript')
+        typescript: dd('typescript'),
+        tsconfigPath: join(base, 'tsconfig.json')
       }
     };
   }
-  if (d('react')) {
+  if (d('react') && d('react-scripts')) {
     return {
       type: ProjectType.CreateReactApp,
       version: d('react-scripts')
