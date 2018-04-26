@@ -1,22 +1,11 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { ProjectType } from '../../common/interfaces';
-
-export interface AppDetails {
-  typescript?: string;
-  tsconfigPath?: string;
-}
-
-export interface AppMetadata {
-  type: ProjectType;
-  version: string;
-  details?: AppDetails;
-}
+import { ProjectType, ProjectMetadata } from '../../common/interfaces';
 
 const dep = (p: any) => (name: string) => (p.dependencies ? p.dependencies[name] : undefined);
 const devDep = (p: any) => (name: string) => (p.devDependencies ? p.devDependencies[name] : undefined);
 
-export const detect = (base: string): AppMetadata | undefined => {
+export const detect = (base: string): ProjectMetadata | undefined => {
   const path = ['package.json', '../package.json']
     .map(p => join(base, p))
     .filter(existsSync)

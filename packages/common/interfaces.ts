@@ -35,3 +35,14 @@ export enum ProjectType {
   Gatsby = 'gatsby',
   CreateReactAppTypeScript = 'create-react-app-typescript'
 }
+
+export interface ProjectConfig {
+  typescript?: string;
+  tsconfigPath?: string;
+}
+
+export interface ProjectMetadata {
+  type: ProjectType;
+  version: string;
+  details?: ProjectConfig;
+}

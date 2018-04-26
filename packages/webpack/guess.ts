@@ -7,7 +7,7 @@ import { shim } from 'promise.prototype.finally';
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
 import { Prefetch } from './prefetch';
-import { Graph, RoutingModule, Period } from '../common/interfaces';
+import { Graph, RoutingModule, Period, ProjectConfig } from '../common/interfaces';
 
 shim();
 
@@ -18,16 +18,17 @@ export interface RuntimeConfig {
   prefetchConfig?: PrefetchConfig;
 }
 
-export interface MLPluginConfig {
+export interface GuessPluginConfig {
   GA: string;
   mode?: Mode;
+  projectConfig?: ProjectConfig;
   period?: Period;
   /** @internal */
   routeFormatter?: (path: string) => string;
   /** @internal */
   debug?: boolean;
   /** @internal */
-  runtime?: false | RuntimeConfig;
+  runtime?: RuntimeConfig;
   /** @internal */
   routeProvider?: RouteProvider;
 }
@@ -40,7 +41,7 @@ const year = 365 * 24 * 60 * 60 * 1000;
 const id = <T>(r: T) => r;
 
 export class GuessPlugin {
-  constructor(private _config: MLPluginConfig) {}
+  constructor(private _config: GuessPluginConfig) {}
 
   apply(compiler: any) {
     compiler.plugin('emit', (compilation: any, cb: any) => this._execute(compilation, cb));
@@ -56,7 +57,8 @@ export class GuessPlugin {
       const oauth2Client = new google.auth.OAuth2();
       oauth2Client.setCredentials(token);
 
-      const routes = (this._config.routeProvider || defaultRouteProvider(this._config.mode || Mode.Auto))();
+      const routes = (this._config.routeProvider ||
+        defaultRouteProvider(this._config.mode || Mode.Auto, this._config.projectConfig))();
 
       fetch({
         viewId: this._config.GA,
