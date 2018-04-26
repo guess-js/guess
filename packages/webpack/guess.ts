@@ -7,7 +7,7 @@ import { shim } from 'promise.prototype.finally';
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
 import { Prefetch } from './prefetch';
-import { Graph, RoutingModule, Period, ProjectConfig } from '../common/interfaces';
+import { Graph, RoutingModule, Period, ProjectLayout } from '../common/interfaces';
 
 shim();
 
@@ -21,7 +21,7 @@ export interface RuntimeConfig {
 export interface GuessPluginConfig {
   GA: string;
   mode?: Mode;
-  projectConfig?: ProjectConfig;
+  layout?: ProjectLayout;
   period?: Period;
   /** @internal */
   routeFormatter?: (path: string) => string;
@@ -58,7 +58,7 @@ export class GuessPlugin {
       oauth2Client.setCredentials(token);
 
       const routes = (this._config.routeProvider ||
-        defaultRouteProvider(this._config.mode || Mode.Auto, this._config.projectConfig))();
+        defaultRouteProvider(this._config.mode || Mode.Auto, this._config.layout))();
 
       fetch({
         viewId: this._config.GA,
