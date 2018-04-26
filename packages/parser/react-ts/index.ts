@@ -32,6 +32,9 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
     if (!expr) {
       return '';
     }
+    if (!expr.arguments) {
+      return '';
+    }
     const arrow = expr.arguments[0] as ts.ArrowFunction | null;
     if (!arrow) {
       return '';
@@ -72,9 +75,11 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
             const parts = file.fileName.split('/');
             parts.pop();
             const tempName = extractModule(p as ts.JsxAttribute);
-            const name = tempName + '.tsx';
-            module.modulePath = '/' + path.join(...parts.concat([name]));
-            module.lazy = true;
+            if (tempName) {
+              const name = tempName + '.tsx';
+              module.modulePath = '/' + path.join(...parts.concat([name]));
+              module.lazy = true;
+            }
           }
           result.push(module as RoutingModule);
         });
@@ -113,5 +118,12 @@ export const parseRoutes = (tsconfig: string) => {
       lazy: false
     } as RoutingModule);
   }
-  return routes;
+  const routeMap = routes.reduce(
+    (a, m) => {
+      a[m.path] = m;
+      return a;
+    },
+    {} as { [key: string]: RoutingModule }
+  );
+  return Object.keys(routeMap).map(k => routeMap[k]);
 };

@@ -1,20 +1,28 @@
+import createBrowserHistory from 'history/createBrowserHistory';
 import * as React from 'react';
+import { Redirect, Route, Router, Switch } from 'react-router';
+import { Link } from 'react-router-dom';
 import './App.css';
+import { AsyncComponent } from './LazyRoute';
 
-import logo from './logo.svg';
+const history = createBrowserHistory();
 
 class App extends React.Component {
   public render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.tsx</code> and save to reload.
-        </p>
-      </div>
+      <Router history={history}>
+        <div className="App">
+          <Link to="/intro">Intro</Link>
+          <Link to="/main">Main</Link>
+          <div>
+            <Switch>
+              <Redirect exact={true} from="/" to="/intro" />
+              <Route path="/intro" component={AsyncComponent(() => import('./intro/Intro'))} />
+              <Route path="/main" component={AsyncComponent(() => import('./main/Main'))} />
+            </Switch>
+          </div>
+        </div>
+      </Router>
     );
   }
 }
