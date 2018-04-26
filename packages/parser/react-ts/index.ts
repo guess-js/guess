@@ -87,7 +87,7 @@ const extractRoutes = (file: ts.SourceFile): RoutingModule[] => {
   return result;
 };
 
-export const parseRoutes = (tsconfig: string = 'tsconfig.json') => {
+export const parseRoutes = (tsconfig: string) => {
   const { config, error } = ts.readConfigFile(tsconfig, (f: string) => readFileSync(f).toString());
   if (error) {
     throw error;

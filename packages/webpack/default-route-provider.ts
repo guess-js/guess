@@ -10,13 +10,13 @@ const defaultParsers: RoutingStrategies = {
     if (!config || !config.tsconfigPath) {
       throw new Error('For Angular project specify a tsconfig file');
     }
-    return ngParseRoutes();
+    return ngParseRoutes(config.tsconfigPath);
   },
   [Mode.ReactTypescript](config?: ProjectConfig) {
     if (!config || !config.tsconfigPath) {
       throw new Error('For React TypeScript project specify a tsconfig file');
     }
-    return reactParseRoutes();
+    return reactParseRoutes(config.tsconfigPath);
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');
