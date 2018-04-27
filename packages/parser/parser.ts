@@ -1,7 +1,8 @@
 import { parseRoutes as ngParseRoutes } from './angular';
-import { parseRoutes as reactParseRoutes } from './react-ts';
+import { parseReactTSXRoutes, parseReactJSXRoutes } from './react';
 import { RoutingModule, ProjectType } from '../common/interfaces';
 import { detect } from './detector';
+import { join } from 'path';
 
 const unique = (a: RoutingModule[]) => {
   const map: { [path: string]: RoutingModule } = {};
@@ -19,7 +20,10 @@ export const parseRoutes = (base: string) => {
     result = ngParseRoutes(app.details.tsconfigPath);
   }
   if (app.type === ProjectType.CreateReactAppTypeScript && app.details && app.details.tsconfigPath) {
-    result = reactParseRoutes(app.details.tsconfigPath);
+    result = parseReactTSXRoutes(app.details.tsconfigPath);
+  }
+  if (app.type === ProjectType.CreateReactApp && app.details && app.details.sourceDir) {
+    result = parseReactJSXRoutes(join(base, app.details.sourceDir));
   }
   if (!result) {
     throw new Error('Unknown project type');

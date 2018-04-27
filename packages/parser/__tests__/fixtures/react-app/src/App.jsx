@@ -8,7 +8,7 @@ import { AsyncComponent } from './LazyRoute';
 const history = createBrowserHistory();
 
 class App extends React.Component {
-  public render() {
+  render() {
     return (
       <Router history={history}>
         <div className="App">
