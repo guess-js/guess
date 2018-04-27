@@ -1,41 +1,30 @@
 import { readFileSync, existsSync } from 'fs';
-import { ProjectType, parseRoutes } from 'guess-parser';
+import { parseRoutes, ngParseRoutes, reactParseRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
-import { RoutingModule } from 'common/interfaces';
+import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
 
-type RoutingStrategies = { [strategy in Mode]: () => RoutingModule[] };
+type RoutingStrategies = { [strategy in Mode]: (config?: ProjectLayout) => RoutingModule[] };
 
 const defaultParsers: RoutingStrategies = {
-  [Mode.Angular]() {
-    return parseRoutes('src/tsconfig.app.json', ProjectType.Angular);
+  [Mode.Angular](config?: ProjectLayout) {
+    if (!config || !config.tsconfigPath) {
+      throw new Error('For Angular project specify a tsconfig file');
+    }
+    return ngParseRoutes(config.tsconfigPath);
   },
-  [Mode.ReactTypescript]() {
-    return parseRoutes('tsconfig.json', ProjectType.React);
+  [Mode.ReactTypescript](config?: ProjectLayout) {
+    if (!config || !config.tsconfigPath) {
+      throw new Error('For React TypeScript project specify a tsconfig file');
+    }
+    return reactParseRoutes(config.tsconfigPath);
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');
   },
   [Mode.Auto]() {
-    const path = ['package.json', '../package.json'].filter(existsSync).pop();
-    let type: ProjectType | undefined = undefined;
-    let tsconfigPath = '';
-    if (!path) {
-      throw new Error('Unable to discover the project type');
-    }
-    const content = JSON.parse(readFileSync(path).toString()) as any;
-    if (content.dependencies['@angular/core']) {
-      type = ProjectType.Angular;
-      tsconfigPath = 'src/tsconfig.app.json';
-    }
-    if (content.dependencies['react']) {
-      type = ProjectType.React;
-      tsconfigPath = 'tsconfig.json';
-    }
-    if (type === undefined) {
-      throw new Error('Unable to discover the project type');
-    }
-    return parseRoutes(tsconfigPath, type);
+    return parseRoutes('');
   }
 };
 
-export const defaultRouteProvider = (mode: Mode): RouteProvider => defaultParsers[mode];
+export const defaultRouteProvider = (mode: Mode, config?: ProjectLayout): (() => RoutingModule[]) => () =>
+  defaultParsers[mode](config);

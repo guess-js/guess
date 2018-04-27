@@ -28,3 +28,21 @@ export interface Period {
   startDate: Date;
   endDate: Date;
 }
+
+export enum ProjectType {
+  AngularCLI = 'angular-cli',
+  CreateReactApp = 'create-react-app',
+  Gatsby = 'gatsby',
+  CreateReactAppTypeScript = 'create-react-app-typescript'
+}
+
+export interface ProjectLayout {
+  typescript?: string;
+  tsconfigPath?: string;
+}
+
+export interface ProjectMetadata {
+  type: ProjectType;
+  version: string;
+  details?: ProjectLayout;
+}

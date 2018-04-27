@@ -11,7 +11,5 @@
     "lib": ["es2015", "esnext", "dom"]
   },
   "files": ["lib/index.ts"],
-  "angularCompilerOptions": {
-    "skipTemplateCodegen": true
-  }
+  "exclude": ["packages/detector/__tests__/fixtures"]
 }

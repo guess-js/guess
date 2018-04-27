@@ -36,8 +36,34 @@ const collectRoutes = (modules: RawModuleData[], result: ModuleTree) => {
   modules.forEach(m => processModule(m, result));
 };
 
-export const parseRoutes = (tsconfig: string): RoutingModule[] => {
-  const s = new ProjectSymbols(
+const getRootModule = (projectSymbols: ProjectSymbols) => {
+  return projectSymbols.getModules().reduce((res: RawModuleData | null, module: ModuleSymbol) => {
+    const summary = module.getModuleSummary();
+    if (!summary || res) {
+      return res;
+    }
+    const initializerModules = new Set(
+      summary.providers
+        .filter(
+          p => !!p.provider.token.identifier && p.provider.token.identifier.reference.name === 'ROUTER_INITIALIZER'
+        )
+        .map(moduleWithProvider => moduleWithProvider.module)
+    );
+    return (
+      summary.providers
+        .filter(
+          p =>
+            !!p.provider.token.identifier &&
+            p.provider.token.identifier.reference.name === 'ROUTES' &&
+            initializerModules.has(p.module)
+        )
+        .pop() || null
+    );
+  }, null);
+};
+
+const getProjectSymbols = (tsconfig: string) => {
+  return new ProjectSymbols(
     tsconfig,
     {
       get(name: string) {
@@ -57,26 +83,33 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     },
     e => console.error(e)
   );
+};
 
-  const m = s.getModules().map((module: ModuleSymbol) => {
+const getRoutingModules = (projectSymbols: ProjectSymbols) => {
+  return projectSymbols.getModules().map((module: ModuleSymbol) => {
     const summary = module.getModuleSummary();
-    if (summary) {
-      return summary.providers.filter(p => {
-        return p.provider.token.identifier && p.provider.token.identifier.reference.name === 'ROUTES';
-      });
+    if (!summary) {
+      return [];
     }
-    return [];
+    return summary.providers.filter(
+      p => p.provider.token.identifier && p.provider.token.identifier.reference.name === 'ROUTES'
+    );
   });
+};
 
-  const flattened = m.concat.apply([], m) as RawModuleData[];
+export const parseRoutes = (tsconfig: string): RoutingModule[] => {
+  const projectSymbols = getProjectSymbols(tsconfig);
+  const allRoutingModules = getRoutingModules(projectSymbols);
+  const flattened = allRoutingModules.concat.apply([], allRoutingModules) as RawModuleData[];
+  const root = getRootModule(projectSymbols);
+  if (!root) {
+    throw new Error('Cannot find the root module');
+  }
 
   const rawMap: { [key: string]: RawModuleData } = {};
   flattened.forEach(module => {
     rawMap[key(module.module.reference)] = module;
   });
-
-  // Relying on a convention established in https://angular.io/styleguide
-  const root = flattened.find(module => module.module.reference.name === 'AppModule');
 
   const result: RoutingModule[] = [];
 
@@ -127,14 +160,19 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
         const routeParts = c.route.loadChildren.split('#');
         const childModule = join(filePath, routeParts[0]) + '.ts';
         const moduleKey = childModule + '#' + routeParts[1];
-        findRoutes(
-          childModule,
-          rawModuleMap[moduleKey].provider.useValue as Route[],
-          join(c.parent, (c.route as any).path),
-          rawModuleMap,
-          routingModules,
-          modulePath
-        );
+
+        // We want to invoke the function recursively only
+        // with routing modules.
+        if (rawModuleMap[moduleKey]) {
+          findRoutes(
+            childModule,
+            rawModuleMap[moduleKey].provider.useValue as Route[],
+            join(c.parent, (c.route as any).path),
+            rawModuleMap,
+            routingModules,
+            modulePath
+          );
+        }
       }
       (c.route.children || []).forEach(x => {
         r.push({

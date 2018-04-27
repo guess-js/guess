@@ -15,8 +15,5 @@
       "guess-ga": ["ga"]
     }
   },
-  "files": ["index.ts"],
-  "angularCompilerOptions": {
-    "skipTemplateCodegen": true
-  }
+  "files": ["index.ts"]
 }
