@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { ProjectType, ProjectMetadata } from '../../common/interfaces';
+import { ProjectType, ProjectMetadata } from '../../../common/interfaces';
 
 const dep = (p: any) => (name: string) => (p.dependencies ? p.dependencies[name] : undefined);
 const devDep = (p: any) => (name: string) => (p.devDependencies ? p.devDependencies[name] : undefined);

@@ -2,7 +2,7 @@ import { readFileSync, lstatSync, existsSync } from 'fs';
 import * as ts from 'typescript';
 import { join, dirname, resolve } from 'path';
 import { parseReactRoutes } from './';
-import { RoutingModule } from '../../common/interfaces';
+import { RoutingModule } from '../../../common/interfaces';
 
 const parseConfigHost = {
   useCaseSensitiveFileNames: true,

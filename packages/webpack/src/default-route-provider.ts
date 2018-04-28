@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { parseRoutes, ngParseRoutes, reactParseRoutes } from 'guess-parser';
+import { parseRoutes, ngParseRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
 import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
 
@@ -12,11 +12,17 @@ const defaultParsers: RoutingStrategies = {
     }
     return ngParseRoutes(config.tsconfigPath);
   },
-  [Mode.ReactTypescript](config?: ProjectLayout) {
+  [Mode.ReactTSX](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
       throw new Error('For React TypeScript project specify a tsconfig file');
     }
-    return reactParseRoutes(config.tsconfigPath);
+    return parseReactTSXRoutes(config.tsconfigPath);
+  },
+  [Mode.ReactJSX](config?: ProjectLayout) {
+    if (!config || !config.sourceDir) {
+      throw new Error('For React TypeScript project specify a tsconfig file');
+    }
+    return parseReactJSXRoutes(config.sourceDir);
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');

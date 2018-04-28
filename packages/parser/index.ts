@@ -1,4 +1,4 @@
-export { parseRoutes } from './parser';
-export { detect as projectDetector } from './detector';
-export { parseRoutes as ngParseRoutes } from './angular';
-export * from './react';
+export { parseRoutes } from './src/parser';
+export { detect as projectDetector } from './src/detector';
+export { parseRoutes as ngParseRoutes } from './src/angular';
+export * from './src/react';

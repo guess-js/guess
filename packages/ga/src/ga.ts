@@ -1,6 +1,6 @@
 import { getClient } from './client';
 import { normalize } from './normalize';
-import { Graph, Period } from '../common/interfaces';
+import { Graph, Period } from '../../common/interfaces';
 
 const PageSize = 1000;
 const noop = (r: string) => r;

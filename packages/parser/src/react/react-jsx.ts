@@ -2,7 +2,7 @@ import { readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { parseReactRoutes } from '.';
 import { JsxEmit } from 'typescript';
-import { RoutingModule } from '../../common/interfaces';
+import { RoutingModule } from '../../../common/interfaces';
 
 const readFiles = (dir: string): string[] => {
   const result = readdirSync(dir).map(node => join(dir, node));

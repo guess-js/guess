@@ -1,1 +1,1 @@
-export * from './ga';
+export * from './src/ga';

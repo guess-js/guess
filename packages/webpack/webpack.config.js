@@ -22,7 +22,7 @@ module.exports = [
   Object.assign(
     {
       entry: {
-        runtime: './runtime.ts'
+        runtime: './index.ts'
       },
       target: 'web',
       output: {
