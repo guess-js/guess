@@ -7,7 +7,7 @@ import { shim } from 'promise.prototype.finally';
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
 import { Prefetch } from './prefetch';
-import { Graph, RoutingModule, Period, ProjectLayout } from '../common/interfaces';
+import { Graph, RoutingModule, Period, ProjectLayout } from 'common/interfaces';
 
 shim();
 

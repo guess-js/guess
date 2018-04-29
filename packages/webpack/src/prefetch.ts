@@ -8,7 +8,7 @@ import {
   PrefetchNeighbor,
   BundleEntryGraph
 } from './declarations';
-import { Graph, RoutingModule } from '../common/interfaces';
+import { Graph, RoutingModule } from 'common/interfaces';
 import { compressGraph } from './compress';
 
 const template = require('lodash.template');

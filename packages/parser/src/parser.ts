@@ -1,6 +1,6 @@
 import { parseRoutes as ngParseRoutes } from './angular';
 import { parseReactTSXRoutes, parseReactJSXRoutes } from './react';
-import { RoutingModule, ProjectType } from '../common/interfaces';
+import { RoutingModule, ProjectType } from '../../common/interfaces';
 import { detect } from './detector';
 import { join } from 'path';
 

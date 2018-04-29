@@ -4,7 +4,7 @@ import { CompileIdentifierMetadata, CompileProviderMetadata } from '@angular/com
 import { Route } from '@angular/compiler/src/core';
 import { join, normalize } from 'path';
 import { constructDependencies } from '@angular/core/src/di/reflective_provider';
-import { RoutingModule } from '../../common/interfaces';
+import { RoutingModule } from '../../../common/interfaces';
 
 export interface RawModuleData {
   provider: CompileProviderMetadata;

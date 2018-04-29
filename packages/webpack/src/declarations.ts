@@ -1,8 +1,9 @@
-import { Graph, RoutingModule } from '../common/interfaces';
+import { Graph, RoutingModule } from 'common/interfaces';
 
 export enum Mode {
   Angular = 'angular',
-  ReactTypescript = 'react-typescript',
+  ReactTSX = 'react-tsx',
+  ReactJSX = 'react-jsx',
   Gatsby = 'gatsby',
   Auto = 'auto'
 }

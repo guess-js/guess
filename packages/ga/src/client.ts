@@ -1,4 +1,4 @@
-import { Period } from '../common/interfaces';
+import { Period } from '../../common/interfaces';
 
 interface PageConfig {
   pageToken: number | undefined;
