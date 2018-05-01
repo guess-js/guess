@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'fs';
-import { parseRoutes, ngParseRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
+import { parseRoutes, parseAngularRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
 import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
 
@@ -11,7 +11,7 @@ const defaultParsers: RoutingStrategies = {
     if (!config || !config.tsconfigPath) {
       throw new Error('For Angular project specify a tsconfig file');
     }
-    return ngParseRoutes(config.tsconfigPath);
+    return parseAngularRoutes(config.tsconfigPath);
   },
   [Mode.ReactTSX](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
