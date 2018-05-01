@@ -12,7 +12,7 @@ This repo uses Google Analytics data to determine which page a user is mostly li
 
 A client-side script (which you'll add to your application) sends a request to the server to get the URL of the page it should fetch, it then prefetches this resource (***script.js & server.js***).
 
-If a user is a on a poor connection, prefetching will only occur if there's a high level of certainty that an user will go to a particular page next. If a client is using the Save-Data header, no prefetching will occur.
+If a user is on a poor connection, prefetching will only occur if there's a high level of certainty that a user will go to a particular page next. If a client is using the Save-Data header, no prefetching will occur.
 
 ## Setup
 After downloading this repo, install the dependencies:
@@ -51,7 +51,7 @@ This is the final, and lengthiest, part of the setup process - but it should onl
 
 4. Fill out the form for creating a service account key:
 - **Service account dropdown:** Select "New Service Account".
-- **Serivce account name:** Give your service account a name.
+- **Service account name:** Give your service account a name.
 - **Role:** Select "Service Account User" ("Service Accounts" > "Service Account User").
 - **Service account ID:** This field will automatically be pre-filled, but you can change this if you would like.
 - **Key type:** Select P12 key.
