@@ -3,7 +3,8 @@ import { parseRoutes, ngParseRoutes, parseReactTSXRoutes, parseReactJSXRoutes } 
 import { RouteProvider, Mode } from './declarations';
 import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
 
-type RoutingStrategies = { [strategy in Mode]: (config?: ProjectLayout) => RoutingModule[] };
+type KnownMode = Mode.Angular | Mode.Gatsby | Mode.ReactJSX | Mode.ReactTSX;
+type RoutingStrategies = { [strategy in KnownMode]: (config?: ProjectLayout) => RoutingModule[] };
 
 const defaultParsers: RoutingStrategies = {
   [Mode.Angular](config?: ProjectLayout) {
@@ -26,11 +27,8 @@ const defaultParsers: RoutingStrategies = {
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');
-  },
-  [Mode.Auto]() {
-    return parseRoutes('');
   }
 };
 
-export const defaultRouteProvider = (mode: Mode, config?: ProjectLayout): (() => RoutingModule[]) => () =>
+export const defaultRouteProvider = (mode: KnownMode, config?: ProjectLayout): RoutingModule[] =>
   defaultParsers[mode](config);
