@@ -1,0 +1,143 @@
+{"testData": [{
+	"columnHeader": {
+		"dimensions": ["ga:previousPagePath", "ga:pagePath"],
+		"metricHeader": {
+			"metricHeaderEntries": [{
+				"name": "ga:pageviews",
+				"type": "INTEGER"
+			}, {
+				"name": "ga:exits",
+				"type": "INTEGER"
+			}]
+		}
+	},
+	"data": {
+		"rows": [{
+			"dimensions": ["(entrance)", "/page/turtles/"],
+			"metrics": [{
+				"values": ["13", "9"]
+			}]
+		}, {
+			"dimensions": ["(entrance)", "/page/dogs/"],
+			"metrics": [{
+				"values": ["6", "5"]
+			}]
+		}, {
+			"dimensions": ["(entrance)", "/"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}, {
+			"dimensions": ["(entrance)", "/page/cats/"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}, {
+			"dimensions": ["/turtles/turtle1.html", "/page/turtles/"],
+			"metrics": [{
+				"values": ["3", "3"]
+			}]
+		}, {
+			"dimensions": ["/page/turtles/", "/turtles/turtle1.html"],
+			"metrics": [{
+				"values": ["3", "0"]
+			}]
+		}, {
+			"dimensions": ["/page/turtles/", "/turtles/tortise.html"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}, {
+			"dimensions": ["/page/dogs/", "/dogs/dog_photo2.html"],
+			"metrics": [{
+				"values": ["1", "0"]
+			}]
+		}, {
+			"dimensions": ["/dogs/dog_photo2.html", "/page/dogs/"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}],
+		"totals": [{
+			"values": ["30", "21"]
+		}],
+		"rowCount": 9,
+		"minimums": [{
+			"values": ["0", "0"]
+		}],
+		"maximums": [{
+			"values": ["13", "9"]
+		}]
+	}
+}, {
+	"columnHeader": {
+		"dimensions": ["ga:previousPagePath", "ga:pagePath"],
+		"metricHeader": {
+			"metricHeaderEntries": [{
+				"name": "ga:pageviews",
+				"type": "INTEGER"
+			}, {
+				"name": "ga:exits",
+				"type": "INTEGER"
+			}]
+		}
+	},
+	"data": {
+		"rows": [{
+			"dimensions": ["(entrance)", "/page/turtles/"],
+			"metrics": [{
+				"values": ["13", "9"]
+			}]
+		}, {
+			"dimensions": ["(entrance)", "/page/dogs/"],
+			"metrics": [{
+				"values": ["6", "5"]
+			}]
+		}, {
+			"dimensions": ["(entrance)", "/"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}, {
+			"dimensions": ["(entrance)", "/page/cats/"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}, {
+			"dimensions": ["/turtles/turtle1.html", "/page/turtles/"],
+			"metrics": [{
+				"values": ["3", "3"]
+			}]
+		}, {
+			"dimensions": ["/page/turtles/", "/turtles/turtle1.html"],
+			"metrics": [{
+				"values": ["3", "0"]
+			}]
+		}, {
+			"dimensions": ["/page/turtles/", "/turtles/tortise.html"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}, {
+			"dimensions": ["/page/dogs/", "/dogs/dog_photo2.html"],
+			"metrics": [{
+				"values": ["1", "0"]
+			}]
+		}, {
+			"dimensions": ["/dogs/dog_photo2.html", "/page/dogs/"],
+			"metrics": [{
+				"values": ["1", "1"]
+			}]
+		}],
+		"totals": [{
+			"values": ["30", "21"]
+		}],
+		"rowCount": 9,
+		"minimums": [{
+			"values": ["0", "0"]
+		}],
+		"maximums": [{
+			"values": ["13", "9"]
+		}]
+	}
+}]}
