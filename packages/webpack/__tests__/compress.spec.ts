@@ -1,4 +1,4 @@
-import { compressGraph } from '../compress';
+import { compressGraph } from '../src/compress';
 import { PrefetchGraph, CompressedGraphMap, CompressedPrefetchGraph } from '../declarations';
 
 const sample: PrefetchGraph = {
