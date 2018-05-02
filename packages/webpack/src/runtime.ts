@@ -1,6 +1,6 @@
 import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from './declarations';
 
-export class GraphNode {
+class GraphNode {
   constructor(private _node: number[], private _map: CompressedGraphMap) {}
 
   get probability() {
@@ -16,7 +16,7 @@ export class GraphNode {
   }
 }
 
-export class Graph {
+class Graph {
   constructor(private _graph: CompressedPrefetchGraph, private _map: CompressedGraphMap) {}
 
   findMatch(route: string) {
@@ -28,7 +28,7 @@ export class Graph {
   }
 }
 
-export const support = (feature: string) => {
+const support = (feature: string) => {
   const fakeLink = document.createElement('link') as any;
   try {
     if (fakeLink.relList && typeof fakeLink.relList.supports === 'function') {
@@ -53,7 +53,7 @@ const supportedPrefetchStrategy = support('prefetch') ? linkPrefetchStrategy : i
 
 const preFetched: { [key: string]: boolean } = {};
 
-export const prefetch = (basePath: string, url: string) => {
+const prefetch = (basePath: string, url: string) => {
   url = basePath + url;
   if (preFetched[url]) {
     return;
@@ -63,7 +63,7 @@ export const prefetch = (basePath: string, url: string) => {
   supportedPrefetchStrategy(url);
 };
 
-export const matchRoute = (route: string, declaration: string) => {
+const matchRoute = (route: string, declaration: string) => {
   const routeParts = route.split('/');
   const declarationParts = declaration.split('/');
   if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
@@ -89,7 +89,7 @@ export const matchRoute = (route: string, declaration: string) => {
 const polyfillConnection = {
   effectiveType: '3g'
 };
-export const handleNavigationChange = (graph: Graph, basePath: string, thresholds: PrefetchConfig, route: string) => {
+const handleNavigationChange = (graph: Graph, basePath: string, thresholds: PrefetchConfig, route: string) => {
   const nodes = graph.findMatch(route);
   if (!nodes) {
     return;
@@ -106,14 +106,39 @@ export const handleNavigationChange = (graph: Graph, basePath: string, threshold
   }
 };
 
+interface LinkProbabilities {
+  [key: string]: number;
+}
+
+const scoreRoute = (graph: Graph, current: string, links: string[]): LinkProbabilities => {
+  const matches = graph.findMatch(current);
+  return links.reduce((result: LinkProbabilities, link: string) => {
+    const node = matches.filter(m => matchRoute(link, m.route)).pop();
+    if (node) {
+      result[link] = node.probability;
+    }
+    return result;
+  }, {});
+};
+
+export let score = (current: string, links: string[]): LinkProbabilities => {
+  throw new Error('Guess is not initialized');
+};
+
 export const initialize = (
   history: History,
   compressed: CompressedPrefetchGraph,
   map: CompressedGraphMap,
   basePath: string,
-  thresholds: PrefetchConfig
+  thresholds: PrefetchConfig,
+  delegate: boolean
 ) => {
   const graph = new Graph(compressed, map);
+  score = (current: string, links: string[]) => scoreRoute(graph, current, links);
+
+  if (delegate) {
+    return;
+  }
 
   window.addEventListener('popstate', e => handleNavigationChange(graph, basePath, thresholds, location.pathname));
 

@@ -1,4 +1,4 @@
-(function(history, basePath, g, m, thresholds) {
+(function(history, g, m, basePath, thresholds, delegate) {
   <%= CODE %>
-  __GUESS__.initialize(history, g, m, basePath, thresholds);
-})(window.history, '<%= BASE_PATH %>', <%= GRAPH %>, <%= GRAPH_MAP %>, <%= THRESHOLDS %>);
+  __GUESS__.initialize(history, g, m, basePath, thresholds, delegate);
+})(window.history, <%= GRAPH %>, <%= GRAPH_MAP %>, '<%= BASE_PATH %>', <%= THRESHOLDS %>, <%= DELEGATE %>);
