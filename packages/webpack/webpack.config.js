@@ -51,5 +51,23 @@ module.exports = [
       }
     },
     common
+  ),
+  Object.assign(
+    {
+      entry: {
+        index: './src/api.ts'
+      },
+      output: {
+        filename: '[name].js',
+        path: __dirname + '/dist/api/',
+        libraryTarget: 'umd'
+      },
+      target: 'node',
+      node: {
+        __dirname: false,
+        __filename: false
+      }
+    },
+    common
   )
 ];
