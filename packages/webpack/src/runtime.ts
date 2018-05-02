@@ -106,14 +106,14 @@ const handleNavigationChange = (graph: Graph, basePath: string, thresholds: Pref
   }
 };
 
-export interface LinkProbabilities {
+export interface NavigationProbabilities {
   [key: string]: number;
 }
 
-const guessNavigation = (graph: Graph, current: string, links?: string[]): LinkProbabilities => {
+const guessNavigation = (graph: Graph, current: string, links?: string[]): NavigationProbabilities => {
   const matches = graph.findMatch(current);
   if (links) {
-    return links.reduce((result: LinkProbabilities, link: string) => {
+    return links.reduce((result: NavigationProbabilities, link: string) => {
       const node = matches.filter(m => matchRoute(link, m.route)).pop();
       if (node) {
         result[link] = node.probability;
@@ -122,15 +122,15 @@ const guessNavigation = (graph: Graph, current: string, links?: string[]): LinkP
     }, {});
   }
   return matches.reduce(
-    (p: LinkProbabilities, n) => {
+    (p: NavigationProbabilities, n) => {
       p[n.route] = n.probability;
       return p;
     },
-    {} as LinkProbabilities
+    {} as NavigationProbabilities
   );
 };
 
-export let guess = (current: string, links?: string[]): LinkProbabilities => {
+export let guess = (current: string, links?: string[]): NavigationProbabilities => {
   throw new Error('Guess is not initialized');
 };
 
