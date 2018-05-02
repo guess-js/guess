@@ -33,7 +33,7 @@ export interface GuessPluginConfig {
   /** @internal */
   runtime?: RuntimeConfig;
   /** @internal */
-  routeProvider?: RouteProvider;
+  routeProvider?: RouteProvider | boolean;
 }
 
 export class GuessPlugin {
@@ -74,7 +74,10 @@ export class GuessPlugin {
 }
 
 const extractRoutes = (config: GuessPluginConfig) => {
-  if (config.routeProvider) {
+  if (config.routeProvider === false) {
+    return [];
+  }
+  if (typeof config.routeProvider === 'function') {
     return config.routeProvider();
   }
   if (!config.mode || config.mode === Mode.Auto) {

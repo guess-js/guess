@@ -110,18 +110,27 @@ export interface LinkProbabilities {
   [key: string]: number;
 }
 
-const scoreRoute = (graph: Graph, current: string, links: string[]): LinkProbabilities => {
+const guessNavigation = (graph: Graph, current: string, links?: string[]): LinkProbabilities => {
   const matches = graph.findMatch(current);
-  return links.reduce((result: LinkProbabilities, link: string) => {
-    const node = matches.filter(m => matchRoute(link, m.route)).pop();
-    if (node) {
-      result[link] = node.probability;
-    }
-    return result;
-  }, {});
+  if (links) {
+    return links.reduce((result: LinkProbabilities, link: string) => {
+      const node = matches.filter(m => matchRoute(link, m.route)).pop();
+      if (node) {
+        result[link] = node.probability;
+      }
+      return result;
+    }, {});
+  }
+  return matches.reduce(
+    (p: LinkProbabilities, n) => {
+      p[n.route] = n.probability;
+      return p;
+    },
+    {} as LinkProbabilities
+  );
 };
 
-export let score = (current: string, links: string[]): LinkProbabilities => {
+export let guess = (current: string, links?: string[]): LinkProbabilities => {
   throw new Error('Guess is not initialized');
 };
 
@@ -134,7 +143,7 @@ export const initialize = (
   delegate: boolean
 ) => {
   const graph = new Graph(compressed, map);
-  score = (current: string, links: string[]) => scoreRoute(graph, current, links);
+  guess = (current: string, links?: string[]) => guessNavigation(graph, current, links);
 
   if (delegate) {
     return;

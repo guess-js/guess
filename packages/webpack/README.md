@@ -65,7 +65,7 @@ new GuessPlugin({
   // and less aggressive for users with slower connection.
   runtime: {
     // Does not prefetch bundles during route change.
-    // Instead, the client library can use the `score` method from `guess-webpack/api`
+    // Instead, the client library can use the `guess` method from `guess-webpack/api`
     // in order to grade the links with highest probability to be visited.
     // For details see "Manual Prefetching"
     delegate: true,
@@ -82,6 +82,9 @@ new GuessPlugin({
   // In case the `guess-parser` is not able to parse your application
   // you can specify a custom parser. This function can also return a static
   // representation on your application, mapping routes to bundle entry points.
+  //
+  // In order to skip the metadata collection and use the raw GA report set
+  // `routeProvider` to `false`.
   routeProvider() {
     return parseApplication();
   }
@@ -102,15 +105,17 @@ GuessPlugin({
 });
 ```
 
-During runtime, in your application use the `score` function:
+During runtime, in your application use the `guess` function:
 
 ```ts
-import { score } from 'guess-webpack/api';
+import { guess } from 'guess-webpack/api';
 
-score('/current/route', ['/link-1', '/link-2', '/unavailable']);
+guess('/current/route', ['/link-1', '/link-2', '/unavailable']);
 ```
 
-The `score` function will return an object with keys the provided links and values the probability these links to be visited. For example, for the input above you can expect the following output:
+If you skip the second argument of `guess` you'll receive an exhaustive list of routes which could be requested next.
+
+The `guess` function will return an object with keys the provided links and values the probability these links to be visited. For example, for the input above you can expect the following output:
 
 ```ts
 {
@@ -119,7 +124,7 @@ The `score` function will return an object with keys the provided links and valu
 }
 ```
 
-The `score` function will not add values for the links it cannot find information for.
+The `guess` function will not add values for the links it cannot find information for.
 
 ## License
 

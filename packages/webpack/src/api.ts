@@ -1,1 +1,1 @@
-export const score = (current: string, links: string[]) => (window as any).__GUESS__.score(current, links);
+export const guess = (current: string, links?: string[]) => (window as any).__GUESS__.guess(current, links);

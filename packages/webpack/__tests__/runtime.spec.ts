@@ -1,6 +1,6 @@
 import { PrefetchGraph } from '../src/declarations';
 import { compressGraph } from '../src/compress';
-import { initialize, score } from '../src/runtime';
+import { initialize, guess } from '../src/runtime';
 
 const sample: PrefetchGraph = {
   a: [
@@ -32,18 +32,18 @@ const config = {
 };
 
 describe('runtime', () => {
-  it('should score links', () => {
+  it('should guess links', () => {
     initialize(window.history, graph, graphMap, '', config, true);
-    expect(score('a', ['b', 'c/1', 'c/2'])).toEqual({ b: 0.9, 'c/1': 0.1, 'c/2': 0.1 });
+    expect(guess('a', ['b', 'c/1', 'c/2'])).toEqual({ b: 0.9, 'c/1': 0.1, 'c/2': 0.1 });
   });
 
   it('should work with no matches', () => {
     initialize(window.history, graph, graphMap, '', config, true);
-    expect(score('a', ['d', 'g/1', 'x/2'])).toEqual({});
+    expect(guess('a', ['d', 'g/1', 'x/2'])).toEqual({});
   });
 
   it('should work with partial matches', () => {
     initialize(window.history, graph, graphMap, '', config, true);
-    expect(score('a', ['c/1', 'c/2'])).toEqual({ 'c/1': 0.1, 'c/2': 0.1 });
+    expect(guess('a', ['c/1', 'c/2'])).toEqual({ 'c/1': 0.1, 'c/2': 0.1 });
   });
 });
