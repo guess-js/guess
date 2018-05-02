@@ -19,10 +19,10 @@ class GraphNode {
 class Graph {
   constructor(private _graph: CompressedPrefetchGraph, private _map: CompressedGraphMap) {}
 
-  findMatch(route: string) {
+  findMatch(route: string): GraphNode[] {
     const result = this._graph.filter((_, i) => matchRoute(this._map.routes[i], route)).pop();
     if (!result) {
-      return null;
+      return [];
     }
     return result.map(n => new GraphNode(n, this._map));
   }
@@ -106,7 +106,7 @@ const handleNavigationChange = (graph: Graph, basePath: string, thresholds: Pref
   }
 };
 
-interface LinkProbabilities {
+export interface LinkProbabilities {
   [key: string]: number;
 }
 

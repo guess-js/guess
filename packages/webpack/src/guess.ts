@@ -17,6 +17,8 @@ export interface RuntimeConfig {
   basePath?: string;
   /** @internal */
   prefetchConfig?: PrefetchConfig;
+  /** @internal */
+  delegate: boolean;
 }
 
 export interface GuessPluginConfig {
@@ -65,7 +67,8 @@ export class GuessPlugin {
       basePath: runtime ? runtime.basePath : '/',
       prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
       debug: this._config.debug,
-      routes
+      routes,
+      delegate: runtime ? !!runtime.delegate : false
     }).apply(compilation);
   }
 }
