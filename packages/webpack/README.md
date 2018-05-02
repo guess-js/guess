@@ -64,6 +64,12 @@ new GuessPlugin({
   // algorithm to be more aggressive for users with faster connection
   // and less aggressive for users with slower connection.
   runtime: {
+    // Does not prefetch bundles during route change.
+    // Instead, the client library can use the `score` method from `guess-webpack/api`
+    // in order to grade the links with highest probability to be visited.
+    // For details see "Manual Prefetching"
+    delegate: true,
+
     basePath: '/foo/bar',
     prefetchConfig: {
       '4g': 0.15,
@@ -81,6 +87,39 @@ new GuessPlugin({
   }
 })
 ```
+
+## Manual Prefetching
+
+In case your application has manual prefetching logic, you can disable the prefetching that the `GuessPlugin` performs and instead only use the generated model.
+
+For the purpose, apply the following configuration to the `GuessPlugin`:
+
+```ts
+GuessPlugin({
+  runtime: {
+    delegate: true
+  }
+});
+```
+
+During runtime, in your application use the `score` function:
+
+```ts
+import { score } from 'guess-webpack/api';
+
+score('/current/route', ['/link-1', '/link-2', '/unavailable']);
+```
+
+The `score` function will return an object with keys the provided links and values the probability these links to be visited. For example, for the input above you can expect the following output:
+
+```ts
+{
+  '/link-1': 0.3,
+  '/link-2': 0.6
+}
+```
+
+The `score` function will not add values for the links it cannot find information for.
 
 ## License
 
