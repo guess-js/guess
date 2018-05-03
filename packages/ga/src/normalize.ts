@@ -26,9 +26,6 @@ export const matchRoute = (route: string, declaration: string): boolean => {
 // TODO optimize
 const findRoute = (d: string[], r: string) => {
   const res = d.filter(def => def.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c));
-  if (!res && r && r !== '(entrance)' && d.length) {
-    console.warn(`No declaration for ${r}`);
-  }
   return res || r;
 };
 

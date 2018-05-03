@@ -67,7 +67,8 @@ export class Prefetch {
       GRAPH: JSON.stringify(graph),
       GRAPH_MAP: JSON.stringify(graphMap),
       CODE: readFileSync(__dirname + '/runtime-code.js').toString(),
-      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
+      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig)),
+      DELEGATE: this._config.delegate
     });
     compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
   }

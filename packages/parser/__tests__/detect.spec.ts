@@ -1,4 +1,4 @@
-import { detect } from '../detector';
+import { detect } from '../src/detector';
 import { ProjectType } from '../../common/interfaces';
 
 describe('detect', () => {

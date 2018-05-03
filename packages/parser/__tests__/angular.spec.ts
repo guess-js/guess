@@ -1,4 +1,4 @@
-import { parseRoutes } from '../angular';
+import { parseRoutes } from '../src/angular';
 
 const fixtureRoutes = new Set<string>(['/', '/bar', '/foo']);
 

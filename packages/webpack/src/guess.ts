@@ -1,13 +1,14 @@
 import { fetch } from 'guess-ga';
 
 import { existsSync, readFileSync } from 'fs';
-import { auth } from 'google-oauth2-node';
 import { shim } from 'promise.prototype.finally';
 
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
 import { Prefetch } from './prefetch';
 import { Graph, RoutingModule, Period, ProjectLayout } from 'common/interfaces';
+import { parseRoutes } from 'guess-parser';
+import { getReport } from './ga-provider';
 
 shim();
 
@@ -16,6 +17,8 @@ export interface RuntimeConfig {
   basePath?: string;
   /** @internal */
   prefetchConfig?: PrefetchConfig;
+  /** @internal */
+  delegate: boolean;
 }
 
 export interface GuessPluginConfig {
@@ -30,15 +33,8 @@ export interface GuessPluginConfig {
   /** @internal */
   runtime?: RuntimeConfig;
   /** @internal */
-  routeProvider?: RouteProvider;
+  routeProvider?: RouteProvider | boolean;
 }
-
-const clientId = '329457372673-hda3mp2vghisfobn213jpj8ck1uohi2d.apps.googleusercontent.com';
-const clientSecret = '4camaoQPOz9edR-Oz19vg-lN';
-const scope = 'https://www.googleapis.com/auth/analytics.readonly';
-const year = 365 * 24 * 60 * 60 * 1000;
-
-const id = <T>(r: T) => r;
 
 export class GuessPlugin {
   constructor(private _config: GuessPluginConfig) {}
@@ -48,43 +44,44 @@ export class GuessPlugin {
   }
 
   private _execute(compilation: any, cb: any) {
-    auth({
-      clientId,
-      clientSecret,
-      scope
-    }).then((token: any) => {
-      const { google } = require('googleapis');
-      const oauth2Client = new google.auth.OAuth2();
-      oauth2Client.setCredentials(token);
-
-      const routes = (this._config.routeProvider ||
-        defaultRouteProvider(this._config.mode || Mode.Auto, this._config.layout))();
-
-      fetch({
-        viewId: this._config.GA,
-        auth: oauth2Client,
-        period: this._config.period || { startDate: new Date(), endDate: new Date(Date.now() - year) },
-        routes: routes.map(r => r.path),
-        formatter: this._config.routeFormatter || id
-      })
-        .then(
-          data => this._executeRuntimePlugin(data, routes, compilation),
-          err => {
-            throw err;
-          }
-        )
-        .finally(cb);
-    });
+    const routes = extractRoutes(this._config);
+    getReport({
+      viewId: this._config.GA,
+      routes,
+      formatter: this._config.routeFormatter,
+      period: this._config.period
+    })
+      .then(
+        data => this._executePrefetchPlugin(data, routes, compilation),
+        err => {
+          throw err;
+        }
+      )
+      .finally(cb);
   }
 
-  private _executeRuntimePlugin(data: Graph, routes: RoutingModule[], compilation: any) {
-    const runtimeConfig = this._config.runtime;
+  private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any) {
+    const { runtime } = this._config;
     new Prefetch({
       data,
-      basePath: this._config.runtime ? this._config.runtime.basePath : '/',
-      prefetchConfig: runtimeConfig ? runtimeConfig.prefetchConfig : undefined,
+      basePath: runtime ? runtime.basePath : '/',
+      prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
       debug: this._config.debug,
-      routes
+      routes,
+      delegate: runtime ? !!runtime.delegate : false
     }).apply(compilation);
   }
 }
+
+const extractRoutes = (config: GuessPluginConfig) => {
+  if (config.routeProvider === false) {
+    return [];
+  }
+  if (typeof config.routeProvider === 'function') {
+    return config.routeProvider();
+  }
+  if (!config.mode || config.mode === Mode.Auto) {
+    return parseRoutes(process.env.PWD!);
+  }
+  return defaultRouteProvider(config.mode, config.layout);
+};

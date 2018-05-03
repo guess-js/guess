@@ -40,6 +40,7 @@ export interface PrefetchPluginConfig {
   basePath?: string;
   prefetchConfig?: PrefetchConfig;
   routes: RoutingModule[];
+  delegate: boolean;
 }
 
 export interface BundleEntryNeighbor {
