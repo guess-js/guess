@@ -4,6 +4,10 @@ This package exports the `GuessPlugin`
 
 ## Usage
 
+```bash
+npm i guess-webpack --save-dev
+```
+
 This section introduces the configuration properties of the `GuessPlugin`
 
 ## Basic Usage
@@ -20,11 +24,17 @@ Add the following snippet as last line in your webpack config file:
 new GuessPlugin({ GA: 'GA_VIEW_ID' });
 ```
 
-Where `GA_VIEW_ID` is the [Google Analytics view ID](https://support.google.com/analytics/answer/3123669). The `guess-ga` plugin will extract report from Google Analytics for the last year. For custom period look at the section below.
+Where `GA_VIEW_ID` is the [Google Analytics view ID](https://ga-dev-tools.appspot.com/query-explorer/). The `guess-ga` plugin will extract report from Google Analytics for the last year. For custom period look at the section below.
 
 ## Advanced Usage
 
-In some cases `guess-parser` might not be able to detect your application type or it may fail to parse your application. You may also want to pass a custom time period:
+In some cases `guess-parser` might not be able to detect your application type or it may fail to parse your application. When this happens, the package will throw errors for:
+
+* Missing tsconfig for a React TSX or Angular project.
+* Missing source directory for React JSX project.
+* Unsupported project (i.e. if the project cannot be recognized or it doesn't match any of the supported types).
+
+You may also want to pass a custom time period:
 
 ```ts
 new GuessPlugin({

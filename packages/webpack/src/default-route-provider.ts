@@ -9,19 +9,19 @@ type RoutingStrategies = { [strategy in KnownMode]: (config?: ProjectLayout) => 
 const defaultParsers: RoutingStrategies = {
   [Mode.Angular](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
-      throw new Error('For Angular project specify a tsconfig file');
+      throw new Error('Path to tsconfig.json not provided');
     }
     return parseAngularRoutes(config.tsconfigPath);
   },
   [Mode.ReactTSX](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
-      throw new Error('For React TypeScript project specify a tsconfig file');
+      throw new Error('Path to tsconfig.json not provided');
     }
     return parseReactTSXRoutes(config.tsconfigPath);
   },
   [Mode.ReactJSX](config?: ProjectLayout) {
     if (!config || !config.sourceDir) {
-      throw new Error('For React TypeScript project specify a tsconfig file');
+      throw new Error('Source directory not provided');
     }
     return parseReactJSXRoutes(config.sourceDir);
   },

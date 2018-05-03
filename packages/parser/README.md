@@ -2,6 +2,12 @@
 
 This module is used for route extraction by the `GuessPlugin`. The module exports several functions:
 
+## Usage
+
+```bash
+npm i guess-parser --save-dev
+```
+
 ## API
 
 * `detect(path: string)` - Detects the project type and returns metadata. For the currently supported projects see the `ProjectMetadata` interface.
