@@ -1,4 +1,4 @@
-# Guess.js
+# Guess.js (alpha)
 
 Libraries & tools for enabling data-driven user-experiences on the web.
 
@@ -160,15 +160,9 @@ I am a lead for a large site wishing to prefetch useful next pages ahead of time
 
 Where possible, we will focus on creating focused, reusable modules and libraries that can be shared across implementations.
 
-Logic for getting Google Analytics predictions for next/prev page are pieces that Minko explored in his excellent frameworks write-up and the work Addy has started with Katie. Perhaps we should generalize this piece? Could be a module that runs in both Node and the browser.
-
-Wiring up prefetch statements. Interesting to learn how both Minko and Kyle currently handle this problem. Is there anything here worth further generalizing? Addy wrote [https://github.com/GoogleChromeLabs/preload-webpack-plugin](https://github.com/GoogleChromeLabs/preload-webpack-plugin&sa=D&ust=1522637949826000) a while back for pre[load/fetch].
-
-Mapping predicted pages from Google Analytics API back to a router. Minko seems to have solved this problem well (or has a good shape of what this might look like). It will be interesting to learn whether those “maps” are highly framework router specific or there is something work generalizing there too.
-
 ## Approach to predictive fetching
 
-In order to predict the next page a user is likely to visit, a solution could use the [Google Analytics API](https://developers.google.com/analytics/devguides/reporting/core/v4/&sa=D&ust=1522637949828000). Google Analytics session data can be used to create a model to predict the most likely page a user is going to visit next on a site. The benefit of this session data is that it can evolve over time, so that if particular navigation paths change, the predictions can stay up to date too.
+In order to predict the next page a user is likely to visit, solutions could use the [Google Analytics API](https://developers.google.com/analytics/devguides/reporting/core/v4/&sa=D&ust=1522637949828000). Google Analytics session data can be used to create a model to predict the most likely page a user is going to visit next on a site. The benefit of this session data is that it can evolve over time, so that if particular navigation paths change, the predictions can stay up to date too.
 
 With the availability of this data, an engine could insert `<link rel="[prerender/prefetch/preload]">` tags to speed up the load time for the next page request. In some tests, such as Mark Edmondson's [Supercharging Page-Loads with R](http://code.markedmondson.me/predictClickOpenCPU/supercharge.html&sa=D&ust=1522637949828000), this led to a 30% improvement in page load times. The approach Mark used in his research involved using GTM tags and machine-learning to train a model for page predictions. This is an idea Mark continued in [Machine Learning meets the Cloud - Intelligent Prefetching](https://iihnordic.com/blog/machine-learning-meets-the-cloud-intelligent-prefetching/&sa=D&ust=1522637949828000).
 
@@ -216,7 +210,7 @@ A page could speculatively begin prefetching content when links in the page are 
 
 This is an approach used by [Gatsby](https://www.gatsbyjs.org/&sa=D&ust=1522637949834000) (which uses [React](https://reactjs.org/&sa=D&ust=1522637949835000) and [React Router](https://github.com/ReactTraining/react-router&sa=D&ust=1522637949835000)). Their specific implementation is as follows:
 
-* In browsers that support [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API&sa=D&ust=1522637949836000), whenever a <Link> component becomes invisible, the link "votes" for the page linked to to be prefetched votes are worth slightly less points each time so links at the top of the page are prioritized over ones lower down
+* In browsers that support [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API&sa=D&ust=1522637949836000), whenever a `<Link>` component becomes invisible, the link "votes" for the page linked to to be prefetched votes are worth slightly less points each time so links at the top of the page are prioritized over ones lower down
 * e.g. the top nav if a page is linked to multiple times, its vote count goes higher the prefetcher takes the top page and starts prefetching resources.
 * It's restricted to prefetching one page at a time so as to reduce contention over bandwidth with on page stuff (not a problem on fast networks. If a user visits a page and its resources haven't been fully downloaded, prefetching stops until the page is loaded to ensure the user waits as little time as possible.
 
@@ -224,12 +218,6 @@ This is an approach used by [Gatsby](https://www.gatsbyjs.org/&sa=D&ust=15226379
 
 A page could begin speculatively prefetching resources when a user indicates they are interested in some content. This can take many forms, including when a user chooses to hover over a link or some portion of UI that would navigate them to a separate page. The browser could begin fetching content for the link as soon as there was a clear indication of interest. This is an approach taken by JavaScript libraries such as [InstantClick](http://instantclick.io/&sa=D&ust=1522637949837000).
 
-## Metrics for success
-
-* 1000 sites are using data-driven prefetching (via Guess.js modules/libraries) in production
-* Sites observe at least a 10-20% improvement in subsequent navigation page-load times. We will observe the impact on FCP and TTI
-* 10K installs of Guess.js or associated modules
-* 30K unique visits to primary demo applications (like Wikipedia Gatsby app or Doodles)
 
 ## References
 
