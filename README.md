@@ -1,6 +1,59 @@
-# Guess.js
+# Guess.js (alpha)
 
 Libraries & tools for enabling data-driven user-experiences on the web.
+
+## Quick start (webpack)
+
+Install `GuessPlugin` - our webpack plugin:
+
+```js
+npm i guess-webpack --save-dev
+```
+
+Import `GuessPlugin` to your webpack config:
+
+```js
+const { GuessPlugin } = require('guess-webpack');
+```
+
+Add this to the end of your webpack config:
+
+```js
+new GuessPlugin({ GA: 'GOOGLE_ANALYTICS_VIEW_ID' });
+```
+
+For further instructions see [`GuessPlugin`](https://github.com/guess-js/guess/tree/master/packages/webpack) or for guidance on using Guess in a website without a bundler, see [Getting Started](#getting-started).
+
+
+## Getting Started
+
+To add predictive data-fetching to your site using Guess, evaluate if you're a [webpack](https://webpack.js.org/) user or are working on a site that doesn't use a bundler. We offer two paths to get started:
+
+### Data-driven bundling (webpack users)
+
+Install and configure [GuessPlugin](https://github.com/guess-js/guess/tree/master/packages/webpack) - the Guess.js webpack plugin which automates as much of the setup process for you as possible. 
+
+Should you wish to try out the modules we offer individually, the `packages` directory contains three packages:
+
+* [`ga`](https://github.com/guess-js/guess/tree/master/packages/ga) - a module for fetching structured data from the Google Analytics API to learn about user navigation patterns. 
+* [`parser`](https://github.com/guess-js/guess/tree/master/packages/parser) - a module providing JavaScript framework parsing. This powers the route-parsing capabilities implemented in the Guess webpack plugin.
+* [`webpack`](https://github.com/guess-js/guess/tree/master/packages/webpack) - a webpack plugin for setting up predictive fetching in your application. It consumes the `ga` and `parser` modules and offers a large number of options for configuring how predictive fetching should work in your application. 
+
+### Data-driven loading for websites
+
+Our [predictive-fetching for sites](https://github.com/guess-js/guess/tree/predictiveFetching/predictiveFetching) workflow provides a set of steps you can follow to integrate predictive fetching using the Google Analytics API to your site. 
+
+It uses GA to determine which page a user is most likely to visit, makes use of a client-side script for sending requests to a server to get the URL of the page to fetch and prefetches those resources. 
+
+## Demos
+
+A number of sample projects using `GuessPlugin` are available. These include:
+
+* [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatbsy.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
+* `react-dd-bundled` - a simple demo application using `GuessPlugin` and `create-react-app`
+* `ng-dd-bundled` - a simple demo application using `GuessPlugin` and Angular CLI
+
+**Note:** Predictive fetching relies heavily on the availability of data in a Google Analytics account to drive predictions. You may need to seed some data for this by navigating around your demo project to provide Guess with some early data to guide what to prefetch.
 
 ## Introduction
 
@@ -16,7 +69,8 @@ Applying predictive data-analytics thinking to sites could be applied in a numbe
 
 By collaborating across different touch-points in the ecosystem where data-driven approaches could be easily applied, we hope to generalize common pieces of infrastructure to maximize their applicability in different tech stacks.
 
-## Problems
+
+## Problems we're looking to solve
 
 * Developers using [`<link rel=prefetch>`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Link_prefetching_FAQ&sa=D&ust=1522637949794000) for future navigations heavily rely on manually reading descriptive analytics to inform their decisions for what to prefetch.
 * These decisions are often made at a point in time and..
@@ -129,15 +183,9 @@ I am a lead for a large site wishing to prefetch useful next pages ahead of time
 
 Where possible, we will focus on creating focused, reusable modules and libraries that can be shared across implementations.
 
-Logic for getting Google Analytics predictions for next/prev page are pieces that Minko explored in his excellent frameworks write-up and the work Addy has started with Katie. Perhaps we should generalize this piece? Could be a module that runs in both Node and the browser.
-
-Wiring up prefetch statements. Interesting to learn how both Minko and Kyle currently handle this problem. Is there anything here worth further generalizing? Addy wrote [https://github.com/GoogleChromeLabs/preload-webpack-plugin](https://github.com/GoogleChromeLabs/preload-webpack-plugin&sa=D&ust=1522637949826000) a while back for pre[load/fetch].
-
-Mapping predicted pages from Google Analytics API back to a router. Minko seems to have solved this problem well (or has a good shape of what this might look like). It will be interesting to learn whether those “maps” are highly framework router specific or there is something work generalizing there too.
-
 ## Approach to predictive fetching
 
-In order to predict the next page a user is likely to visit, a solution could use the [Google Analytics API](https://developers.google.com/analytics/devguides/reporting/core/v4/&sa=D&ust=1522637949828000). Google Analytics session data can be used to create a model to predict the most likely page a user is going to visit next on a site. The benefit of this session data is that it can evolve over time, so that if particular navigation paths change, the predictions can stay up to date too.
+In order to predict the next page a user is likely to visit, solutions could use the [Google Analytics API](https://developers.google.com/analytics/devguides/reporting/core/v4/&sa=D&ust=1522637949828000). Google Analytics session data can be used to create a model to predict the most likely page a user is going to visit next on a site. The benefit of this session data is that it can evolve over time, so that if particular navigation paths change, the predictions can stay up to date too.
 
 With the availability of this data, an engine could insert `<link rel="[prerender/prefetch/preload]">` tags to speed up the load time for the next page request. In some tests, such as Mark Edmondson's [Supercharging Page-Loads with R](http://code.markedmondson.me/predictClickOpenCPU/supercharge.html&sa=D&ust=1522637949828000), this led to a 30% improvement in page load times. The approach Mark used in his research involved using GTM tags and machine-learning to train a model for page predictions. This is an idea Mark continued in [Machine Learning meets the Cloud - Intelligent Prefetching](https://iihnordic.com/blog/machine-learning-meets-the-cloud-intelligent-prefetching/&sa=D&ust=1522637949828000).
 
@@ -185,7 +233,7 @@ A page could speculatively begin prefetching content when links in the page are 
 
 This is an approach used by [Gatsby](https://www.gatsbyjs.org/&sa=D&ust=1522637949834000) (which uses [React](https://reactjs.org/&sa=D&ust=1522637949835000) and [React Router](https://github.com/ReactTraining/react-router&sa=D&ust=1522637949835000)). Their specific implementation is as follows:
 
-* In browsers that support [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API&sa=D&ust=1522637949836000), whenever a <Link> component becomes invisible, the link "votes" for the page linked to to be prefetched votes are worth slightly less points each time so links at the top of the page are prioritized over ones lower down
+* In browsers that support [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API&sa=D&ust=1522637949836000), whenever a `<Link>` component becomes invisible, the link "votes" for the page linked to to be prefetched votes are worth slightly less points each time so links at the top of the page are prioritized over ones lower down
 * e.g. the top nav if a page is linked to multiple times, its vote count goes higher the prefetcher takes the top page and starts prefetching resources.
 * It's restricted to prefetching one page at a time so as to reduce contention over bandwidth with on page stuff (not a problem on fast networks. If a user visits a page and its resources haven't been fully downloaded, prefetching stops until the page is loaded to ensure the user waits as little time as possible.
 
@@ -193,12 +241,6 @@ This is an approach used by [Gatsby](https://www.gatsbyjs.org/&sa=D&ust=15226379
 
 A page could begin speculatively prefetching resources when a user indicates they are interested in some content. This can take many forms, including when a user chooses to hover over a link or some portion of UI that would navigate them to a separate page. The browser could begin fetching content for the link as soon as there was a clear indication of interest. This is an approach taken by JavaScript libraries such as [InstantClick](http://instantclick.io/&sa=D&ust=1522637949837000).
 
-## Metrics for success
-
-* 1000 sites are using data-driven prefetching (via Guess.js modules/libraries) in production
-* Sites observe at least a 10-20% improvement in subsequent navigation page-load times. We will observe the impact on FCP and TTI
-* 10K installs of Guess.js or associated modules
-* 30K unique visits to primary demo applications (like Wikipedia Gatsby app or Doodles)
 
 ## References
 
