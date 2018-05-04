@@ -16,7 +16,38 @@ Applying predictive data-analytics thinking to sites could be applied in a numbe
 
 By collaborating across different touch-points in the ecosystem where data-driven approaches could be easily applied, we hope to generalize common pieces of infrastructure to maximize their applicability in different tech stacks.
 
-## Problems
+## Getting Started
+
+To add predictive data-fetching to your site using Guess, evaluate if you're a [webpack](https://webpack.js.org/) user or are working on a site that doesn't use a bundler. We offer two paths to get started depending on which category your site falls into:
+
+### Data-driven bundling (webpack users)
+
+Most users will want to go directly to the [GuessPlugin](https://github.com/guess-js/guess/tree/master/packages/webpack) - the Guess.js webpack plugin which automates as much of the setup process for you as possible. 
+
+Should you wish to try out the modules we offer individually, the `packages` directory contains three packages:
+
+* [`ga`](https://github.com/guess-js/guess/tree/master/packages/ga) - a module for fetching structured data from the Google Analytics API to learn about user navigation patterns. 
+* [`parser`](https://github.com/guess-js/guess/tree/master/packages/parser) - a module providing JavaScript framework parsing. This powers the route-parsing capabilities implemented in the Guess webpack plugin.
+* [`webpack`](https://github.com/guess-js/guess/tree/master/packages/webpack) - a webpack plugin for setting up predictive fetching in your application. It consumes the `ga` and `parser` modules and offers a large number of options for configuring how predictive fetching should work in your application. 
+
+### Data-driven loading for websites
+
+Our [predictive-fetching for sites](https://github.com/guess-js/guess/tree/predictiveFetching/predictiveFetching) workflow provides a set of steps you can follow to integrate predictive fetching using the Google Analytics API to your site. 
+
+It uses GA to determine which page a user is most likely to visit, makes use of a client-side script for sending requests to a server to get the URL of the page to fetch and prefetches those resources. 
+
+## Demos
+
+A number of sample projects using `GuessPlugin` are available. These include:
+
+* [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatbsy.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
+* `react-dd-bundled` - a simple demo application using `GuessPlugin` and `create-react-app`
+* `ng-dd-bundled` - a simple demo application using `GuessPlugin` and Angular CLI
+
+**Note:** Predictive fetching relies heavily on the availability of data in a Google Analytics account to drive predictions. You may need to seed some data for this by navigating around your demo project to provide Guess with some early data to guide what to prefetch.
+
+
+## Problems we're looking to solve
 
 * Developers using [`<link rel=prefetch>`](https://developer.mozilla.org/en-US/docs/Web/HTTP/Link_prefetching_FAQ&sa=D&ust=1522637949794000) for future navigations heavily rely on manually reading descriptive analytics to inform their decisions for what to prefetch.
 * These decisions are often made at a point in time and..
