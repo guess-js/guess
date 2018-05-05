@@ -4,7 +4,7 @@ import { Graph, Period } from '../../common/interfaces';
 
 const PageSize = 1000;
 const noop = (r: string) => r;
-const DefaultExpression = 'ga:users';
+const DefaultExpression = 'ga:pageviews';
 
 export interface FetchConfig {
   auth: any;
