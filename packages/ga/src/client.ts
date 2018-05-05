@@ -21,7 +21,7 @@ function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, 
       reportRequests: {
         pageSize: pageConfig.pageSize,
         pageToken: pageConfig.pageToken,
-        viewId: `ga:${viewId}`,
+        viewId,
         dateRanges: [
           {
             startDate: formatDate(period.startDate),
