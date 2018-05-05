@@ -49,7 +49,7 @@ It uses GA to determine which page a user is most likely to visit, makes use of 
 
 A number of sample projects using `GuessPlugin` are available. These include:
 
-* [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatbsy.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
+* [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatsby.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
 * `react-dd-bundled` - a simple demo application using `GuessPlugin` and `create-react-app`
 * `ng-dd-bundled` - a simple demo application using `GuessPlugin` and Angular CLI
 
