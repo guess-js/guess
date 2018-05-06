@@ -38,7 +38,7 @@ const build = (hook = (path: string) => {}) => {
 
   for (const p of Packages) {
     const path = join(PackagesDir, p);
-    console.log(execSync(`cd ${path} && rm -rf dist && webpack`).toString());
+    console.log(execSync(`cd ${path} && rm -rf dist && ./node_modules/.bin/webpack`).toString());
     const packageJsonPath = join(path, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
     packageJson.version = config.version;

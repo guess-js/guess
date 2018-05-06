@@ -29,6 +29,9 @@ class Graph {
 }
 
 const support = (feature: string) => {
+  if (typeof document === 'undefined') {
+    return false;
+  }
   const fakeLink = document.createElement('link') as any;
   try {
     if (fakeLink.relList && typeof fakeLink.relList.supports === 'function') {
@@ -40,6 +43,9 @@ const support = (feature: string) => {
 };
 
 const linkPrefetchStrategy = (url: string) => {
+  if (typeof document === 'undefined') {
+    return;
+  }
   const link = document.createElement('link');
   link.setAttribute('rel', 'prefetch');
   link.setAttribute('href', url);
@@ -136,6 +142,7 @@ export let guess = (current: string, links?: string[]): NavigationProbabilities 
 
 export const initialize = (
   history: History,
+  global: any,
   compressed: CompressedPrefetchGraph,
   map: CompressedGraphMap,
   basePath: string,
@@ -149,7 +156,11 @@ export const initialize = (
     return;
   }
 
-  window.addEventListener('popstate', e => handleNavigationChange(graph, basePath, thresholds, location.pathname));
+  if (typeof global.addEventListener === 'function') {
+    global.addEventListener('popstate', (e: any) =>
+      handleNavigationChange(graph, basePath, thresholds, location.pathname)
+    );
+  }
 
   const pushState = history.pushState;
   history.pushState = function(state) {

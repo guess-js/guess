@@ -1,12 +1,12 @@
 import { readFileSync, existsSync } from 'fs';
 import { parseRoutes, parseAngularRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
-import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
+import { RoutingModule, ProjectType, ProjectLayout } from '../../common/interfaces';
 
 type KnownMode = Mode.Angular | Mode.Gatsby | Mode.ReactJSX | Mode.ReactTSX;
 type RoutingStrategies = { [strategy in KnownMode]: (config?: ProjectLayout) => RoutingModule[] };
 
-const defaultParsers: RoutingStrategies = {
+const defaultParsers: any = {
   [Mode.Angular](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
       throw new Error('Path to tsconfig.json not provided');

@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 
 const common = {
+  mode: 'development',
   externals: [/^(@|\w).*$/i],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
