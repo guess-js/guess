@@ -8,7 +8,7 @@ import {
   PrefetchNeighbor,
   BundleEntryGraph
 } from './declarations';
-import { Graph, RoutingModule } from 'common/interfaces';
+import { Graph, RoutingModule } from '../../common/interfaces';
 import { compressGraph } from './compress';
 
 const template = require('lodash.template');
@@ -30,15 +30,18 @@ export class Prefetch {
 
     let main: any = null;
     compilation.chunks.forEach((chunk: any) => {
-      if (chunk.name === 'main') {
+      if (chunk.canBeInitial()) {
         main = chunk;
       }
-      if (chunk.blocks && chunk.blocks.length > 0) {
-        for (const block of chunk.blocks) {
-          const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
-          fileChunk[block.dependencies[0].module.userRequest] = name;
+      chunk.groupsIterable.forEach((chunkGroup: any) => {
+        const blocks = chunkGroup.getBlocks();
+        if (blocks && blocks.length > 0) {
+          for (const block of blocks) {
+            const name = chunkGroup.files.filter((f: string) => f.endsWith('.js')).pop();
+            fileChunk[block.dependencies[0].module.userRequest] = name;
+          }
         }
-      }
+      });
     });
 
     if (!main) {

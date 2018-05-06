@@ -13,14 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/guess-js/guess.git"
   },
-  "keywords": [
-    "bundling",
-    "webpack",
-    "ml",
-    "ai",
-    "analytics",
-    "recommendation"
-  ],
+  "keywords": ["bundling", "webpack", "ml", "ai", "analytics", "recommendation"],
   "author": "Minko Gechev <mgechev@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -40,7 +33,7 @@
     "ts-node": "^6.0.2",
     "tslint": "^5.9.1",
     "typescript": "^2.8.1",
-    "webpack": "^3.11.0",
+    "webpack": "^4.7.0",
     "webpack-cli": "^2.0.11"
   },
   "jest": {
@@ -52,13 +45,6 @@
       "<rootDir>/packages/detector/__tests__/fixtures",
       "<rootDir>/packages/parser/__tests__/fixtures"
     ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   }
 }

@@ -6,11 +6,9 @@ import { shim } from 'promise.prototype.finally';
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
 import { Prefetch } from './prefetch';
-import { Graph, RoutingModule, Period, ProjectLayout } from 'common/interfaces';
+import { Graph, RoutingModule, Period, ProjectLayout } from '../../common/interfaces';
 import { parseRoutes } from 'guess-parser';
 import { getReport } from './ga-provider';
-
-shim();
 
 export interface RuntimeConfig {
   /** @internal */
@@ -50,14 +48,16 @@ export class GuessPlugin {
       routes,
       formatter: this._config.routeFormatter,
       period: this._config.period
-    })
-      .then(
-        data => this._executePrefetchPlugin(data, routes, compilation),
-        err => {
-          throw err;
-        }
-      )
-      .finally(cb);
+    }).then(
+      data => {
+        cb();
+        return this._executePrefetchPlugin(data, routes, compilation);
+      },
+      err => {
+        cb();
+        throw err;
+      }
+    );
   }
 
   private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any) {
