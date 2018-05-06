@@ -1,6 +1,6 @@
 # Guess.js (alpha)
 
-Guess.js provides libraries & tools to simplify predictive data-analytics driven approaches to improving user-experiences on the web. 
+Libraries and tools for enabling data-driven user-experiences on the web.
 
 ## Quickstart
 
@@ -20,10 +20,10 @@ Should you wish to try out the modules we offer individually, the `packages` dir
 
 Our [predictive-fetching for sites](https://github.com/guess-js/guess/tree/predictiveFetching/predictiveFetching) workflow provides a set of steps you can follow to integrate predictive fetching using the Google Analytics API to your site. 
 
-This repo uses Google Analytics data to determine which page a user is mostly likely to visit next from a given page. A client-side script (which you'll add to your application) sends a request to the server to get the URL of the page it should fetch, then prefetches this resource.
+This repo uses [Google Analytics](http://analytics.google.com) data to determine which page a user is mostly likely to visit next from a given page. A client-side script (which you'll add to your application) sends a request to the server to get the URL of the page it should fetch, then prefetches this resource.
 
 ## Learn More
-### What is GuessJS?
+### What is Guess.js?
 
 Guess.js provides libraries & tools to simplify predictive data-analytics driven approaches to improving user-experiences on the web. This data can be driven from any number of sources, including analytics or [machine learning](https://en.wikipedia.org/wiki/Machine_learning&sa=D&ust=1522637949792000) models. Guess.js aims to lower the friction of consuming and applying this thinking to all modern sites and apps, including building libraries & tools for popular workflows.
 
@@ -77,7 +77,7 @@ With the availability of this data, an engine could insert `<link rel="[prerende
 
 While this approach is sound, the methodology used could be deemed a little complex. Another approach that could be taken (which is simpler) is attempting to get accurate prediction data from the Google Analytics API. If you ran a report for the [Page](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_pagepath&sa=D&ust=1522637949829000) and [Previous Page Path](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_previouspagepath&sa=D&ust=1522637949829000) dimension combined with the [Pageviews](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_pageviews&sa=D&ust=1522637949830000) and [Exits](https://developers.google.com/analytics/devguides/reporting/core/dimsmets%23view%3Ddetail%26group%3Dpage_tracking%26jump%3Dga_exits&sa=D&ust=1522637949830000) metrics this should provide enough data to wire up prefetches for most popular pages.
 
-#### Machine Learning for predictive fetching.
+#### Machine Learning for predictive fetching
 
 ML could help improve the overall accuracy of a solution's predictions, but is not a necessity for an initial implementation. Predictive fetching could be accomplished by training a model on the pages users are likely to visit and improving on this model over time.
 
