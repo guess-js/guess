@@ -2,7 +2,7 @@
   "name": "guess-ga",
   "version": "0.0.0",
   "description": "Fetch structured data from Google Analytics",
-  "main": "dist/ga/index.js",
+  "main": "ga/index.js",
   "types": "ga/index.d.ts",
   "repository": {
     "type": "git",
