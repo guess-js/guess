@@ -29,11 +29,7 @@ const publish = (path: string) => {
   console.log(execSync(`cd ${path} && npm publish .`).toString());
 };
 
-const packageNames: { [key: string]: boolean } = {
-  'guess-ga': true,
-  'guess-parser': true,
-  'guess-webpack': true
-};
+const packageNames = new Set<string>(['guess-ga', 'guess-parser', 'guess-webpack']);
 
 const build = (hook = (path: string) => {}) => {
   const Packages = ['ga', 'parser', 'webpack'];
@@ -49,7 +45,7 @@ const build = (hook = (path: string) => {}) => {
 
     const deps = packageJson.dependencies || {};
     Object.keys(deps).forEach(d => {
-      if (packageNames[d]) {
+      if (packageNames.has(d)) {
         deps[d] = config.version;
       }
     });
