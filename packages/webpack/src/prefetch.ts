@@ -29,18 +29,13 @@ export class Prefetch {
     const fileChunk: { [path: string]: string } = {};
 
     let main: any = null;
-    compilation.chunks.forEach((chunk: any) => {
-      if (chunk.canBeInitial()) {
-        main = chunk;
+    compilation.chunks.forEach((currentChunk: any) => {
+      if (isInitial(currentChunk)) {
+        main = currentChunk;
       }
-      chunk.groupsIterable.forEach((chunkGroup: any) => {
-        const blocks = chunkGroup.getBlocks();
-        if (blocks && blocks.length > 0) {
-          for (const block of blocks) {
-            const name = chunkGroup.files.filter((f: string) => f.endsWith('.js')).pop();
-            fileChunk[block.dependencies[0].module.userRequest] = name;
-          }
-        }
+      forEachBlock(currentChunk, ({ block, chunk }: any) => {
+        const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
+        fileChunk[block.dependencies[0].module.userRequest] = name;
       });
     });
 
@@ -104,4 +99,26 @@ const buildMap = (routes: RoutingModule[], graph: Graph): BundleEntryGraph => {
     result[k] = result[k].sort((a, b) => b.probability - a.probability);
   });
   return result;
+};
+
+// webpack 4 & 3 compatible.
+const isInitial = (chunk: any) => {
+  if (chunk.canBeInitial) {
+    return chunk.canBeInitial();
+  }
+  return chunk.name === 'main';
+};
+
+const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
+  let blocks: any[] = [];
+  if (chunk.groupsIterable) {
+    blocks = Array.from(chunk.groupsIterable).reduce(
+      (prev: any[], group: any) =>
+        prev.concat(blocks.concat(group.getBlocks().map((block: any) => ({ chunk: group, block })))),
+      []
+    );
+  } else {
+    blocks = (chunk.blocks || []).map((block: any) => ({ chunk, block }));
+  }
+  blocks.forEach(cb);
 };

@@ -1,5 +1,5 @@
 import { auth } from 'google-oauth2-node';
-import { RoutingModule, Period, Graph } from 'common/interfaces';
+import { RoutingModule, Period, Graph } from '../../common/interfaces';
 import { fetch } from 'guess-ga';
 
 const clientId = '329457372673-hda3mp2vghisfobn213jpj8ck1uohi2d.apps.googleusercontent.com';
