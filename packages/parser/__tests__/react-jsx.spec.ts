@@ -1,4 +1,4 @@
-import { parseReactJSXRoutes } from '../react';
+import { parseReactJSXRoutes } from '../src/react';
 
 const fixtureRoutes = new Set<string>(['/', '/intro', '/main', '/main/kid', '/main/parent']);
 

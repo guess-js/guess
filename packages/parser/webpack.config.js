@@ -1,8 +1,9 @@
 module.exports = {
+  mode: 'development',
   entry: './index.ts',
   target: 'node',
   output: {
-    filename: './dist/parser/index.js',
+    filename: './parser/index.js',
     libraryTarget: 'umd'
   },
   externals: [/^(@|\w).*$/i],

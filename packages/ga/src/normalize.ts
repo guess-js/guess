@@ -23,21 +23,14 @@ export const matchRoute = (route: string, declaration: string): boolean => {
   }
 };
 
-// TODO optimize
-const findRoute = (d: string[], r: string) => {
-  const res = d.filter(def => def.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c));
-  if (!res && r && r !== '(entrance)' && d.length) {
-    console.warn(`No declaration for ${r}`);
-  }
-  return res || r;
-};
+const findRoute = (d: string[], r: string) =>
+  d.filter(def => def.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c)) || r;
 
-const processRoute = (declarations: string[], route: string) => {
-  return findRoute(declarations, route.split('?')[0].replace(/\/$/, ''));
-};
+const processRoute = (declarations: string[], route: string) =>
+  findRoute(declarations, route.split('?')[0].replace(/\/$/, ''));
 
 export const normalize = (data: any, formatter: (s: string) => string, declarations: string[]) => {
-  return data.rows
+  return (data.rows || [])
     .map((r: any) => {
       return {
         from: processRoute(declarations, formatter(r.dimensions[0])),

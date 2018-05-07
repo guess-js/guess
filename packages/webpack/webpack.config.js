@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 
 const common = {
+  mode: 'development',
   externals: [/^(@|\w).*$/i],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
@@ -22,7 +23,7 @@ module.exports = [
   Object.assign(
     {
       entry: {
-        runtime: './index.ts'
+        runtime: './src/runtime.ts'
       },
       target: 'web',
       output: {
@@ -42,6 +43,24 @@ module.exports = [
       output: {
         filename: '[name].js',
         path: __dirname + '/dist/webpack/',
+        libraryTarget: 'umd'
+      },
+      target: 'node',
+      node: {
+        __dirname: false,
+        __filename: false
+      }
+    },
+    common
+  ),
+  Object.assign(
+    {
+      entry: {
+        index: './src/api.ts'
+      },
+      output: {
+        filename: '[name].js',
+        path: __dirname + '/dist/api/',
         libraryTarget: 'umd'
       },
       target: 'node',

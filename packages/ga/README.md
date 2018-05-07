@@ -1,6 +1,14 @@
 # GA
 
-Allows you to fetch data from Google analytics. Combined with `guess-parser` you can aggregate the route information and map it to your application's parametrized routes:
+Fetches data from Google analytics.
+
+## Usage
+
+```bash
+npm i guess-ga
+```
+
+Combined with `guess-parser` you can aggregate the route information and map it to your application's parametrized routes:
 
 ```ts
 const { fetch } = require('guess-ga');

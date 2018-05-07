@@ -6,10 +6,8 @@
     "declaration": true,
     "experimentalDecorators": true,
     "strict": true,
-    "outDir": "./dist",
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"]
   },
-  "files": ["lib/index.ts"],
   "exclude": ["packages/detector/__tests__/fixtures"]
 }

@@ -1,36 +1,34 @@
 import { readFileSync, existsSync } from 'fs';
-import { parseRoutes, ngParseRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
+import { parseRoutes, parseAngularRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
 import { RouteProvider, Mode } from './declarations';
-import { RoutingModule, ProjectType, ProjectLayout } from 'common/interfaces';
+import { RoutingModule, ProjectType, ProjectLayout } from '../../common/interfaces';
 
-type RoutingStrategies = { [strategy in Mode]: (config?: ProjectLayout) => RoutingModule[] };
+type KnownMode = Mode.Angular | Mode.Gatsby | Mode.ReactJSX | Mode.ReactTSX;
+type RoutingStrategies = { [strategy in KnownMode]: (config?: ProjectLayout) => RoutingModule[] };
 
-const defaultParsers: RoutingStrategies = {
+const defaultParsers: any = {
   [Mode.Angular](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
-      throw new Error('For Angular project specify a tsconfig file');
+      throw new Error('Path to tsconfig.json not provided');
     }
-    return ngParseRoutes(config.tsconfigPath);
+    return parseAngularRoutes(config.tsconfigPath);
   },
   [Mode.ReactTSX](config?: ProjectLayout) {
     if (!config || !config.tsconfigPath) {
-      throw new Error('For React TypeScript project specify a tsconfig file');
+      throw new Error('Path to tsconfig.json not provided');
     }
     return parseReactTSXRoutes(config.tsconfigPath);
   },
   [Mode.ReactJSX](config?: ProjectLayout) {
     if (!config || !config.sourceDir) {
-      throw new Error('For React TypeScript project specify a tsconfig file');
+      throw new Error('Source directory not provided');
     }
     return parseReactJSXRoutes(config.sourceDir);
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');
-  },
-  [Mode.Auto]() {
-    return parseRoutes('');
   }
 };
 
-export const defaultRouteProvider = (mode: Mode, config?: ProjectLayout): (() => RoutingModule[]) => () =>
+export const defaultRouteProvider = (mode: KnownMode, config?: ProjectLayout): RoutingModule[] =>
   defaultParsers[mode](config);

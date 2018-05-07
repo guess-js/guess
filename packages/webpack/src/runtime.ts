@@ -1,6 +1,6 @@
 import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from './declarations';
 
-export class GraphNode {
+class GraphNode {
   constructor(private _node: number[], private _map: CompressedGraphMap) {}
 
   get probability() {
@@ -16,19 +16,22 @@ export class GraphNode {
   }
 }
 
-export class Graph {
+class Graph {
   constructor(private _graph: CompressedPrefetchGraph, private _map: CompressedGraphMap) {}
 
-  findMatch(route: string) {
+  findMatch(route: string): GraphNode[] {
     const result = this._graph.filter((_, i) => matchRoute(this._map.routes[i], route)).pop();
     if (!result) {
-      return null;
+      return [];
     }
     return result.map(n => new GraphNode(n, this._map));
   }
 }
 
-export const support = (feature: string) => {
+const support = (feature: string) => {
+  if (typeof document === 'undefined') {
+    return false;
+  }
   const fakeLink = document.createElement('link') as any;
   try {
     if (fakeLink.relList && typeof fakeLink.relList.supports === 'function') {
@@ -40,6 +43,9 @@ export const support = (feature: string) => {
 };
 
 const linkPrefetchStrategy = (url: string) => {
+  if (typeof document === 'undefined') {
+    return;
+  }
   const link = document.createElement('link');
   link.setAttribute('rel', 'prefetch');
   link.setAttribute('href', url);
@@ -53,7 +59,7 @@ const supportedPrefetchStrategy = support('prefetch') ? linkPrefetchStrategy : i
 
 const preFetched: { [key: string]: boolean } = {};
 
-export const prefetch = (basePath: string, url: string) => {
+const prefetch = (basePath: string, url: string) => {
   url = basePath + url;
   if (preFetched[url]) {
     return;
@@ -63,7 +69,7 @@ export const prefetch = (basePath: string, url: string) => {
   supportedPrefetchStrategy(url);
 };
 
-export const matchRoute = (route: string, declaration: string) => {
+const matchRoute = (route: string, declaration: string) => {
   const routeParts = route.split('/');
   const declarationParts = declaration.split('/');
   if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
@@ -89,7 +95,7 @@ export const matchRoute = (route: string, declaration: string) => {
 const polyfillConnection = {
   effectiveType: '3g'
 };
-export const handleNavigationChange = (graph: Graph, basePath: string, thresholds: PrefetchConfig, route: string) => {
+const handleNavigationChange = (graph: Graph, basePath: string, thresholds: PrefetchConfig, route: string) => {
   const nodes = graph.findMatch(route);
   if (!nodes) {
     return;
@@ -106,16 +112,55 @@ export const handleNavigationChange = (graph: Graph, basePath: string, threshold
   }
 };
 
+export interface NavigationProbabilities {
+  [key: string]: number;
+}
+
+const guessNavigation = (graph: Graph, current: string, links?: string[]): NavigationProbabilities => {
+  const matches = graph.findMatch(current);
+  if (links) {
+    return links.reduce((result: NavigationProbabilities, link: string) => {
+      const node = matches.filter(m => matchRoute(link, m.route)).pop();
+      if (node) {
+        result[link] = node.probability;
+      }
+      return result;
+    }, {});
+  }
+  return matches.reduce(
+    (p: NavigationProbabilities, n) => {
+      p[n.route] = n.probability;
+      return p;
+    },
+    {} as NavigationProbabilities
+  );
+};
+
+export let guess = (current: string, links?: string[]): NavigationProbabilities => {
+  throw new Error('Guess is not initialized');
+};
+
 export const initialize = (
   history: History,
+  global: any,
   compressed: CompressedPrefetchGraph,
   map: CompressedGraphMap,
   basePath: string,
-  thresholds: PrefetchConfig
+  thresholds: PrefetchConfig,
+  delegate: boolean
 ) => {
   const graph = new Graph(compressed, map);
+  guess = (current: string, links?: string[]) => guessNavigation(graph, current, links);
 
-  window.addEventListener('popstate', e => handleNavigationChange(graph, basePath, thresholds, location.pathname));
+  if (delegate) {
+    return;
+  }
+
+  if (typeof global.addEventListener === 'function') {
+    global.addEventListener('popstate', (e: any) =>
+      handleNavigationChange(graph, basePath, thresholds, location.pathname)
+    );
+  }
 
   const pushState = history.pushState;
   history.pushState = function(state) {

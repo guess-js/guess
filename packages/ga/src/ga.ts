@@ -3,8 +3,8 @@ import { normalize } from './normalize';
 import { Graph, Period } from '../../common/interfaces';
 
 const PageSize = 1000;
-const noop = (r: string) => r;
-const DefaultExpression = 'ga:users';
+const id = (r: string) => r;
+const DefaultExpression = 'ga:pageviews';
 
 export interface FetchConfig {
   auth: any;
@@ -23,7 +23,7 @@ export async function fetch(config: FetchConfig) {
       throw val.error;
     }
     const result = val.report;
-    normalize(result.data, config.formatter || noop, config.routes || []).forEach((n: any) => {
+    normalize(result.data, config.formatter || id, config.routes || []).forEach((n: any) => {
       const r = graph[n.from] || {};
       r[n.to] = n.weight + (r[n.to] || 0);
       graph[n.from] = r;
