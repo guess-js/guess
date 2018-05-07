@@ -33,17 +33,17 @@ const config = {
 
 describe('runtime', () => {
   it('should guess links', () => {
-    initialize(window.history, graph, graphMap, '', config, true);
+    initialize(window.history, window, graph, graphMap, '', config, true);
     expect(guess('a', ['b', 'c/1', 'c/2'])).toEqual({ b: 0.9, 'c/1': 0.1, 'c/2': 0.1 });
   });
 
   it('should work with no matches', () => {
-    initialize(window.history, graph, graphMap, '', config, true);
+    initialize(window.history, window, graph, graphMap, '', config, true);
     expect(guess('a', ['d', 'g/1', 'x/2'])).toEqual({});
   });
 
   it('should work with partial matches', () => {
-    initialize(window.history, graph, graphMap, '', config, true);
+    initialize(window.history, window, graph, graphMap, '', config, true);
     expect(guess('a', ['c/1', 'c/2'])).toEqual({ 'c/1': 0.1, 'c/2': 0.1 });
   });
 });
