@@ -11,16 +11,17 @@ Guess.js for non-Webpack sites.
 :heavy_check_mark: **Intelligent:** Predictive fetching uses the client's connection type to determine whether a resource should be prefetched.
 <br></br>
 
-## How this repo works
-This repo uses Google Analytics data to determine which page a user is mostly likely to visit next from a given page (***generatePredictions.js***).
+## How guess-static-sites works
+This directory uses Google Analytics data to determine which page a user is mostly likely to visit next from a given page (***generatePredictions.js***).
 
-A client-side script (which you'll add to your application) sends a request to the server to get the URL of the page it should fetch, it then prefetches this resource (***script.js & server.js***).
+A client-side script (which you'll add to your application) sends a request to the server you are running to get the URL of the page it should fetch, it then prefetches this resource (***script.js & server.js***).
 
 If a user is on a poor connection, prefetching will only occur if there's a high level of certainty that a user will go to a particular page next. If a client is using the Save-Data header, no prefetching will occur.
 
 ## Setup
-After downloading this repo, install the dependencies:
+After downloading the Guess.js repo, cd to this directory and install the dependencies:
 ```
+$ cd experiments/guess-static-sites
 $ npm install
 ```
 

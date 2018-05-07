@@ -1,5 +1,5 @@
 {
-  "name": "prefetch-server",
+  "name": "guess-static-sites",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",

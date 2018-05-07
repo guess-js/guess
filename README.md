@@ -18,7 +18,7 @@ Should you wish to try out the modules we offer individually, the `packages` dir
 ***For non-Webpack users:***
 ### :black_circle: Data-driven loading
 
-Our [predictive-fetching for sites](https://github.com/guess-js/guess/tree/experiments/guess-static-sites) workflow provides a set of steps you can follow to integrate predictive fetching using the Google Analytics API to your site. 
+Our [predictive-fetching for sites](https://github.com/guess-js/guess/tree/master/experiments/guess-static-sites) workflow provides a set of steps you can follow to integrate predictive fetching using the Google Analytics API to your site. 
 
 This repo uses [Google Analytics](http://analytics.google.com) data to determine which page a user is mostly likely to visit next from a given page. A client-side script (which you'll add to your application) sends a request to the server to get the URL of the page it should fetch, then prefetches this resource.
 
