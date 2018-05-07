@@ -1,5 +1,9 @@
-# Predictive Fetching
-### *Automatic, dynamic, intelligent prefetching for faster page loads.*
+# guess-static-sites
+
+Guess.js for non-Webpack sites.
+
+*Automatic, dynamic, intelligent prefetching for faster page loads.*
+
 :heavy_check_mark: **Automatic:** Once you've setup predictive fetching you'll automatically be using it on all your pages. (No more forgetting to take advantage of prefetch.)
 
 :heavy_check_mark: **Dynamic:** As your site changes, prefetch links will adjust accordingly. (No more hardcoded prefetch URLs.) 
