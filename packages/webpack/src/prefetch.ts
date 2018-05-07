@@ -25,7 +25,7 @@ export class Prefetch {
     }
   }
 
-  apply(compilation: any) {
+  execute(compilation: any, callback: any) {
     const fileChunk: { [path: string]: string } = {};
 
     let main: any = null;
@@ -34,12 +34,13 @@ export class Prefetch {
         main = currentChunk;
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        const name = chunk.files.filter((f: string) => f.endsWith('.js')).pop();
+        const name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
         fileChunk[block.dependencies[0].module.userRequest] = name;
       });
     });
 
     if (!main) {
+      callback();
       throw new Error('Cannot find the main chunk in the runtime ML plugn');
     }
 
@@ -69,6 +70,7 @@ export class Prefetch {
       DELEGATE: this._config.delegate
     });
     compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
+    callback();
   }
 }
 
