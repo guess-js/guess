@@ -50,8 +50,7 @@ export class GuessPlugin {
       period: this._config.period
     }).then(
       data => {
-        cb();
-        return this._executePrefetchPlugin(data, routes, compilation);
+        return this._executePrefetchPlugin(data, routes, compilation, cb);
       },
       err => {
         cb();
@@ -60,7 +59,7 @@ export class GuessPlugin {
     );
   }
 
-  private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any) {
+  private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any, cb: any) {
     const { runtime } = this._config;
     new Prefetch({
       data,
@@ -69,7 +68,7 @@ export class GuessPlugin {
       debug: this._config.debug,
       routes,
       delegate: runtime ? !!runtime.delegate : false
-    }).apply(compilation);
+    }).execute(compilation, cb);
   }
 }
 
