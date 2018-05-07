@@ -1,0 +1,36 @@
+{
+  "name": "guess-static-sites",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "generate-predictions-tests": "NODE_ENV=test mocha ./test/gaclientTests.js",
+    "client-tests": "NODE_ENV=test mocha ./test/clientTests.js",
+    "server-tests": "NODE_ENV=test mocha ./test/serverTests.js",
+    "build": "babel src/client.js --out-file dist/client.js --presets minify"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "dotenv": "^5.0.1",
+    "express": "^4.16.3",
+    "fs": "0.0.1-security",
+    "googleapis": "^28.1.0",
+    "mongoose": "^5.0.14"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-minify": "^0.4.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-minify": "^0.4.0",
+    "chai": "^4.1.2",
+    "cors": "^2.8.4",
+    "http-server": "^0.11.1",
+    "mocha": "^5.1.1",
+    "path": "^0.12.7",
+    "puppeteer": "^1.2.0",
+    "standard": "^11.0.1",
+    "supertest": "^3.0.0"
+  }
+}

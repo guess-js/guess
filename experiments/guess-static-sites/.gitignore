@@ -1,0 +1,5 @@
+*.env
+*.pem
+*.p12
+node_modules/
+*.swp
