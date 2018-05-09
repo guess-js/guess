@@ -161,8 +161,8 @@ The `guess` function will not add values for the links it cannot find informatio
 A number of sample projects using `GuessPlugin` are available. These include:
 
 * [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatsby.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
-* `react-dd-bundled` - a simple demo application using `GuessPlugin` and `create-react-app`
-* `ng-dd-bundled` - a simple demo application using `GuessPlugin` and Angular CLI
+* [`guess-js-react-demo`](https://github.com/mgechev/guess-js-react-demo) - a simple demo application using `GuessPlugin` and `create-react-app`
+* [`guess-js-angular-demo`](https://github.com/mgechev/guess-js-angular-demo) - a simple demo application using `GuessPlugin` and Angular CLI
 
 **Note:** Predictive fetching relies heavily on the availability of data in a Google Analytics account to drive predictions. You may need to seed some data for this by navigating around your demo project to provide Guess with some early data to guide what to prefetch.
 
