@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/guess-js/guess.svg?branch=master)](https://travis-ci.com/guess-js/guess)
+
 # Guess.js (alpha)
 
 Libraries and tools for enabling data-driven user-experiences on the web.
