@@ -2,6 +2,7 @@ language: node_js
 node_js: stable
 os: linux
 
-install: npm i
+before_install:
+  - npm i -g npm@latest
+install: npm ci
 script: npm run test:ci
-
