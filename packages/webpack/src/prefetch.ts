@@ -41,7 +41,7 @@ export class Prefetch {
 
     if (!main) {
       callback();
-      throw new Error('Cannot find the main chunk in the runtime ML plugn');
+      throw new Error('Cannot find the main chunk in the runtime ML plugin');
     }
 
     const newConfig: PrefetchGraph = {};
