@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watch",
+    "test:ci": "jest",
     "postinstall": "ts-node infra/install.ts",
     "build": "ts-node infra/build.ts",
     "publish": "ts-node infra/build.ts --publish"
