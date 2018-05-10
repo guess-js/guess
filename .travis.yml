@@ -7,3 +7,5 @@ script: npm run test:ci
 
 git:
   depth: 5
+
+cache: yarn
