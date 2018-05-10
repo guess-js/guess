@@ -5,3 +5,5 @@ os: linux
 install: npm i
 script: npm run test:ci
 
+git:
+  depth: 5
