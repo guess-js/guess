@@ -26,8 +26,7 @@ export const matchRoute = (route: string, declaration: string): boolean => {
 const findRoute = (d: string[], r: string) =>
   d.filter(def => def.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c)) || r;
 
-const processRoute = (declarations: string[], route: string) =>
-  findRoute(declarations, route.split('?')[0].replace(/\/$/, ''));
+const processRoute = (declarations: string[], route: string) => findRoute(declarations, route.split('?')[0]);
 
 export const normalize = (data: any, formatter: (s: string) => string, declarations: string[]) => {
   return (data.rows || [])
