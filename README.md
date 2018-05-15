@@ -209,6 +209,7 @@ Extends the use of a page-rank algorithm with numerous navigational attributes: 
 * [Eve Dynamic Prerender](https://wordpress.org/plugins/eve-dynamic-prerender/?sa=D&ust=1522637949841000)
 * [InstartLogic - Multi-page Predictive Prefetching](https://www.instartlogic.com/blog/predicting-future-multi-page-predictive-prefetching?sa=D&ust=1522637949841000)
 * [Sirko Engine](https://github.com/sirko-io/engine?sa=D&ust=1522637949842000) - relies on Service Worker
+* [Booster vos temps de chargement](https://data-seo.fr/2016/03/15/moteur-recommandations-contenu-r-gtm/) 
 
 <h2>Team</h2>
 
