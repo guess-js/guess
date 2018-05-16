@@ -3,13 +3,6 @@ import { Connection } from '../../common/interfaces';
 export const matchRoute = (route: string, declaration: string): boolean => {
   const routeParts: string[] = route.split('/');
   const declarationParts: string[] = declaration.split('/');
-  if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
-    routeParts.pop();
-  }
-
-  if (declarationParts.length > 0 && declarationParts[declarationParts.length - 1] === '') {
-    declarationParts.pop();
-  }
 
   if (routeParts.length !== declarationParts.length) {
     return false;
