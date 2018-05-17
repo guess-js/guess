@@ -3,13 +3,6 @@ import { Connection } from '../../common/interfaces';
 export const matchRoute = (route: string, declaration: string): boolean => {
   const routeParts: string[] = route.split('/');
   const declarationParts: string[] = declaration.split('/');
-  if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
-    routeParts.pop();
-  }
-
-  if (declarationParts.length > 0 && declarationParts[declarationParts.length - 1] === '') {
-    declarationParts.pop();
-  }
 
   if (routeParts.length !== declarationParts.length) {
     return false;
@@ -26,8 +19,7 @@ export const matchRoute = (route: string, declaration: string): boolean => {
 const findRoute = (d: string[], r: string) =>
   d.filter(def => def.indexOf(':') < 0).find(c => matchRoute(r, c)) || d.find(c => matchRoute(r, c)) || r;
 
-const processRoute = (declarations: string[], route: string) =>
-  findRoute(declarations, route.split('?')[0].replace(/\/$/, ''));
+const processRoute = (declarations: string[], route: string) => findRoute(declarations, route.split('?')[0]);
 
 export const normalize = (data: any, formatter: (s: string) => string, declarations: string[]) => {
   return (data.rows || [])
