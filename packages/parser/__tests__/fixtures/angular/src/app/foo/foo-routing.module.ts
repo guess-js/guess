@@ -6,6 +6,10 @@ const routes: Routes = [
   {
     path: '',
     component: FooComponent
+  },
+  {
+    path: 'index',
+    component: FooComponent
   }
 ];
 
