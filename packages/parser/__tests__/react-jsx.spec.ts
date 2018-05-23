@@ -12,6 +12,6 @@ describe('React TypeScript parser', () => {
     expect(routes).toBeInstanceOf(Array);
     expect(routes.map(r => r.path).reduce((c, route) => c && fixtureRoutes.has(route), true)).toEqual(true);
     expect(routes.length).toEqual(fixtureRoutes.size);
-    expect(routes.filter(r => !r.lazy).shift().path).toEqual('/main/kid');
+    expect((routes.filter(r => !r.lazy).shift() as any).path).toEqual('/main/kid');
   });
 });

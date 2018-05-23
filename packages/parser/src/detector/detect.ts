@@ -55,5 +55,14 @@ export const detect = (base: string): ProjectMetadata | undefined => {
       }
     };
   }
+  if (d('preact') && dd('preact-cli')) {
+    return {
+      type: ProjectType.PreactCLI,
+      version: dd('preact-cli'),
+      details: {
+        sourceDir: 'src'
+      }
+    };
+  }
   return undefined;
 };

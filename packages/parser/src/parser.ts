@@ -1,5 +1,6 @@
 import { parseRoutes as ngParseRoutes } from './angular';
 import { parseReactTSXRoutes, parseReactJSXRoutes } from './react';
+import { parsePreactJSXRoutes } from './preact';
 import { RoutingModule, ProjectType } from '../../common/interfaces';
 import { detect } from './detector';
 import { join } from 'path';
@@ -24,6 +25,9 @@ export const parseRoutes = (base: string) => {
   }
   if (app.type === ProjectType.CreateReactApp && app.details && app.details.sourceDir) {
     result = parseReactJSXRoutes(join(base, app.details.sourceDir));
+  }
+  if (app.type === ProjectType.PreactCLI && app.details && app.details.sourceDir) {
+    result = parsePreactJSXRoutes(join(base, app.details.sourceDir));
   }
   if (!result) {
     throw new Error('Unknown project type');
