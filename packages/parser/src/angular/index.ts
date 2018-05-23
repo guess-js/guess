@@ -97,6 +97,35 @@ const getRoutingModules = (projectSymbols: ProjectSymbols) => {
   });
 };
 
+const addParentModuleAliases = (modules: ModuleSymbol[], moduleMap: { [key: string]: RawModuleData }) => {
+  modules.forEach(m => {
+    const summary = m.getModuleSummary();
+    if (!summary) {
+      return;
+    }
+    summary.modules.forEach(child => {
+      const symbol = child.reference;
+      const id = `${symbol.filePath}#${symbol.name}`;
+      if (moduleMap[id]) {
+        moduleMap[`${m.symbol.filePath}#${m.symbol.name}`] = moduleMap[id];
+      }
+    });
+  });
+};
+
+const removeDuplicates = (input: RoutingModule[]): RoutingModule[] => {
+  const existing = new Set<string>();
+  const result: RoutingModule[] = [];
+  input.forEach(current => {
+    if (existing.has(current.path)) {
+      return;
+    }
+    existing.add(current.path);
+    result.push(current);
+  });
+  return result;
+};
+
 export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   const projectSymbols = getProjectSymbols(tsconfig);
   const allRoutingModules = getRoutingModules(projectSymbols);
@@ -110,6 +139,8 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   flattened.forEach(module => {
     rawMap[key(module.module.reference)] = module;
   });
+
+  addParentModuleAliases(projectSymbols.getModules(), rawMap);
 
   const result: RoutingModule[] = [];
 
@@ -187,5 +218,5 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     findRoutes(root.module.reference.filePath, root.provider.useValue as Route[], '', rawMap, result, null);
   }
 
-  return result;
+  return removeDuplicates(result);
 };
