@@ -60,7 +60,7 @@ export const detect = (base: string): ProjectMetadata | undefined => {
       type: ProjectType.PreactCLI,
       version: dd('preact-cli'),
       details: {
-        sourceDir: 'src'
+        sourceDir: '.'
       }
     };
   }
