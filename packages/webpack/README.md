@@ -66,7 +66,8 @@ new GuessPlugin({
   // Custom report provider. It is used for providing reports from a different source
   // other than Google Analytics. Keep in mind that you cannot specify both
   // `GA` and `reportProvider`. If `GA` is specified, then Guess.js will use the default
-  // Google Analytics report provider.
+  // Google Analytics report provider. For the format of the report, check the
+  // "Custom report provider" section below.
   reportProvider() {
     return new Promise((resolve, reject) => {
       readFile('./report.json', (err, content) => {
@@ -173,6 +174,42 @@ The `guess` function will return an object with keys the provided links and valu
 ```
 
 The `guess` function will not add values for the links it cannot find information for.
+
+## Custom report provider
+
+The `reportProvider` configuration property of `GuessPlugin` is a function which returns promise that resolves to the following data structure:
+
+```ts
+export interface PageTransitions {
+  [key: string]: number;
+}
+
+export interface Report {
+  [key: string]: PageTransitions;
+}
+```
+
+Here's an example:
+
+```ts
+{
+  "foo": {
+    "bar": 5,
+    "baz" 2
+  },
+  "bar": {
+    "baz": 3
+  }
+}
+```
+
+The meaning of the report above is:
+
+* There are two reported transitions from page `foo`:
+  * Transition to page `bar` which has occurred 5 times.
+  * Transition to page `baz` which has occurred 2 times.
+* There's one reported transition from page `bar`:
+  * Transition to `baz` which has occurred 3 times.
 
 ## Demos
 
