@@ -58,8 +58,26 @@ You may also want to pass a custom time period:
 
 ```ts
 new GuessPlugin({
-  // View ID of the GA application
+  // View ID of the GA application. Alternatively, you can use `reportProvider`
+  // if you want to extract the report from the file system or a different source,
+  // other than Google Analytics.
   GA: 'GA_VIEW_ID',
+
+  // Custom report provider. It is used for providing reports from a different source
+  // other than Google Analytics. Keep in mind that you cannot specify both
+  // `GA` and `reportProvider`. If `GA` is specified, then Guess.js will use the default
+  // Google Analytics report provider.
+  reportProvider() {
+    return new Promise((resolve, reject) => {
+      readFile('./report.json', (err, content) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        resolve(JSON.stringify(content.toString()));
+      })
+    });
+  }
 
   // The mode provides hint to the `guess-parser` how your application
   // should be parsed in order to extract the routes and map them
