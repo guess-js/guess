@@ -9,7 +9,7 @@ describe('detect', () => {
   });
 
   describe('create-react-app', () => {
-    it('should detect an create-react-app', () => {
+    it('should detect a create-react-app', () => {
       expect(detect('packages/parser/__tests__/fixtures/react-app').type).toBe(ProjectType.CreateReactApp);
     });
   });
@@ -21,8 +21,14 @@ describe('detect', () => {
   });
 
   describe('gatsby', () => {
-    it('should detect an gatsby', () => {
+    it('should detect a gatsby', () => {
       expect(detect('packages/parser/__tests__/fixtures/gatsby').type).toBe(ProjectType.Gatsby);
+    });
+  });
+
+  describe('vue', () => {
+    it('should detect a vue', () => {
+      expect(detect('packages/parser/__tests__/fixtures/vue-cli-webpack').type).toBe(ProjectType.Vue);
     });
   });
 

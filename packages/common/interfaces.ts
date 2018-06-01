@@ -33,7 +33,10 @@ export enum ProjectType {
   AngularCLI = 'angular-cli',
   CreateReactApp = 'create-react-app',
   Gatsby = 'gatsby',
-  CreateReactAppTypeScript = 'create-react-app-typescript'
+  CreateReactAppTypeScript = 'create-react-app-typescript',
+  // Vue uses different templates. We cannot determine
+  // the correct one since they are quite generic.
+  Vue = 'Vue'
 }
 
 export interface ProjectLayout {

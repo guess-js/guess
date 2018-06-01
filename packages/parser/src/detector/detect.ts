@@ -55,5 +55,14 @@ export const detect = (base: string): ProjectMetadata | undefined => {
       }
     };
   }
+  if (d('vue')) {
+    return {
+      type: ProjectType.Vue,
+      version: d('vue'),
+      details: {
+        sourceDir: 'src'
+      }
+    };
+  }
   return undefined;
 };
