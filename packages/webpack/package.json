@@ -46,10 +46,5 @@
       "json",
       "node"
     ]
-  },
-  "devDependencies": {
-    "@types/promise.prototype.finally": "^2.0.2",
-    "ts-loader": "^4.2.0",
-    "webpack": "^4.7.0"
   }
 }

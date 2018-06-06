@@ -40,9 +40,5 @@
       "json",
       "node"
     ]
-  },
-  "devDependencies": {
-    "ts-loader": "^4.2.0",
-    "webpack": "^4.7.0"
   }
 }
