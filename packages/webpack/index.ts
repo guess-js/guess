@@ -1,1 +1,1 @@
-export * from './src/guess';
+export * from './src/guess-webpack';
