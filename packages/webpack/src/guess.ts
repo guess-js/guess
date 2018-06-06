@@ -20,7 +20,8 @@ export interface RuntimeConfig {
 }
 
 export interface GuessPluginConfig {
-  GA: string;
+  GA?: string;
+  reportProvider?: (...args: any[]) => Promise<Graph>;
   mode?: Mode;
   layout?: ProjectLayout;
   period?: Period;
@@ -35,7 +36,18 @@ export interface GuessPluginConfig {
 }
 
 export class GuessPlugin {
-  constructor(private _config: GuessPluginConfig) {}
+  constructor(private _config: GuessPluginConfig) {
+    if (this._config.GA && this._config.reportProvider) {
+      throw new Error(
+        'Only a single report provider is allowed. You have specified `GA` (used by Google Analytics provider) and `reportProvider`'
+      );
+    }
+    if (!this._config.GA && !this._config.reportProvider) {
+      throw new Error(
+        'Report provider not specified. You should specify either a `GA` (Google Analytics view ID) or `reportProvider`.'
+      );
+    }
+  }
 
   apply(compiler: any) {
     compiler.plugin('emit', (compilation: any, cb: any) => this._execute(compilation, cb));
@@ -43,12 +55,7 @@ export class GuessPlugin {
 
   private _execute(compilation: any, cb: any) {
     const routes = extractRoutes(this._config);
-    getReport({
-      viewId: this._config.GA,
-      routes,
-      formatter: this._config.routeFormatter,
-      period: this._config.period
-    }).then(
+    this._getReport(routes).then(
       data => {
         return this._executePrefetchPlugin(data, routes, compilation, cb);
       },
@@ -57,6 +64,19 @@ export class GuessPlugin {
         throw err;
       }
     );
+  }
+
+  private _getReport(routes: RoutingModule[]): Promise<Graph> {
+    if (this._config.GA) {
+      return getReport({
+        viewId: this._config.GA,
+        routes,
+        formatter: this._config.routeFormatter,
+        period: this._config.period
+      });
+    } else {
+      return this._config.reportProvider!();
+    }
   }
 
   private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any, cb: any) {
