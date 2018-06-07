@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readFileSync, readFile } from 'fs';
 import {
   CompressedPrefetchGraph,
   CompressedGraphMap,
@@ -10,9 +10,11 @@ import {
 } from './declarations';
 import { Graph, RoutingModule } from '../../common/interfaces';
 import { compressGraph } from './compress';
+import { join } from 'path';
 
+const { rollup } = require('rollup');
 const template = require('lodash.template');
-const runtimeTemplate = require('./runtime.tpl');
+const hypothetical = require('rollup-plugin-hypothetical');
 const ConcatSource = require('webpack-sources').ConcatSource;
 
 export class PrefetchPlugin {
@@ -61,16 +63,50 @@ export class PrefetchPlugin {
     const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
     const old = compilation.assets[mainName];
     const { graph, graphMap } = compressGraph(newConfig, 3);
-    const prefetchLogic = template(runtimeTemplate)({
+
+    const codeTemplate = this._config.delegate ? 'runtime.tpl' : 'guess.tpl';
+    const runtimeTemplate = readFileSync(join(__dirname, codeTemplate)).toString();
+
+    const runtimeLogic = template(runtimeTemplate)({
       BASE_PATH: this._config.basePath || '/',
       GRAPH: JSON.stringify(graph),
       GRAPH_MAP: JSON.stringify(graphMap),
-      CODE: readFileSync(__dirname + '/runtime-code.js').toString(),
-      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig)),
-      DELEGATE: this._config.delegate
+      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
     });
-    compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
-    callback();
+
+    const MemoryFileSystem = require('memory-fs');
+    const memoryFs = new MemoryFileSystem();
+
+    memoryFs.mkdirpSync('/src');
+    memoryFs.writeFileSync('/src/index.js', runtimeLogic, 'utf-8');
+    memoryFs.writeFileSync('/src/guess.js', readFileSync(join(__dirname, 'guess.js')).toString(), 'utf-8');
+    memoryFs.writeFileSync('/src/runtime.js', readFileSync(join(__dirname, 'runtime.js')).toString(), 'utf-8');
+
+    const compiler = require('webpack')({
+      context: '/src/',
+      mode: 'development',
+      entry: './index.js',
+      target: 'web',
+      output: {
+        filename: './output.js'
+      }
+    });
+
+    compiler.inputFileSystem = memoryFs;
+    compiler.outputFileSystem = memoryFs;
+    compiler.resolvers.normal.fileSystem = memoryFs;
+    compiler.resolvers.context.fileSystem = memoryFs;
+
+    compiler.run((err: any, stats: any) => {
+      if (err) {
+        callback();
+        throw err;
+      }
+
+      const code = stats.compilation.assets['./output.js'].source();
+      compilation.assets[mainName] = new ConcatSource(code, '\n', old.source());
+      callback();
+    });
   }
 }
 

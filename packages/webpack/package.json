@@ -31,7 +31,8 @@
     "lodash.template": "^4.4.0",
     "rollup": "^0.59.4",
     "rollup-plugin-hypothetical": "^2.1.0",
-    "rollup-plugin-typescript": "^0.8.1"
+    "rollup-plugin-typescript": "^0.8.1",
+    "copy-webpack-plugin": "^4.5.1"
   },
   "jest": {
     "transform": {
@@ -48,6 +49,7 @@
     ]
   },
   "devDependencies": {
+    "ts-loader": "^4.3.1",
     "typescript": "^2.9.1"
   }
 }

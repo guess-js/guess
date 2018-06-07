@@ -1,3 +1,4 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 
 const common = {
@@ -16,21 +17,40 @@ const common = {
         use: 'raw-loader'
       }
     ]
-  }
+  },
+  plugins: [
+    new CopyWebpackPlugin([
+      { from: './src/runtime/runtime.tpl', to: 'runtime.tpl' },
+      { from: './src/runtime/guess.tpl', to: 'guess.tpl' }
+    ])
+  ]
 };
 
 module.exports = [
   Object.assign(
     {
       entry: {
-        runtime: './src/runtime.ts'
+        runtime: './src/runtime/runtime.ts'
       },
       target: 'web',
       output: {
-        filename: 'runtime-code.js',
+        filename: 'runtime.js',
         path: __dirname + '/dist/webpack/',
-        libraryTarget: 'var',
-        library: '__GUESS__'
+        libraryTarget: 'umd'
+      }
+    },
+    common
+  ),
+  Object.assign(
+    {
+      entry: {
+        runtime: './src/runtime/guess.ts'
+      },
+      target: 'web',
+      output: {
+        filename: 'guess.js',
+        path: __dirname + '/dist/webpack/',
+        libraryTarget: 'umd'
       }
     },
     common

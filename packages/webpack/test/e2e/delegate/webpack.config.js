@@ -4,7 +4,7 @@ const { GuessPlugin } = require('../../../dist/webpack/index');
 module.exports = {
   mode: 'development',
   entry: './index.js',
-  target: 'node',
+  target: 'web',
   output: {
     filename: './index.js',
     libraryTarget: 'umd'
@@ -19,11 +19,11 @@ module.exports = {
       delegate: true,
       routeProvider: false,
       reportProvider() {
-        return {
+        return Promise.resolve({
           foo: {
             bar: 4
           }
-        };
+        });
       }
     })
   ]
