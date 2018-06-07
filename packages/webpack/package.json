@@ -46,5 +46,8 @@
       "json",
       "node"
     ]
+  },
+  "devDependencies": {
+    "typescript": "^2.9.1"
   }
 }
