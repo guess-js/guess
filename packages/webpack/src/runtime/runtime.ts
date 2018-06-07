@@ -1,8 +1,8 @@
 import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from '../declarations';
 import { guess, initialize as initializeGuess } from './guess';
 
-const handleNavigationChange = (basePath: string, route: string) =>
-  Object.keys(guess({ route })).forEach(prefetch.bind(null, basePath));
+const handleNavigationChange = (basePath: string, path: string) =>
+  Object.keys(guess({ path })).forEach(prefetch.bind(null, basePath));
 
 const support = (feature: string) => {
   if (typeof document === 'undefined') {
@@ -52,7 +52,7 @@ export const initialize = (
   basePath: string,
   thresholds: PrefetchConfig
 ) => {
-  initializeGuess(global, graph, map, basePath, thresholds);
+  initializeGuess(global, graph, map, thresholds);
 
   if (typeof global.addEventListener === 'function') {
     global.addEventListener('popstate', (e: any) => handleNavigationChange(basePath, location.pathname));

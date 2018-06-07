@@ -1,9 +1,12 @@
 language: node_js
 node_js: stable
 os: linux
+sudo: required
 
 install: npm i
-script: npm run test:ci
+script:
+  - npm run build
+  - npm run test:ci
 
 git:
   depth: 5

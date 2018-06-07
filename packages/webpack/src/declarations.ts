@@ -1,4 +1,4 @@
-import { Graph, RoutingModule } from 'common/interfaces';
+import { Graph, RoutingModule } from '../../common/interfaces';
 
 export enum Mode {
   Angular = 'angular',

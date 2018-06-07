@@ -10,7 +10,6 @@ module.exports = {
     libraryTarget: 'umd'
   },
   resolve: {
-    // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.js']
   },
   plugins: [

@@ -1,8 +1,3 @@
-import { fetch } from 'guess-ga';
-
-import { existsSync, readFileSync } from 'fs';
-import { shim } from 'promise.prototype.finally';
-
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
 import { PrefetchPlugin } from './prefetch-plugin';

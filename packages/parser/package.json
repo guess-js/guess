@@ -28,8 +28,7 @@
     "@angular/core": "^5.2.9",
     "ngast": "^0.1.4",
     "rxjs": "^5.5.6",
-    "zone.js": "^0.8.20",
-    "typescript": "~2.6.0"
+    "zone.js": "^0.8.20"
   },
   "jest": {
     "transform": {
@@ -44,5 +43,9 @@
       "json",
       "node"
     ]
+  },
+  "devDependencies": {
+    "ts-loader": "^4.3.1",
+    "typescript": "^2.6.2"
   }
 }

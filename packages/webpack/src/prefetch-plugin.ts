@@ -1,7 +1,5 @@
-import { readFileSync, readFile } from 'fs';
+import { readFileSync } from 'fs';
 import {
-  CompressedPrefetchGraph,
-  CompressedGraphMap,
   PrefetchConfig,
   PrefetchPluginConfig,
   PrefetchGraph,

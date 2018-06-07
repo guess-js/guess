@@ -3,7 +3,7 @@ import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from '../
 type GuessFn = (params?: Partial<GuessFnParams>) => Predictions;
 
 interface GuessFnParams {
-  route: string;
+  path: string;
   thresholds: ConnectionEffectiveTypeThresholds;
   connection: ConnectionEffectiveType;
 }
@@ -82,7 +82,7 @@ const polyfillConnection = {
 };
 
 const guessNavigation = (graph: Graph, params: GuessFnParams): NavigationProbabilities => {
-  const matches = graph.findMatch(params.route);
+  const matches = graph.findMatch(params.path);
   return matches.reduce(
     (p: NavigationProbabilities, n) => {
       if (n.probability >= params.thresholds[params.connection]) {
@@ -109,14 +109,14 @@ export const initialize = (
   global: any,
   compressed: CompressedPrefetchGraph,
   map: CompressedGraphMap,
-  basePath: string,
   thresholds: PrefetchConfig
 ) => {
   const graph = new Graph(compressed, map);
-  global.__GUESS__ = guess = (params?: Partial<GuessFnParams>) => {
+  global.__GUESS__ = global.__GUESS__ || {};
+  global.__GUESS__.guess = guess = (params?: Partial<GuessFnParams>) => {
     params = params || {};
-    if (!params.route) {
-      params.route = (global.location || { pathname: '' }).pathname;
+    if (!params.path) {
+      params.path = (global.location || { pathname: '' }).pathname;
     }
     if (!params.connection) {
       params.connection = getEffectiveType(global);

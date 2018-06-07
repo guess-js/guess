@@ -15,5 +15,5 @@
       "guess-ga": ["ga"]
     }
   },
-  "files": ["index.ts"]
+  "files": ["index.ts", "src/runtime/guess.ts", "src/runtime/runtime.ts"]
 }
