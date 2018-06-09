@@ -19,11 +19,16 @@ interface ConnectionEffectiveTypeThresholds {
 }
 
 interface Predictions {
-  [route: string]: Probability;
+  [route: string]: Navigation;
 }
 
-export interface NavigationProbabilities {
-  [key: string]: number;
+export interface Navigation {
+  probability: Probability;
+  chunk?: string;
+}
+
+export interface Navigations {
+  [key: string]: Navigation;
 }
 
 class GraphNode {
@@ -81,20 +86,26 @@ const polyfillConnection = {
   effectiveType: '3g'
 };
 
-const guessNavigation = (graph: Graph, params: GuessFnParams): NavigationProbabilities => {
+const guessNavigation = (graph: Graph, params: GuessFnParams): Navigations => {
   const matches = graph.findMatch(params.path);
   return matches.reduce(
-    (p: NavigationProbabilities, n) => {
+    (p: Navigations, n) => {
       if (n.probability >= params.thresholds[params.connection]) {
-        p[n.route] = n.probability;
+        const nav: Navigation = {
+          probability: n.probability
+        };
+        if (n.chunk) {
+          nav.chunk = n.chunk;
+        }
+        p[n.route] = nav;
       }
       return p;
     },
-    {} as NavigationProbabilities
+    {} as Navigations
   );
 };
 
-export let guess: GuessFn = (params?: Partial<GuessFnParams>): NavigationProbabilities => {
+export let guess: GuessFn = (params?: Partial<GuessFnParams>): Navigations => {
   throw new Error('Guess is not initialized');
 };
 

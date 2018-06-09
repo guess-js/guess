@@ -1,8 +1,15 @@
 import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from '../declarations';
 import { guess, initialize as initializeGuess } from './guess';
 
-const handleNavigationChange = (basePath: string, path: string) =>
-  Object.keys(guess({ path })).forEach(prefetch.bind(null, basePath));
+const handleNavigationChange = (basePath: string, path: string) => {
+  const predictions = guess({ path });
+  Object.keys(predictions).forEach(currentPath => {
+    const chunk = predictions[currentPath].chunk;
+    if (chunk) {
+      prefetch(basePath, chunk);
+    }
+  });
+};
 
 const support = (feature: string) => {
   if (typeof document === 'undefined') {
@@ -66,4 +73,5 @@ export const initialize = (
     handleNavigationChange(basePath, arguments[2]);
     return pushState.apply(history, arguments);
   };
+  handleNavigationChange(basePath, location.pathname);
 };

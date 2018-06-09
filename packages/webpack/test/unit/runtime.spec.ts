@@ -45,7 +45,7 @@ describe('runtime', () => {
           'slow-2g': 0.6
         }
       })
-    ).toEqual({ b: 0.9, 'c/:id': 0.1 });
+    ).toEqual({ b: { probability: 0.9, chunk: 'b.js' }, 'c/:id': { probability: 0.1, chunk: 'c.js' } });
   });
 
   it('should work with no matches', () => {
@@ -66,6 +66,6 @@ describe('runtime', () => {
 
   it('should work with partial matches', () => {
     initialize(window, graph, graphMap, config);
-    expect(guess({ path: 'a' })).toEqual({ b: 0.9 });
+    expect(guess({ path: 'a' })).toEqual({ b: { probability: 0.9, chunk: 'b.js' } });
   });
 });

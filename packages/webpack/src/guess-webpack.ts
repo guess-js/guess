@@ -49,16 +49,17 @@ export class GuessPlugin {
   }
 
   private _execute(compilation: any, cb: any) {
-    const routes = extractRoutes(this._config);
-    this._getReport(routes).then(
-      data => {
-        return this._executePrefetchPlugin(data, routes, compilation, cb);
-      },
-      err => {
-        cb();
-        throw err;
-      }
-    );
+    extractRoutes(this._config).then(routes => {
+      this._getReport(routes).then(
+        data => {
+          return this._executePrefetchPlugin(data, routes, compilation, cb);
+        },
+        err => {
+          cb();
+          throw err;
+        }
+      );
+    });
   }
 
   private _getReport(routes: RoutingModule[]): Promise<Graph> {
@@ -78,7 +79,7 @@ export class GuessPlugin {
     const { runtime } = this._config;
     new PrefetchPlugin({
       data,
-      basePath: runtime ? runtime.basePath : '/',
+      basePath: runtime ? (runtime.basePath === undefined ? '' : runtime.basePath) : '',
       prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
       debug: this._config.debug,
       routes,
@@ -87,15 +88,15 @@ export class GuessPlugin {
   }
 }
 
-const extractRoutes = (config: GuessPluginConfig) => {
+const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
   if (config.routeProvider === false) {
-    return [];
+    return Promise.resolve([]);
   }
   if (typeof config.routeProvider === 'function') {
-    return config.routeProvider();
+    return Promise.resolve(config.routeProvider());
   }
   if (!config.mode || config.mode === Mode.Auto) {
-    return parseRoutes(process.env.PWD!);
+    return Promise.resolve(parseRoutes(process.env.PWD!));
   }
-  return defaultRouteProvider(config.mode, config.layout);
+  return Promise.resolve(defaultRouteProvider(config.mode, config.layout));
 };

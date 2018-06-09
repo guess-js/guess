@@ -10,16 +10,11 @@ import { Graph, RoutingModule } from '../../common/interfaces';
 import { compressGraph } from './compress';
 import { join } from 'path';
 
-const { rollup } = require('rollup');
 const template = require('lodash.template');
-const hypothetical = require('rollup-plugin-hypothetical');
 const ConcatSource = require('webpack-sources').ConcatSource;
 
 export class PrefetchPlugin {
-  private _debug: boolean;
-
   constructor(private _config: PrefetchPluginConfig) {
-    this._debug = !!_config.debug;
     if (!_config.data) {
       throw new Error('Page graph not provided');
     }
@@ -34,7 +29,10 @@ export class PrefetchPlugin {
         main = currentChunk;
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        const name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
+        let name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
+        if (!name && chunk.chunks && chunk.chunks[0]) {
+          name = chunk.chunks[0].files[0];
+        }
         fileChunk[block.dependencies[0].module.userRequest] = name;
       });
     });
@@ -62,11 +60,11 @@ export class PrefetchPlugin {
     const old = compilation.assets[mainName];
     const { graph, graphMap } = compressGraph(newConfig, 3);
 
-    const codeTemplate = this._config.delegate ? 'runtime.tpl' : 'guess.tpl';
+    const codeTemplate = this._config.delegate ? 'guess.tpl' : 'runtime.tpl';
     const runtimeTemplate = readFileSync(join(__dirname, codeTemplate)).toString();
 
     const runtimeLogic = template(runtimeTemplate)({
-      BASE_PATH: this._config.basePath || '/',
+      BASE_PATH: this._config.basePath,
       GRAPH: JSON.stringify(graph),
       GRAPH_MAP: JSON.stringify(graphMap),
       THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
@@ -82,7 +80,7 @@ export class PrefetchPlugin {
 
     const compiler = require('webpack')({
       context: '/src/',
-      mode: 'development',
+      mode: 'production',
       entry: './index.js',
       target: 'web',
       output: {

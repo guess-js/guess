@@ -50,9 +50,9 @@ Where `GA_VIEW_ID` is the [Google Analytics view ID](https://ga-dev-tools.appspo
 
 In some cases `guess-parser` might not be able to detect your application type or it may fail to parse your application. When this happens, the package will throw errors for:
 
-* Missing tsconfig for a React TSX or Angular project.
-* Missing source directory for React JSX project.
-* Unsupported project (i.e. if the project cannot be recognized or it doesn't match any of the supported types).
+- Missing tsconfig for a React TSX or Angular project.
+- Missing source directory for React JSX project.
+- Unsupported project (i.e. if the project cannot be recognized or it doesn't match any of the supported types).
 
 You may also want to pass a custom time period:
 
@@ -205,19 +205,38 @@ Here's an example:
 
 The meaning of the report above is:
 
-* There are two reported transitions from page `foo`:
-  * Transition to page `bar` which has occurred 5 times.
-  * Transition to page `baz` which has occurred 2 times.
-* There's one reported transition from page `bar`:
-  * Transition to `baz` which has occurred 3 times.
+- There are two reported transitions from page `foo`:
+  - Transition to page `bar` which has occurred 5 times.
+  - Transition to page `baz` which has occurred 2 times.
+- There's one reported transition from page `bar`:
+  - Transition to `baz` which has occurred 3 times.
+
+## Custom Route Provider
+
+In case Guess.js cannot manage to parse the routes of your application, you can provide a custom route provider. It should have the following type:
+
+```ts
+export type RouteProvider = () => Promise<RoutingModule[]>;
+```
+
+Where `RoutingModule` has the following interface:
+
+```ts
+export interface RoutingModule {
+  path: string;
+  modulePath: string;
+  parentModulePath: string | null;
+  lazy: boolean;
+}
+```
 
 ## Demos
 
 A number of sample projects using `GuessPlugin` are available. These include:
 
-* [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatsby.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
-* [`guess-js-react-demo`](https://github.com/mgechev/guess-js-react-demo) - a simple demo application using `GuessPlugin` and `create-react-app`
-* [`guess-js-angular-demo`](https://github.com/mgechev/guess-js-angular-demo) - a simple demo application using `GuessPlugin` and Angular CLI
+- [Gatsby Guess Wikipedia](https://github.com/guess-js/gatsby-guess) - a Wikipedia client built using Gatsby.js (the React static-site framework) and Guess.js. This is the closest example we have of a real-world demo application built using the project.
+- [`guess-js-react-demo`](https://github.com/mgechev/guess-js-react-demo) - a simple demo application using `GuessPlugin` and `create-react-app`
+- [`guess-js-angular-demo`](https://github.com/mgechev/guess-js-angular-demo) - a simple demo application using `GuessPlugin` and Angular CLI
 
 **Note:** Predictive fetching relies heavily on the availability of data in a Google Analytics account to drive predictions. You may need to seed some data for this by navigating around your demo project to provide Guess with some early data to guide what to prefetch.
 

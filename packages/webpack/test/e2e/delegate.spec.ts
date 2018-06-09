@@ -23,7 +23,7 @@ describe('GuessPlugin delegate', () => {
     await page.goto('http://localhost:5122/delegate/dist/index.html', { waitUntil: 'networkidle0' });
 
     const result = await page.evaluate(() => {
-      return (window as any).__GUESS__.guess({ path: 'foo' }).bar;
+      return (window as any).__GUESS__.guess({ path: 'foo' }).bar.probability;
     });
 
     expect(result).toBe(1);
