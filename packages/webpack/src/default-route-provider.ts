@@ -1,8 +1,15 @@
-import { parseAngularRoutes, parseReactTSXRoutes, parseReactJSXRoutes } from 'guess-parser';
-import { Mode } from './declarations';
+import { readFileSync, existsSync } from 'fs';
+import {
+  parseRoutes,
+  parseAngularRoutes,
+  parseReactTSXRoutes,
+  parseReactJSXRoutes,
+  parsePreactJSXRoutes
+} from 'guess-parser';
+import { RouteProvider, Mode } from './declarations';
 import { RoutingModule, ProjectType, ProjectLayout } from '../../common/interfaces';
 
-type KnownMode = Mode.Angular | Mode.Gatsby | Mode.ReactJSX | Mode.ReactTSX;
+type KnownMode = Mode.Angular | Mode.Gatsby | Mode.ReactJSX | Mode.ReactTSX | Mode.PreactJSX;
 
 const defaultParsers: any = {
   [Mode.Angular](config?: ProjectLayout) {
@@ -22,6 +29,12 @@ const defaultParsers: any = {
       throw new Error('Source directory not provided');
     }
     return parseReactJSXRoutes(config.sourceDir);
+  },
+  [Mode.PreactJSX](config?: ProjectLayout) {
+    if (!config || !config.sourceDir) {
+      throw new Error('Source directory not provided');
+    }
+    return parsePreactJSXRoutes(config.sourceDir);
   },
   [Mode.Gatsby](): RoutingModule[] {
     throw new Error('Not supported');

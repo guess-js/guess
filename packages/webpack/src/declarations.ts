@@ -4,6 +4,7 @@ export enum Mode {
   Angular = 'angular',
   ReactTSX = 'react-tsx',
   ReactJSX = 'react-jsx',
+  PreactJSX = 'preact-jsx',
   Gatsby = 'gatsby',
   Auto = 'auto'
 }
