@@ -9,5 +9,5 @@
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"]
   },
-  "exclude": ["packages/detector/__tests__/fixtures"]
+  "exclude": ["packages/detector/test/fixtures"]
 }

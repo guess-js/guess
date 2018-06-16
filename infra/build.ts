@@ -32,13 +32,14 @@ const publish = (path: string) => {
 const packageNames = new Set(['guess-ga', 'guess-parser', 'guess-webpack']);
 
 const build = (hook = (path: string) => {}) => {
+  const cwd = process.cwd();
   const Packages = ['ga', 'parser', 'webpack'];
-  const PackagesDir = join(process.cwd(), 'packages');
+  const PackagesDir = join(cwd, 'packages');
   const config = JSON.parse(fs.readFileSync(join('config.json')).toString());
 
   for (const p of Packages) {
     const path = join(PackagesDir, p);
-    console.log(execSync(`cd ${path} && rm -rf dist && ./node_modules/.bin/webpack`).toString());
+    console.log(execSync(`cd ${path} && rm -rf dist && ${cwd}/node_modules/.bin/webpack .`).toString());
     const packageJsonPath = join(path, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath).toString());
     packageJson.version = config.version;

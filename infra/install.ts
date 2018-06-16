@@ -8,4 +8,4 @@ for (const p of Packages) {
   console.log(execSync(`cd ${path} && npm i`).toString());
 }
 
-console.log(execSync(`cd ${join(PackagesDir, 'parser', '__tests__', 'fixtures', 'angular')} && npm i`).toString());
+console.log(execSync(`cd ${join(PackagesDir, 'parser', 'test', 'fixtures', 'angular')} && npm i`).toString());

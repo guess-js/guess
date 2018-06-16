@@ -1,7 +1,5 @@
 import { readFileSync } from 'fs';
 import {
-  CompressedPrefetchGraph,
-  CompressedGraphMap,
   PrefetchConfig,
   PrefetchPluginConfig,
   PrefetchGraph,
@@ -10,16 +8,13 @@ import {
 } from './declarations';
 import { Graph, RoutingModule } from '../../common/interfaces';
 import { compressGraph } from './compress';
+import { join } from 'path';
 
 const template = require('lodash.template');
-const runtimeTemplate = require('./runtime.tpl');
 const ConcatSource = require('webpack-sources').ConcatSource;
 
-export class Prefetch {
-  private _debug: boolean;
-
+export class PrefetchPlugin {
   constructor(private _config: PrefetchPluginConfig) {
-    this._debug = !!_config.debug;
     if (!_config.data) {
       throw new Error('Page graph not provided');
     }
@@ -34,7 +29,10 @@ export class Prefetch {
         main = currentChunk;
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        const name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
+        let name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
+        if (!name && chunk.chunks && chunk.chunks[0]) {
+          name = chunk.chunks[0].files[0];
+        }
         fileChunk[block.dependencies[0].module.userRequest] = name;
       });
     });
@@ -61,16 +59,50 @@ export class Prefetch {
     const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
     const old = compilation.assets[mainName];
     const { graph, graphMap } = compressGraph(newConfig, 3);
-    const prefetchLogic = template(runtimeTemplate)({
-      BASE_PATH: this._config.basePath || '/',
+
+    const codeTemplate = this._config.delegate ? 'guess.tpl' : 'runtime.tpl';
+    const runtimeTemplate = readFileSync(join(__dirname, codeTemplate)).toString();
+
+    const runtimeLogic = template(runtimeTemplate)({
+      BASE_PATH: this._config.basePath,
       GRAPH: JSON.stringify(graph),
       GRAPH_MAP: JSON.stringify(graphMap),
-      CODE: readFileSync(__dirname + '/runtime-code.js').toString(),
-      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig)),
-      DELEGATE: this._config.delegate
+      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
     });
-    compilation.assets[mainName] = new ConcatSource(prefetchLogic, '\n', old.source());
-    callback();
+
+    const MemoryFileSystem = require('memory-fs');
+    const memoryFs = new MemoryFileSystem();
+
+    memoryFs.mkdirpSync('/src');
+    memoryFs.writeFileSync('/src/index.js', runtimeLogic, 'utf-8');
+    memoryFs.writeFileSync('/src/guess.js', readFileSync(join(__dirname, 'guess.js')).toString(), 'utf-8');
+    memoryFs.writeFileSync('/src/runtime.js', readFileSync(join(__dirname, 'runtime.js')).toString(), 'utf-8');
+
+    const compiler = require('webpack')({
+      context: '/src/',
+      mode: 'production',
+      entry: './index.js',
+      target: 'web',
+      output: {
+        filename: './output.js'
+      }
+    });
+
+    compiler.inputFileSystem = memoryFs;
+    compiler.outputFileSystem = memoryFs;
+    compiler.resolvers.normal.fileSystem = memoryFs;
+    compiler.resolvers.context.fileSystem = memoryFs;
+
+    compiler.run((err: any, stats: any) => {
+      if (err) {
+        callback();
+        throw err;
+      }
+
+      const code = stats.compilation.assets['./output.js'].source();
+      compilation.assets[mainName] = new ConcatSource(code, '\n', old.source());
+      callback();
+    });
   }
 }
 

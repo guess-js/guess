@@ -9,7 +9,7 @@ export enum Mode {
   Auto = 'auto'
 }
 
-export type RouteProvider = () => RoutingModule[];
+export type RouteProvider = () => Promise<RoutingModule[]>;
 
 export type Cluster = string[];
 export type Clusters = Cluster[];
@@ -38,7 +38,7 @@ export interface PrefetchConfig {
 export interface PrefetchPluginConfig {
   debug?: boolean;
   data: Graph;
-  basePath?: string;
+  basePath: string;
   prefetchConfig?: PrefetchConfig;
   routes: RoutingModule[];
   delegate: boolean;

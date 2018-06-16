@@ -1,20 +1,22 @@
-const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const common = {
-  mode: 'development',
+  mode: 'production',
   externals: [/^(@|\w).*$/i],
   resolve: {
-    // Add `.ts` and `.tsx` as a resolvable extension.
-    extensions: ['.ts']
+    extensions: ['.ts', '.tsx', '.js'],
+    plugins: [
+      new TsconfigPathsPlugin({
+        logLevel: 'info',
+        logInfoToStdOut: true
+      })
+    ]
   },
   module: {
     rules: [
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
-      { test: /\.tsx?$/, loader: 'ts-loader' },
-      {
-        test: /\.tpl$/,
-        use: 'raw-loader'
-      }
+      { test: /\.tsx?$/, loader: 'ts-loader' }
     ]
   }
 };
@@ -23,14 +25,13 @@ module.exports = [
   Object.assign(
     {
       entry: {
-        runtime: './src/runtime.ts'
+        runtime: './src/runtime/runtime.ts'
       },
       target: 'web',
       output: {
-        filename: 'runtime-code.js',
+        filename: '[name].js',
         path: __dirname + '/dist/webpack/',
-        libraryTarget: 'var',
-        library: '__GUESS__'
+        libraryTarget: 'umd'
       }
     },
     common
@@ -38,10 +39,22 @@ module.exports = [
   Object.assign(
     {
       entry: {
-        index: './index.ts'
+        guess: './src/runtime/guess.ts'
       },
+      target: 'web',
       output: {
         filename: '[name].js',
+        path: __dirname + '/dist/webpack/',
+        libraryTarget: 'umd'
+      }
+    },
+    common
+  ),
+  Object.assign(
+    {
+      entry: './index.ts',
+      output: {
+        filename: 'index.js',
         path: __dirname + '/dist/webpack/',
         libraryTarget: 'umd'
       },
@@ -49,17 +62,21 @@ module.exports = [
       node: {
         __dirname: false,
         __filename: false
-      }
+      },
+      plugins: [
+        new CopyWebpackPlugin([
+          { from: './src/runtime/runtime.tpl', to: 'runtime.tpl' },
+          { from: './src/runtime/guess.tpl', to: 'guess.tpl' }
+        ])
+      ]
     },
     common
   ),
   Object.assign(
     {
-      entry: {
-        index: './src/api.ts'
-      },
+      entry: './src/api.ts',
       output: {
-        filename: '[name].js',
+        filename: 'index.js',
         path: __dirname + '/dist/api/',
         libraryTarget: 'umd'
       },

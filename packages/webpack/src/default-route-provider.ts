@@ -10,7 +10,6 @@ import { RouteProvider, Mode } from './declarations';
 import { RoutingModule, ProjectType, ProjectLayout } from '../../common/interfaces';
 
 type KnownMode = Mode.Angular | Mode.Gatsby | Mode.ReactJSX | Mode.ReactTSX | Mode.PreactJSX;
-type RoutingStrategies = { [strategy in KnownMode]: (config?: ProjectLayout) => RoutingModule[] };
 
 const defaultParsers: any = {
   [Mode.Angular](config?: ProjectLayout) {

@@ -1,11 +1,6 @@
-import { fetch } from 'guess-ga';
-
-import { existsSync, readFileSync } from 'fs';
-import { shim } from 'promise.prototype.finally';
-
 import { Mode, RouteProvider, PrefetchConfig } from './declarations';
 import { defaultRouteProvider } from './default-route-provider';
-import { Prefetch } from './prefetch';
+import { PrefetchPlugin } from './prefetch-plugin';
 import { Graph, RoutingModule, Period, ProjectLayout } from '../../common/interfaces';
 import { parseRoutes } from 'guess-parser';
 import { getReport } from './ga-provider';
@@ -54,16 +49,17 @@ export class GuessPlugin {
   }
 
   private _execute(compilation: any, cb: any) {
-    const routes = extractRoutes(this._config);
-    this._getReport(routes).then(
-      data => {
-        return this._executePrefetchPlugin(data, routes, compilation, cb);
-      },
-      err => {
-        cb();
-        throw err;
-      }
-    );
+    extractRoutes(this._config).then(routes => {
+      this._getReport(routes).then(
+        data => {
+          return this._executePrefetchPlugin(data, routes, compilation, cb);
+        },
+        err => {
+          cb();
+          throw err;
+        }
+      );
+    });
   }
 
   private _getReport(routes: RoutingModule[]): Promise<Graph> {
@@ -81,9 +77,9 @@ export class GuessPlugin {
 
   private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any, cb: any) {
     const { runtime } = this._config;
-    new Prefetch({
+    new PrefetchPlugin({
       data,
-      basePath: runtime ? runtime.basePath : '/',
+      basePath: runtime ? (runtime.basePath === undefined ? '' : runtime.basePath) : '',
       prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
       debug: this._config.debug,
       routes,
@@ -92,15 +88,15 @@ export class GuessPlugin {
   }
 }
 
-const extractRoutes = (config: GuessPluginConfig) => {
+const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
   if (config.routeProvider === false) {
-    return [];
+    return Promise.resolve([]);
   }
   if (typeof config.routeProvider === 'function') {
-    return config.routeProvider();
+    return Promise.resolve(config.routeProvider());
   }
   if (!config.mode || config.mode === Mode.Auto) {
-    return parseRoutes(process.env.PWD!);
+    return Promise.resolve(parseRoutes(process.env.PWD!));
   }
-  return defaultRouteProvider(config.mode, config.layout);
+  return Promise.resolve(defaultRouteProvider(config.mode, config.layout));
 };

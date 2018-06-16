@@ -4,10 +4,12 @@
   "description": "Smart bundling",
   "main": "index.js",
   "scripts": {
-    "test": "jest --watch",
-    "test:ci": "jest",
+    "test": "ts-node infra/test.ts --watch",
+    "pretest": "ts-node infra/pretest.ts",
+    "test:ci": "ts-node infra/pretest.ts && ts-node infra/test.ts",
     "postinstall": "ts-node infra/install.ts",
     "build": "ts-node infra/build.ts",
+    "postbuild": "cp -r packages/ga/dist/* packages/webpack/node_modules/guess-ga && cp -r packages/parser/dist/* packages/webpack/node_modules/guess-parser",
     "publish": "ts-node infra/build.ts --publish"
   },
   "repository": {
@@ -32,34 +34,22 @@
     "@types/jest": "^22.2.0",
     "@types/meow": "^4.0.1",
     "@types/node": "^9.4.6",
-    "jest": "^22.4.2",
+    "blund": "^1.0.0",
+    "chalk": "^2.4.1",
+    "copy-webpack-plugin": "^4.5.1",
+    "jest": "^22.4.4",
+    "jest-puppeteer": "^3.0.1",
     "meow": "^4.0.0",
     "prompt-confirm": "^1.2.0",
+    "puppeteer": "^1.5.0",
     "raw-loader": "^0.5.1",
+    "static-server": "^2.2.1",
     "ts-jest": "^22.4.1",
     "ts-loader": "^3.5.0",
     "ts-node": "^6.0.2",
     "tslint": "^5.9.1",
-    "typescript": "^2.8.1",
+    "typescript": "^2.9.0",
     "webpack": "^4.7.0",
     "webpack-cli": "^2.0.11"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "testPathIgnorePatterns": [
-      "<rootDir>/packages/detector/__tests__/fixtures",
-      "<rootDir>/packages/parser/__tests__/fixtures"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
   }
 }

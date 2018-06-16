@@ -63,7 +63,9 @@ async function fetchReport(
   });
 }
 
-(Symbol as any).asyncIterator = (Symbol as any).asyncIterator || Symbol('Symbol.asyncIterator');
+if (typeof (Symbol as any).asyncIterator === 'undefined') {
+  (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('asyncIterator');
+}
 
 export type GaResult = any;
 
