@@ -51,11 +51,12 @@ export class GuessPlugin {
 
   private _execute(compilation: any, cb: any) {
     extractRoutes(this._config).then(routes => {
-      this._getReport(routes).then(
+      return this._getReport(routes).then(
         data => {
           return this._executePrefetchPlugin(data, routes, compilation, cb);
         },
         err => {
+          console.error(err);
           cb();
           throw err;
         }
