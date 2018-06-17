@@ -27,11 +27,11 @@ module.exports = [
       entry: {
         runtime: './src/runtime/runtime.ts'
       },
-      target: 'web',
+      target: 'node',
       output: {
         filename: '[name].js',
         path: __dirname + '/dist/webpack/',
-        libraryTarget: 'umd'
+        libraryTarget: 'commonjs'
       }
     },
     common
@@ -41,11 +41,11 @@ module.exports = [
       entry: {
         guess: './src/runtime/guess.ts'
       },
-      target: 'web',
+      target: 'node',
       output: {
         filename: '[name].js',
         path: __dirname + '/dist/webpack/',
-        libraryTarget: 'umd'
+        libraryTarget: 'commonjs'
       }
     },
     common
@@ -78,9 +78,9 @@ module.exports = [
       output: {
         filename: 'index.js',
         path: __dirname + '/dist/api/',
-        libraryTarget: 'umd'
+        libraryTarget: 'commonjs'
       },
-      target: 'node',
+      target: 'web',
       node: {
         __dirname: false,
         __filename: false
