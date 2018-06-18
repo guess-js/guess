@@ -7,10 +7,10 @@ This document explains how to build, test, and publish the packages from the mon
 In order to install all the dependencies run:
 
 ```bash
-npm i
+npm run bootstrap
 ```
 
-This will download all development dependencies for the monorepo and download the dependencies for each individual package.
+This will download all development dependencies for the monorepo and download the dependencies for each individual package. It will also call `lerna bootstrap` which will create symlinks for the cross-package dependencies.
 
 ## Build
 
@@ -24,10 +24,10 @@ The command will build all the packages, topologically sorted.
 
 ## Publish
 
-To publish the packages, make sure you've updated `config.json` which contains the current project version. After that run:
+To publish the packages, run:
 
 ```bash
-npm run build -- -p
+npm run publish
 ```
 
-Once you confirm the prompt, the `infra/build.ts` will build all the packages and publish them.
+The `publish` script will delegate the execution to `lerna publish` which will take care of updating the dependencies' versions and publishing them to npm.

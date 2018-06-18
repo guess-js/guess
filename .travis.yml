@@ -3,7 +3,7 @@ node_js: stable
 os: linux
 sudo: required
 
-install: npm i
+install: npm run bootstrap
 script:
   - npm run build
   - npm run test:ci

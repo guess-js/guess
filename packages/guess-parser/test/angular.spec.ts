@@ -4,11 +4,11 @@ const fixtureRoutes = new Set<string>(['/', '/bar', '/foo', '/foo/index']);
 
 describe('Angular parser', () => {
   it('should parse an app', () => {
-    expect(() => parseRoutes('packages/parser/test/fixtures/angular/src/tsconfig.app.json')).not.toThrow();
+    expect(() => parseRoutes('packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json')).not.toThrow();
   });
 
   it('should produce routes', () => {
-    const routes = parseRoutes('packages/parser/test/fixtures/angular/src/tsconfig.app.json');
+    const routes = parseRoutes('packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json');
     expect(routes).toBeInstanceOf(Array);
     routes.map(r => r.path).forEach(r => expect(fixtureRoutes).toContain(r));
     expect(routes.length).toEqual(fixtureRoutes.size);

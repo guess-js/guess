@@ -8,7 +8,7 @@ const port = 5122;
 function setupMockServer() {
   return new Promise(resolve => {
     const server = new StaticServer({
-      rootPath: join(process.cwd(), 'packages', 'webpack', 'test', 'fixtures'),
+      rootPath: join(process.cwd(), 'packages', 'guess-webpack', 'test', 'fixtures'),
       port
     });
 
@@ -21,8 +21,8 @@ function setupMockServer() {
 
 async function main() {
   await setupMockServer();
-  const watch = process.argv.filter(a => a === '--watch');
-  const jest = spawn(`${process.cwd()}/node_modules/.bin/jest`, watch, { stdio: 'inherit' });
+  const options = process.argv.filter(a => a === '--watch');
+  const jest = spawn(`${process.cwd()}/node_modules/.bin/jest`, options, { stdio: 'inherit' });
   return new Promise<number>(resolve => {
     jest.on('exit', code => resolve(code));
     jest.on('close', code => resolve(code));
