@@ -2,7 +2,7 @@ import { getClient } from './client';
 import { normalize } from './normalize';
 import { Graph, Period } from '../../common/interfaces';
 
-const PageSize = 1000;
+const PageSize = 10000;
 const id = (r: string) => r;
 const DefaultExpression = 'ga:pageviews';
 

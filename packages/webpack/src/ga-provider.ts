@@ -1,4 +1,4 @@
-import { auth } from 'google-oauth2-node';
+import { auth as oauth2 } from 'google-oauth2-node';
 import { RoutingModule, Period, Graph } from '../../common/interfaces';
 import { fetch } from 'guess-ga';
 
@@ -13,6 +13,7 @@ const cache = flatCache.load('guess-plugin');
 const id = <T>(r: T) => r;
 
 export interface Config {
+  jwt?: any;
   viewId: string;
   routes: RoutingModule[];
   formatter?: (path: string) => string;
@@ -28,19 +29,26 @@ export const getReport = (c: Config): Promise<Graph> => {
   if (report) {
     return Promise.resolve(JSON.parse(report));
   }
-  return auth({
-    clientId,
-    clientSecret,
-    scope
-  })
-    .then((token: any) => {
-      const { google } = require('googleapis');
+  const { google } = require('googleapis');
+  let client: Promise<{}> = Promise.reject('Non-existing GA token');
+  if (!c.jwt) {
+    client = oauth2({
+      clientId,
+      clientSecret,
+      scope
+    }).then((token: any) => {
       const oauth2Client = new google.auth.OAuth2();
       oauth2Client.setCredentials(token);
-
+      return oauth2Client;
+    });
+  } else {
+    client = Promise.resolve(new google.auth.JWT(c.jwt.client_email, null, c.jwt.private_key, [scope], null));
+  }
+  return client
+    .then((auth: any) => {
       return fetch({
         viewId: c.viewId,
-        auth: oauth2Client,
+        auth,
         period: period,
         routes: c.routes.map(r => r.path),
         formatter: c.formatter || id

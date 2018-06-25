@@ -82,10 +82,6 @@ const matchRoute = (route: string, declaration: string) => {
   }
 };
 
-const polyfillConnection = {
-  effectiveType: '3g'
-};
-
 const guessNavigation = (graph: Graph, params: GuessFnParams): Navigations => {
   const matches = graph.findMatch(params.path);
   return matches.reduce(

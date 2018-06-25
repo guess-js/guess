@@ -1,5 +1,5 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { GuessPlugin } = require('../../../dist/webpack/index');
+const { GuessPlugin } = require('../../../dist/webpack/main');
 
 module.exports = {
   mode: 'development',

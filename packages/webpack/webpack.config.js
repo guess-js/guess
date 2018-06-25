@@ -24,14 +24,26 @@ const common = {
 module.exports = [
   Object.assign(
     {
+      entry: './src/api.ts',
+      output: {
+        filename: 'index.js',
+        path: __dirname + '/dist/api/',
+        libraryTarget: 'commonjs'
+      },
+      target: 'web'
+    },
+    common
+  ),
+  Object.assign(
+    {
       entry: {
         runtime: './src/runtime/runtime.ts'
       },
-      target: 'web',
+      target: 'node',
       output: {
         filename: '[name].js',
         path: __dirname + '/dist/webpack/',
-        libraryTarget: 'umd'
+        libraryTarget: 'commonjs'
       }
     },
     common
@@ -41,11 +53,11 @@ module.exports = [
       entry: {
         guess: './src/runtime/guess.ts'
       },
-      target: 'web',
+      target: 'node',
       output: {
         filename: '[name].js',
         path: __dirname + '/dist/webpack/',
-        libraryTarget: 'umd'
+        libraryTarget: 'commonjs'
       }
     },
     common
@@ -54,7 +66,7 @@ module.exports = [
     {
       entry: './index.ts',
       output: {
-        filename: 'index.js',
+        filename: 'main.js',
         path: __dirname + '/dist/webpack/',
         libraryTarget: 'umd'
       },
@@ -69,22 +81,6 @@ module.exports = [
           { from: './src/runtime/guess.tpl', to: 'guess.tpl' }
         ])
       ]
-    },
-    common
-  ),
-  Object.assign(
-    {
-      entry: './src/api.ts',
-      output: {
-        filename: 'index.js',
-        path: __dirname + '/dist/api/',
-        libraryTarget: 'umd'
-      },
-      target: 'node',
-      node: {
-        __dirname: false,
-        __filename: false
-      }
     },
     common
   )

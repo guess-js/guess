@@ -82,7 +82,7 @@ export class PrefetchPlugin {
       context: '/src/',
       mode: 'production',
       entry: './index.js',
-      target: 'web',
+      target: 'node',
       output: {
         filename: './output.js'
       }
@@ -100,7 +100,7 @@ export class PrefetchPlugin {
       }
 
       const code = stats.compilation.assets['./output.js'].source();
-      compilation.assets[mainName] = new ConcatSource(code, '\n', old.source());
+      compilation.assets[mainName] = new ConcatSource(code, '\n;', old.source());
       callback();
     });
   }
