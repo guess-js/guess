@@ -2,8 +2,8 @@
   "name": "guess-webpack",
   "version": "0.1.2",
   "description": "Webpack plugins for the Machine Learning-driven bundler",
-  "main": "dist/main.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/guess-webpack/main.js",
+  "types": "dist/guess-webpack/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guess-js/guess"

@@ -7,12 +7,11 @@
     "declaration": true,
     "strict": true,
     "experimentalDecorators": true,
-    "outDir": ".",
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"],
     "paths": {
-      "guess-parser": ["parser"],
-      "guess-ga": ["ga"]
+      "guess-parser": ["guess-parser"],
+      "guess-ga": ["guess-ga"]
     }
   },
   "files": ["index.ts", "src/runtime/guess.ts", "src/runtime/runtime.ts"]

@@ -42,7 +42,7 @@ module.exports = [
       target: 'node',
       output: {
         filename: '[name].js',
-        path: __dirname + '/dist/webpack/',
+        path: __dirname + '/dist/guess-webpack/',
         libraryTarget: 'commonjs'
       }
     },
@@ -56,7 +56,7 @@ module.exports = [
       target: 'node',
       output: {
         filename: '[name].js',
-        path: __dirname + '/dist/webpack/',
+        path: __dirname + '/dist/guess-webpack/',
         libraryTarget: 'commonjs'
       }
     },
@@ -67,7 +67,7 @@ module.exports = [
       entry: './index.ts',
       output: {
         filename: 'main.js',
-        path: __dirname + '/dist/webpack/',
+        path: __dirname + '/dist/guess-webpack/',
         libraryTarget: 'umd'
       },
       target: 'node',

@@ -30,7 +30,7 @@ export const getReport = (c: Config): Promise<Graph> => {
     return Promise.resolve(JSON.parse(report));
   }
   const { google } = require('googleapis');
-  let client: Promise<{}> = Promise.reject('Non-existing GA token');
+  let client: Promise<{}>;
   if (!c.jwt) {
     client = oauth2({
       clientId,
