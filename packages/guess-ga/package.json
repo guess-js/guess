@@ -1,9 +1,9 @@
 {
-  "name": "guess-webpack",
+  "name": "guess-ga",
   "version": "0.1.0",
-  "description": "Webpack plugins for the Machine Learning-driven bundler",
-  "main": "webpack/main.js",
-  "types": "webpack/index.d.ts",
+  "description": "Fetch structured data from Google Analytics",
+  "main": "dist/guess-ga/index.js",
+  "types": "dist/guess-ga/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guess-js/guess"
@@ -13,6 +13,8 @@
     "webpack",
     "ml",
     "ai",
+    "google analytics",
+    "ga",
     "analytics",
     "recommendation"
   ],
@@ -23,22 +25,13 @@
   },
   "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
-    "flat-cache": "^1.3.0",
-    "google-oauth2-node": "0.0.2",
-    "googleapis": "^29.0.0",
-    "guess-ga": "0.1.0",
-    "guess-parser": "0.1.0",
-    "lodash.template": "^4.4.0",
-    "rollup": "^0.59.4",
-    "rollup-plugin-hypothetical": "^2.1.0",
-    "rollup-plugin-typescript": "^0.8.1",
-    "copy-webpack-plugin": "^4.5.1"
+    "googleapis": "^26.0.1"
   },
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    "testRegex": "(/test/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
@@ -50,7 +43,9 @@
   },
   "devDependencies": {
     "ts-loader": "^4.3.1",
-    "tsconfig-paths-webpack-plugin": "^3.1.4",
     "typescript": "^2.9.1"
+  },
+  "scripts": {
+    "build": "webpack"
   }
 }

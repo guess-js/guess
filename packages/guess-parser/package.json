@@ -2,8 +2,8 @@
   "name": "guess-parser",
   "version": "0.1.0",
   "description": "Finds the route declarations in your application.",
-  "main": "parser/index.js",
-  "types": "parser/index.d.ts",
+  "main": "dist/guess-parser/index.js",
+  "types": "dist/guess-parser/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/guess-js/guess"
@@ -47,5 +47,8 @@
   "devDependencies": {
     "ts-loader": "^4.3.1",
     "typescript": "^2.6.2"
+  },
+  "scripts": {
+    "build": "webpack"
   }
 }

@@ -3,7 +3,7 @@ module.exports = {
   entry: './index.ts',
   target: 'node',
   output: {
-    filename: './ga/index.js',
+    filename: './guess-ga/index.js',
     libraryTarget: 'umd'
   },
   externals: [/^(@|\w).*$/i],
