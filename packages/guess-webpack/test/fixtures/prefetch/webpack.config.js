@@ -1,6 +1,6 @@
 const { join } = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { GuessPlugin } = require('../../../dist/webpack/main');
+const { GuessPlugin } = require('../../../dist/guess-webpack/main');
 
 const absolute = path => {
   return join(__dirname, path);
