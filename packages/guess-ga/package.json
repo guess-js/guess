@@ -27,6 +27,9 @@
   "dependencies": {
     "googleapis": "^26.0.1"
   },
+  "files": [
+    "dist"
+  ],
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"

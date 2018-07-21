@@ -1,17 +1,10 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 const common = {
   mode: 'production',
   externals: [/^(@|\w).*$/i],
   resolve: {
-    extensions: ['.ts', '.tsx', '.js'],
-    plugins: [
-      new TsconfigPathsPlugin({
-        logLevel: 'info',
-        logInfoToStdOut: true
-      })
-    ]
+    extensions: ['.ts', '.tsx', '.js']
   },
   module: {
     rules: [
@@ -22,18 +15,29 @@ const common = {
 };
 
 module.exports = [
-  Object.assign(
-    {
-      entry: './src/api.ts',
-      output: {
-        filename: 'index.js',
-        path: __dirname + '/dist/api/',
-        libraryTarget: 'commonjs'
-      },
-      target: 'web'
+  {
+    mode: 'production',
+    externals: [/^(@|\w).*$/i],
+    entry: `${__dirname}/api/index.ts`,
+    output: {
+      filename: 'api/index.js',
+      path: __dirname,
+      libraryTarget: 'commonjs'
     },
-    common
-  ),
+    target: 'web',
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          loader: 'ts-loader',
+          options: {
+            // context: __dirname,
+            configFile: 'tsconfig-api.json'
+          }
+        }
+      ]
+    }
+  },
   Object.assign(
     {
       entry: {
