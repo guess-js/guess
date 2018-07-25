@@ -1,6 +1,6 @@
 {
   "name": "guess-ga",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Fetch structured data from Google Analytics",
   "main": "dist/guess-ga/index.js",
   "types": "dist/guess-ga/index.d.ts",
