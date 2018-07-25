@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "baseUrl": ".",
+    "module": "commonjs",
+    "sourceMap": true,
+    "declaration": true,
+    "strict": true,
+    "experimentalDecorators": true,
+    "downlevelIteration": true,
+    "lib": ["es2015", "esnext", "dom"]
+  },
+  "files": ["api/index.ts"]
+}

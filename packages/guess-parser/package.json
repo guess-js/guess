@@ -30,6 +30,9 @@
     "rxjs": "^5.5.6",
     "zone.js": "^0.8.20"
   },
+  "files": [
+    "dist"
+  ],
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
