@@ -9,7 +9,7 @@ Libraries and tools for enabling data-driven user-experiences on the web.
 ***For Webpack users:***
 ### :black_circle: Data-driven bundling
 
-Install and configure [GuessPlugin](https://github.com/guess-js/guess/tree/master/packages/webpack) - the Guess.js webpack plugin which automates as much of the setup process for you as possible. 
+Install and configure [GuessPlugin](https://github.com/guess-js/guess/tree/master/packages/guess-webpack) - the Guess.js webpack plugin which automates as much of the setup process for you as possible.
 
 Should you wish to try out the modules we offer individually, the `packages` directory contains three packages:
 
