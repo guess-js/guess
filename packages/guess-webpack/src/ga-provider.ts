@@ -23,7 +23,7 @@ export interface Config {
 const serializePeriod = (period: Period) => `${period.startDate.getTime()}-${period.endDate.getTime()}`;
 
 export const getReport = (c: Config): Promise<Graph> => {
-  const period = c.period || { startDate: new Date(), endDate: new Date(Date.now() - year) };
+  const period = c.period || { startDate: new Date(Date.now() - year), endDate: new Date() };
   const key = `${c.viewId}-${serializePeriod(period)}`;
   const report = cache.getKey(key);
   if (report) {
