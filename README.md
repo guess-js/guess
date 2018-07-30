@@ -13,8 +13,8 @@ Install and configure [GuessPlugin](https://github.com/guess-js/guess/tree/maste
 
 Should you wish to try out the modules we offer individually, the `packages` directory contains three packages:
 
-* [`ga`](https://github.com/guess-js/guess/tree/master/packages/ga) - a module for fetching structured data from the Google Analytics API to learn about user navigation patterns. 
-* [`parser`](https://github.com/guess-js/guess/tree/master/packages/parser) - a module providing JavaScript framework parsing. This powers the route-parsing capabilities implemented in the Guess webpack plugin.
+* [`ga`](https://github.com/guess-js/guess/tree/master/packages/guess-ga) - a module for fetching structured data from the Google Analytics API to learn about user navigation patterns. 
+* [`parser`](https://github.com/guess-js/guess/tree/master/packages/guess-parser) - a module providing JavaScript framework parsing. This powers the route-parsing capabilities implemented in the Guess webpack plugin.
 * [`webpack`](https://github.com/guess-js/guess/tree/master/packages/guess-webpack) - a webpack plugin for setting up predictive fetching in your application. It consumes the `ga` and `parser` modules and offers a large number of options for configuring how predictive fetching should work in your application. 
 
 ***For non-Webpack users:***
