@@ -9,9 +9,11 @@ Guess.js for non-Webpack sites.
 :heavy_check_mark: **Dynamic:** As your site changes, prefetch links will adjust accordingly. (No more hardcoded prefetch URLs.) 
 
 :heavy_check_mark: **Intelligent:** Predictive fetching uses the client's connection type to determine whether a resource should be prefetched.
-<br></br>
+
+:point_right: <a href="https://guess-static-sites-demo.firebaseapp.com/" target="_blank">View Demo</a>
 
 ## How guess-static-sites works
+
 This directory uses Google Analytics data to determine which page a user is mostly likely to visit next from a given page (***generatePredictions.js***).
 
 A client-side script (which you'll add to your application) sends a request to the server you are running to get the URL of the page it should fetch, it then prefetches this resource (***script.js & server.js***).
