@@ -1,0 +1,16 @@
+{
+  "name": "guess-next",
+  "version": "0.0.0",
+  "description": "Experiment for integration of Guess.js with Next.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build && next export -o dist",
+    "start": "next start"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "next": "^6.1.1",
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
+  }
+}

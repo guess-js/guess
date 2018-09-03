@@ -9,5 +9,5 @@ readdirSync(base).forEach(dir => {
   if (dir === '.' || dir === '..') {
     return;
   }
-  execSync(`cd ${join(base, dir)} && rm -rf dist && ${cwd}/node_modules/.bin/webpack`);
+  execSync(`cd ${join(base, dir)} && rm -rf dist && npm i && npm run build`);
 });

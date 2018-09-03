@@ -42,7 +42,7 @@
     "lerna": "^2.11.0",
     "meow": "^4.0.0",
     "prompt-confirm": "^1.2.0",
-    "puppeteer": "^1.5.0",
+    "puppeteer": "^1.7.0",
     "raw-loader": "^0.5.1",
     "static-server": "^2.2.1",
     "ts-jest": "^22.4.1",

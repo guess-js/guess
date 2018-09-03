@@ -39,7 +39,7 @@ export class PrefetchPlugin {
 
     if (!main) {
       callback();
-      throw new Error('Cannot find the main chunk in the runtime ML plugin');
+      throw new Error('Cannot find the main chunk of the application');
     }
 
     const newConfig: PrefetchGraph = {};
@@ -140,7 +140,7 @@ const isInitial = (chunk: any) => {
   if (chunk.canBeInitial) {
     return chunk.canBeInitial();
   }
-  return chunk.name === 'main';
+  return /^main(\.js)?$/.test(chunk.name);
 };
 
 const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {

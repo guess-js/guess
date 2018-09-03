@@ -5,8 +5,8 @@ import chalk from 'chalk';
 const StaticServer = require('static-server');
 const port = 5122;
 
-function setupMockServer() {
-  return new Promise(resolve => {
+const setupMockServers = () =>
+  new Promise(resolve => {
     const server = new StaticServer({
       rootPath: join(process.cwd(), 'packages', 'guess-webpack', 'test', 'fixtures'),
       port
@@ -17,10 +17,9 @@ function setupMockServer() {
       resolve(server);
     });
   });
-}
 
 async function main() {
-  await setupMockServer();
+  await setupMockServers();
   const options = process.argv.filter(a => a === '--watch');
   const jest = spawn(`${process.cwd()}/node_modules/.bin/jest`, options, { stdio: 'inherit' });
   return new Promise<number>(resolve => {
