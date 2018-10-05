@@ -46,115 +46,30 @@ new GuessPlugin({ GA: 'GA_VIEW_ID' });
 
 Where `GA_VIEW_ID` is the [Google Analytics view ID](https://ga-dev-tools.appspot.com/query-explorer/). The `guess-ga` plugin will extract report from Google Analytics for the last year. For custom period look at the section below.
 
+Finally, in your application use Guess.js as follows:
+
+```ts
+import { guess } from 'guess-webpack/api';
+
+guess();
+/**
+ {
+   '/foo': 0.1,
+   '/bar': 0.3,
+   '/baz': 0.6
+ }
+ */
+```
+
+In the snippet above, we first import `guess` from `guess-webpack/api`. After that we invoke the `guess` function and it returns an object with keys pages in our application and values probabilities the user to visit the corresponding page.
+
+This way, you can prefetch content associated with the pages which are likely to be visited on the next user navigation. There are plugins for popular frameworks which are going to do this for you! For examples look at the [demo section](#demos).
+
+For further information on how to use `guess`, look at the "Advanced Usage" section below.
+
 ## Advanced Usage
 
-In some cases `guess-parser` might not be able to detect your application type or it may fail to parse your application. When this happens, the package will throw errors for:
-
-- Missing tsconfig for a React TSX or Angular project.
-- Missing source directory for React JSX project.
-- Unsupported project (i.e. if the project cannot be recognized or it doesn't match any of the supported types).
-
-You may also want to pass a custom time period:
-
-```ts
-new GuessPlugin({
-  // View ID of the GA application. Alternatively, you can use `reportProvider`
-  // if you want to extract the report from the file system or a different source,
-  // other than Google Analytics.
-  GA: 'GA_VIEW_ID',
-
-  // Custom report provider. It is used for providing reports from a different source
-  // other than Google Analytics. Keep in mind that you cannot specify both
-  // `GA` and `reportProvider`. If `GA` is specified, then Guess.js will use the default
-  // Google Analytics report provider. For the format of the report, check the
-  // "Custom report provider" section below.
-  reportProvider() {
-    return new Promise((resolve, reject) => {
-      readFile('./report.json', (err, content) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(JSON.stringify(content.toString()));
-      })
-    });
-  }
-
-  // The mode provides hint to the `guess-parser` how your application
-  // should be parsed in order to extract the routes and map them
-  // to the pages gotten from GA.
-  mode: 'create-react-app-typescript' | 'gatsby' | 'create-react-app' | 'angular-cli';
-
-  // Provides further hints to the `guess-parser` on the structure of your application.
-  layout: {
-    typescript: '2.8.1',
-    tsconfigPath: 'src/tsconfig.app.json',
-    sourceDir: 'src'
-  },
-
-  // Specifies the GA report period.
-  period: {
-    startDate: new Date('mm/dd/yyyyy'),
-    endDate: new Date('mm/dd/yyyyy'),
-  },
-
-  // Used for formatting/processing the routes
-  // of your application. For example, this function adds a `app` prefix
-  // to all of them.
-  routeFormatter(path: string) {
-    return 'app/' + path;
-  },
-
-  // Runs the plugin in `debug` mode.
-  debug: true,
-
-  // Specifies the base path used for fetching the application's bundles.
-  // `prefetchConfig` specifies probability thresholds which allow the prefetching
-  // algorithm to be more aggressive for users with faster connection
-  // and less aggressive for users with slower connection.
-  runtime: {
-    // Does not prefetch bundles during route change.
-    // Instead, the client library can use the `guess` method from `guess-webpack/api`
-    // in order to grade the links with highest probability to be visited.
-    // For details see "Manual Prefetching"
-    delegate: true,
-
-    basePath: '/foo/bar',
-    prefetchConfig: {
-      '4g': 0.15,
-      '3g': 0.3,
-      '2g': 0.45,
-      'slow-2g': 0.6
-    },
-  },
-
-  // In case the `guess-parser` is not able to parse your application
-  // you can specify a custom parser. This function can also return a static
-  // representation on your application, mapping routes to bundle entry points.
-  //
-  // In order to skip the metadata collection and use the raw GA report set
-  // `routeProvider` to `false`.
-  routeProvider() {
-    return parseApplication();
-  }
-})
-```
-
-## Manual Prefetching
-
-In case your application has manual prefetching logic, you can disable the prefetching that the `GuessPlugin` performs and instead only use the generated model.
-
-For the purpose, apply the following configuration to the `GuessPlugin`:
-
-```ts
-GuessPlugin({
-  runtime: {
-    delegate: true
-  }
-});
-```
-
-During runtime, in your application use the `guess` function:
+The `guess` function allows you to specify a few optional parameters:
 
 ```ts
 import { guess } from 'guess-webpack/api';
@@ -162,20 +77,54 @@ import { guess } from 'guess-webpack/api';
 guess('/current/route', ['/link-1', '/link-2', '/unavailable']);
 ```
 
-If you skip the second argument of `guess` you'll receive an exhaustive list of routes which could be requested next.
+The first argument that we've passed to the function invocation above is a path. `guess` will return an object which contains the paths which are likely to be visited next from the path that we've specified. If we omit the first argument, `guess` will use `location.pathname`.
 
-The `guess` function will return an object with keys the provided links and values the probability these links to be visited. For example, for the input above you can expect the following output:
+The second argument of `guess` is a whitelist of paths. The returned object from `guess` will contain only keys which are listed in this array.
+
+If you skip the second argument of `guess` you'll receive an exhaustive list of routes which could be visited next.
+
+### Automatic Prefetching
+
+In case you're interested in automating the process of prefetching of bundles in your application, you can use the `guess-webpack` package together with `guess-parser`:
 
 ```ts
-{
-  '/link-1': 0.3,
-  '/link-2': 0.6
+import { parseRoutes } from 'guess-parser';
+
+GuessPlugin({
+  GA: 'XXXXXX',
+  routeProvider() {
+    return parseRoutes('.');
+  },
+  runtime: {
+    delegate: false
+  }
+});
+```
+
+At build time, the snippet above will first create mapping between paths and lazy-loaded JavaScript bundles. At runtime, while the user is navigating in the application a small runtime will invoke `guess` to make predictions for the pages which are likely to be visited next. At each step, Guess.js will pick the top paths and prefetch their corresponding bundles.
+
+Keep in mind that `parseRoutes` might not be able to properly create the mapping between the routes and the bundles in applications with very dynamic route definition, for example most React and Vue applications are not supported. For further information on `guess-parser` look at the [package's documentation](https://github.com/guess-js/guess/tree/master/packages/guess-parser).
+
+### Custom Route Provider
+
+In case Guess.js cannot manage to parse the routes of your application and create mapping to the corresponding lazy-loaded bundles, you can provide a custom route provider. It should have the following type:
+
+```ts
+export type RouteProvider = () => Promise<RoutingModule[]>;
+```
+
+Where `RoutingModule` has the following interface:
+
+```ts
+export interface RoutingModule {
+  path: string;
+  modulePath: string;
+  parentModulePath: string | null;
+  lazy: boolean;
 }
 ```
 
-The `guess` function will not add values for the links it cannot find information for.
-
-## Custom report provider
+### Custom report provider
 
 The `reportProvider` configuration property of `GuessPlugin` is a function which returns promise that resolves to the following data structure:
 
@@ -210,25 +159,6 @@ The meaning of the report above is:
   - Transition to page `baz` which has occurred 2 times.
 - There's one reported transition from page `bar`:
   - Transition to `baz` which has occurred 3 times.
-
-## Custom Route Provider
-
-In case Guess.js cannot manage to parse the routes of your application, you can provide a custom route provider. It should have the following type:
-
-```ts
-export type RouteProvider = () => Promise<RoutingModule[]>;
-```
-
-Where `RoutingModule` has the following interface:
-
-```ts
-export interface RoutingModule {
-  path: string;
-  modulePath: string;
-  parentModulePath: string | null;
-  lazy: boolean;
-}
-```
 
 ## Demos
 

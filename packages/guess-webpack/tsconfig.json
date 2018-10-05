@@ -10,7 +10,6 @@
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"],
     "paths": {
-      "guess-parser": ["guess-parser"],
       "guess-ga": ["guess-ga"]
     }
   },

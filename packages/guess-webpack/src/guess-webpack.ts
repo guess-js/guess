@@ -1,8 +1,6 @@
-import { Mode, RouteProvider, PrefetchConfig } from './declarations';
-import { defaultRouteProvider } from './default-route-provider';
+import { RouteProvider, PrefetchConfig } from './declarations';
 import { PrefetchPlugin } from './prefetch-plugin';
 import { Graph, RoutingModule, Period, ProjectLayout } from '../../common/interfaces';
-import { parseRoutes } from 'guess-parser';
 import { getReport } from './ga-provider';
 
 export interface RuntimeConfig {
@@ -19,8 +17,6 @@ export interface GuessPluginConfig {
   jwt?: any;
   period?: Period;
   reportProvider?: (...args: any[]) => Promise<Graph>;
-  mode?: Mode;
-  layout?: ProjectLayout;
 
   /** @internal */
   routeProvider?: RouteProvider | boolean;
@@ -85,20 +81,17 @@ export class GuessPlugin {
       basePath: runtime ? (runtime.basePath === undefined ? '' : runtime.basePath) : '',
       prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
       routes,
-      delegate: runtime ? !!runtime.delegate : false
+      delegate: runtime ? !!runtime.delegate : true
     }).execute(compilation, cb);
   }
 }
 
 const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
-  if (config.routeProvider === false) {
+  if (config.routeProvider === false || config.routeProvider === undefined) {
     return Promise.resolve([]);
   }
   if (typeof config.routeProvider === 'function') {
     return Promise.resolve(config.routeProvider());
   }
-  if (!config.mode || config.mode === Mode.Auto) {
-    return Promise.resolve(parseRoutes(process.env.PWD!));
-  }
-  return Promise.resolve(defaultRouteProvider(config.mode, config.layout));
+  throw new Error('The routeProvider should be either set to false or a function which returns the routes in the app.');
 };
