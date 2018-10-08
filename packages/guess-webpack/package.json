@@ -28,7 +28,6 @@
     "google-oauth2-node": "0.0.2",
     "googleapis": "^29.0.0",
     "guess-ga": "^0.1.5",
-    "guess-parser": "^0.1.5",
     "lodash.template": "^4.4.0",
     "rollup": "^0.59.4",
     "rollup-plugin-hypothetical": "^2.1.0",
