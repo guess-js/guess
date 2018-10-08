@@ -1,6 +1,4 @@
-import { readFileSync } from 'fs';
 import * as ts from 'typescript';
-import * as fs from 'fs';
 import * as path from 'path';
 import { RoutingModule } from '../../../common/interfaces';
 import { readFiles } from '../utils';
@@ -14,6 +12,9 @@ const getLazyDefinition = (
   ls: ts.LanguageService
 ): ts.DefinitionInfo | undefined => {
   const defs = ls.getDefinitionAtPosition(filename, identifier.pos + 1);
+  if (!defs) {
+    return undefined;
+  }
   return defs.filter(d => LazyRe.test(d.fileName) && d.kind === 'class').pop();
 };
 

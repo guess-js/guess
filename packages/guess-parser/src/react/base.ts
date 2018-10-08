@@ -1,6 +1,4 @@
-import { readFileSync } from 'fs';
 import * as ts from 'typescript';
-import * as fs from 'fs';
 import * as path from 'path';
 import { RoutingModule } from '../../../common/interfaces';
 
