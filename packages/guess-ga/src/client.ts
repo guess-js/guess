@@ -88,9 +88,7 @@ export function getClient(jwtClient: any, pageSize: number, viewId: string, peri
       try {
         const result = await fetchReport(client, jwtClient, viewId, pageConfig, period, expression);
         clientResult.report = result.report;
-        if (result.nextPage) {
-          pageConfig.pageToken = result.nextPage;
-        }
+        pageConfig.pageToken = result.nextPage;
       } catch (e) {
         clientResult.error = e;
       }
