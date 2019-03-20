@@ -1,4 +1,4 @@
-import { Period } from '../../common/interfaces';
+import { Period } from "../../common/interfaces";
 
 interface PageConfig {
   pageToken: number | undefined;
@@ -10,11 +10,20 @@ interface AnalyticsResult {
   nextPage: number;
 }
 
-const formatNumber = (n: number) => (n.toString().length === 1 ? '0' + n : n);
+const formatNumber = (n: number) => (n.toString().length === 1 ? "0" + n : n);
 
-const formatDate = (d: Date) => `${d.getFullYear()}-${formatNumber(d.getMonth() + 1)}-${formatNumber(d.getDate())}`;
+const formatDate = (d: Date) =>
+  `${d.getFullYear()}-${formatNumber(d.getMonth() + 1)}-${formatNumber(
+    d.getDate()
+  )}`;
 
-function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, period: Period, expression: string) {
+function requestBuilder(
+  jwtClient: any,
+  viewId: string,
+  pageConfig: PageConfig,
+  period: Period,
+  expression: string
+) {
   return {
     auth: jwtClient,
     resource: {
@@ -28,9 +37,9 @@ function requestBuilder(jwtClient: any, viewId: string, pageConfig: PageConfig, 
             endDate: formatDate(period.endDate)
           }
         ],
-        dimensions: [{ name: 'ga:previousPagePath' }, { name: 'ga:pagePath' }],
+        dimensions: [{ name: "ga:previousPagePath" }, { name: "ga:pagePath" }],
         metrics: [{ expression }],
-        orderBys: [{ fieldName: expression, sortOrder: 'DESCENDING' }]
+        orderBys: [{ fieldName: expression, sortOrder: "DESCENDING" }]
       }
     }
   };
@@ -45,26 +54,27 @@ async function fetchReport(
   expression: string
 ) {
   return new Promise<AnalyticsResult>((resolve, reject) => {
-    client.reports.batchGet(requestBuilder(jwtClient, viewId, pageConfig, period, expression), function(
-      err: any,
-      response: any
-    ) {
-      if (err) {
-        reject(err);
-        return;
+    client.reports.batchGet(
+      requestBuilder(jwtClient, viewId, pageConfig, period, expression),
+      function(err: any, response: any) {
+        if (err) {
+          reject(err);
+          return;
+        }
+        const nextPage = response.data.reports[0].nextPageToken;
+        const report = response.data.reports[0];
+        resolve({
+          report,
+          nextPage
+        });
       }
-      const nextPage = response.data.reports[0].nextPageToken;
-      const report = response.data.reports[0];
-      resolve({
-        report,
-        nextPage
-      });
-    });
+    );
   });
 }
 
-if (typeof (Symbol as any).asyncIterator === 'undefined') {
-  (Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol('asyncIterator');
+if (typeof (Symbol as any).asyncIterator === "undefined") {
+  (Symbol as any).asyncIterator =
+    Symbol.asyncIterator || Symbol("asyncIterator");
 }
 
 export type GaResult = any;
@@ -74,9 +84,15 @@ export interface ClientResult {
   report?: any;
 }
 
-export function getClient(jwtClient: any, pageSize: number, viewId: string, period: Period, expression: string) {
-  const { google } = require('googleapis');
-  const client = google.analyticsreporting('v4');
+export function getClient(
+  jwtClient: any,
+  pageSize: number,
+  viewId: string,
+  period: Period,
+  expression: string
+) {
+  const { google } = require("googleapis");
+  const client = google.analyticsreporting("v4");
   const pageConfig: PageConfig = {
     pageSize,
     pageToken: undefined
@@ -86,16 +102,21 @@ export function getClient(jwtClient: any, pageSize: number, viewId: string, peri
     while (true) {
       const clientResult: ClientResult = {};
       try {
-        const result = await fetchReport(client, jwtClient, viewId, pageConfig, period, expression);
+        const result = await fetchReport(
+          client,
+          jwtClient,
+          viewId,
+          pageConfig,
+          period,
+          expression
+        );
         clientResult.report = result.report;
-        if (result.nextPage) {
-          pageConfig.pageToken = result.nextPage;
-        }
+        pageConfig.pageToken = result.nextPage;
       } catch (e) {
         clientResult.error = e;
       }
       yield clientResult;
-      if (!pageConfig.pageToken) {
+      if (!pageConfig.pageToken || clientResult.error) {
         break;
       }
     }
