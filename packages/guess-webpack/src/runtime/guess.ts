@@ -74,7 +74,7 @@ const matchRoute = (route: string, declaration: string) => {
     return false;
   } else {
     return declarationParts.reduce((a, p, i) => {
-      if (p.startsWith(':')) {
+      if (p[0] === ':') {
         return a;
       }
       return a && p === routeParts[i];
