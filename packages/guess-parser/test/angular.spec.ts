@@ -1,10 +1,12 @@
 import { parseRoutes } from '../src/angular';
 
-const fixtureRoutes = new Set<string>(['/', '/bar', '/foo', '/foo/index']);
+const fixtureRoutes = new Set<string>(['', 'bar', 'foo', 'foo/index']);
 
 describe('Angular parser', () => {
   it('should parse an app', () => {
-    expect(() => parseRoutes('packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json')).not.toThrow();
+    expect(() =>
+      parseRoutes('packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json')
+    ).not.toThrow();
   });
 
   it('should produce routes', () => {
