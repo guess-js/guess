@@ -52,6 +52,17 @@ const readLoadChildren = (
     n.forEachChild(visitor);
   };
   expr.forEachChild(visitor);
+  // Fallback to when loadChildren looks like:
+  // loadChildren: 'foo' + '/' + 'bar'
+  if (!result) {
+    const res = evaluate({
+      node: expr,
+      typeChecker: typeChecker
+    });
+    if (res.success) {
+      result = res.value as string;
+    }
+  }
   return result;
 };
 

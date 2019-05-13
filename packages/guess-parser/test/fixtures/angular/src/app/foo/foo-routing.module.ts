@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { FooComponent } from './foo.component';
 
+const baz = 'baz';
 const routes: Routes = [
   {
     path: '',
@@ -13,7 +14,7 @@ const routes: Routes = [
   },
   {
     path: 'baz',
-    loadChildren: 'baz/baz.module#BazModule'
+    loadChildren: baz + '/baz.module#BazModule'
   }
 ];
 
