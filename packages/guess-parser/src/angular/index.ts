@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import { RoutingModule } from '../../../common/interfaces';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join } from 'path';
+import { evaluate } from '@wessberg/ts-evaluator';
 
 const getObjectProp = (node: ts.ObjectLiteralExpression, prop: string): ts.Expression | null => {
   const vals = node.properties.values();
@@ -21,7 +22,10 @@ const getObjectProp = (node: ts.ObjectLiteralExpression, prop: string): ts.Expre
   return null;
 };
 
-const readLoadChildren = (node: ts.ObjectLiteralExpression): string | null => {
+const readLoadChildren = (
+  node: ts.ObjectLiteralExpression,
+  typeChecker: ts.TypeChecker
+): string | null => {
   const expr = getObjectProp(node, 'loadChildren');
   if (!expr) {
     return null;
@@ -34,8 +38,12 @@ const readLoadChildren = (node: ts.ObjectLiteralExpression): string | null => {
     if (n.kind === ts.SyntaxKind.ImportKeyword) {
       const parent = n.parent as ts.CallExpression;
       const arg = parent.arguments[0];
-      if (arg.kind === ts.SyntaxKind.StringLiteral) {
-        result = (arg as ts.StringLiteral).text;
+      const res = evaluate({
+        node: arg,
+        typeChecker: typeChecker
+      });
+      if (res.success) {
+        result = res.value as string;
       }
     }
     if (result) {
@@ -45,6 +53,21 @@ const readLoadChildren = (node: ts.ObjectLiteralExpression): string | null => {
   };
   expr.forEachChild(visitor);
   return result;
+};
+
+const readPath = (node: ts.ObjectLiteralExpression, typeChecker: ts.TypeChecker): string | null => {
+  const expr = getObjectProp(node, 'path');
+  if (!expr) {
+    return null;
+  }
+  const val = evaluate({
+    node: expr,
+    typeChecker
+  });
+  if (val.success) {
+    return val.value as string;
+  }
+  return null;
 };
 
 const imports = (parent: string, child: string, program: ts.Program) => {
@@ -95,16 +118,13 @@ const getLazyRoute = (
 ): RoutingModule | null => {
   const result = { lazy: true, modulePath: '', parentModulePath: '', path: '' };
 
-  const path = getObjectProp(node, 'path');
+  const path = readPath(node, program.getTypeChecker());
   if (path === null) {
     return null;
   }
-  if (path.kind !== ts.SyntaxKind.StringLiteral) {
-    return null;
-  }
-  result.path = (path as ts.StringLiteral).text;
+  result.path = path;
 
-  const loadChildren = readLoadChildren(node);
+  const loadChildren = readLoadChildren(node, program.getTypeChecker());
   const component = getObjectProp(node, 'component');
   if (!component && !loadChildren) {
     return null;
@@ -128,8 +148,8 @@ const getLazyRoute = (
   return result;
 };
 
-const getLazyEntryPoints = (node: ts.ObjectLiteralExpression) => {
-  const value = readLoadChildren(node);
+const getLazyEntryPoints = (node: ts.ObjectLiteralExpression, program: ts.Program) => {
+  const value = readLoadChildren(node, program.getTypeChecker());
   if (!value) {
     return null;
   }
@@ -252,7 +272,7 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   program.getSourceFiles().map(s => {
     s.forEachChild(
       visitNode.bind(null, s, (n: ts.Node) => {
-        const path = getLazyEntryPoints(n as ts.ObjectLiteralExpression);
+        const path = getLazyEntryPoints(n as ts.ObjectLiteralExpression, program);
         if (!path) {
           return;
         }
@@ -285,15 +305,16 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     parentToModule[route.parentModulePath] = route;
   }
 
-  let routingModuleRoot: null | string = null;
-  for (const route of routes) {
-    if (moduleToRoute[route.modulePath]) {
-      // this is the root module
-      routingModuleRoot = route.modulePath;
-      break;
-    }
-  }
+  // let routingModuleRoot: null | string = null;
+  // for (const route of routes) {
+  //   if (moduleToRoute[route.modulePath]) {
+  //     // this is the root module
+  //     routingModuleRoot = route.modulePath;
+  //     break;
+  //   }
+  // }
 
+  const newRoutePaths = new Map<RoutingModule, string>();
   for (const route of routes) {
     if (!route.parentModulePath) {
       continue;
@@ -309,10 +330,21 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
         parent = moduleToRoute[parent.parentModulePath];
       }
     } while (parent && parent.parentModulePath);
-    route.path = path
-      .join('/')
-      .replace(/\/\//g, '/')
-      .replace(/\/$/, '');
+    newRoutePaths.set(
+      route,
+      path
+        .join('/')
+        .replace(/\/\//g, '/')
+        .replace(/\/$/, '')
+    );
+  }
+
+  for (const route of routes) {
+    const path = newRoutePaths.get(route);
+    if (path) {
+      route.path = path;
+    }
+    route.path = '/' + route.path;
   }
   return routes;
 };

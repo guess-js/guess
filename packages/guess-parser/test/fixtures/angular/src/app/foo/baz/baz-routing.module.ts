@@ -1,19 +1,15 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { FooComponent } from './foo.component';
+import { BazComponent } from './baz.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: FooComponent
+    component: BazComponent
   },
   {
     path: 'index',
-    component: FooComponent
-  },
-  {
-    path: 'baz',
-    loadChildren: 'baz/baz.module#BazModule'
+    component: BazComponent
   }
 ];
 
@@ -21,4 +17,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-export class FooRoutingModule {}
+export class BazRoutingModule {}
