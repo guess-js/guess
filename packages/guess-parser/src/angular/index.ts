@@ -21,6 +21,32 @@ const getObjectProp = (node: ts.ObjectLiteralExpression, prop: string): ts.Expre
   return null;
 };
 
+const readLoadChildren = (node: ts.ObjectLiteralExpression): string | null => {
+  const expr = getObjectProp(node, 'loadChildren');
+  if (!expr) {
+    return null;
+  }
+  if (expr.kind === ts.SyntaxKind.StringLiteral) {
+    return (expr as ts.StringLiteral).text;
+  }
+  let result: string | null = null;
+  const visitor = (n: ts.Node) => {
+    if (n.kind === ts.SyntaxKind.ImportKeyword) {
+      const parent = n.parent as ts.CallExpression;
+      const arg = parent.arguments[0];
+      if (arg.kind === ts.SyntaxKind.StringLiteral) {
+        result = (arg as ts.StringLiteral).text;
+      }
+    }
+    if (result) {
+      return;
+    }
+    n.forEachChild(visitor);
+  };
+  expr.forEachChild(visitor);
+  return result;
+};
+
 const imports = (parent: string, child: string, program: ts.Program) => {
   const sf = program.getSourceFile(parent);
   if (!sf) {
@@ -47,8 +73,12 @@ const imports = (parent: string, child: string, program: ts.Program) => {
   return found;
 };
 
-const getModuleEntryPoint = (path: string, entryPoints: string[], program: ts.Program): string => {
-  const parents = entryPoints.filter(e => imports(e, path, program));
+const getModuleEntryPoint = (
+  path: string,
+  entryPoints: Set<string>,
+  program: ts.Program
+): string => {
+  const parents = [...entryPoints].filter(e => imports(e, path, program));
   if (parents.length === 0) {
     throw new Error('Cannot find the entry point for ' + path);
   }
@@ -60,7 +90,7 @@ const getModuleEntryPoint = (path: string, entryPoints: string[], program: ts.Pr
 
 const getLazyRoute = (
   node: ts.ObjectLiteralExpression,
-  entryPoints: string[],
+  entryPoints: Set<string>,
   program: ts.Program
 ): RoutingModule | null => {
   const result = { lazy: true, modulePath: '', parentModulePath: '', path: '' };
@@ -74,16 +104,15 @@ const getLazyRoute = (
   }
   result.path = (path as ts.StringLiteral).text;
 
-  const loadChildren = getObjectProp(node, 'loadChildren');
+  const loadChildren = readLoadChildren(node);
   const component = getObjectProp(node, 'component');
   if (!component && !loadChildren) {
     return null;
   }
 
-  if (loadChildren && loadChildren.kind === ts.SyntaxKind.StringLiteral) {
-    const init = (loadChildren as ts.StringLiteral).text;
+  if (loadChildren) {
     const parent = node.getSourceFile().fileName;
-    const module = join(dirname(parent), init.split('#')[0] + '.ts');
+    const module = join(dirname(parent), loadChildren.split('#')[0] + '.ts');
     result.parentModulePath = getModuleEntryPoint(parent, entryPoints, program);
     result.modulePath = module;
     result.lazy = true;
@@ -100,17 +129,13 @@ const getLazyRoute = (
 };
 
 const getLazyEntryPoints = (node: ts.ObjectLiteralExpression) => {
-  const value = getObjectProp(node, 'loadChildren');
+  const value = readLoadChildren(node);
   if (!value) {
     return null;
   }
 
-  if (value.kind !== ts.SyntaxKind.StringLiteral) {
-    return null;
-  }
-
   const parent = node.getSourceFile().fileName;
-  const module = join(dirname(parent), (value as ts.StringLiteral).text.split('#')[0] + '.ts');
+  const module = join(dirname(parent), value.split('#')[0] + '.ts');
   return module;
 };
 
@@ -223,7 +248,7 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     throw new Error('Cannot find the main application module');
   }
 
-  const entryPoints: string[] = [mainPath];
+  const entryPoints: Set<string> = new Set([mainPath]);
   program.getSourceFiles().map(s => {
     s.forEachChild(
       visitNode.bind(null, s, (n: ts.Node) => {
@@ -231,7 +256,7 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
         if (!path) {
           return;
         }
-        entryPoints.push(path);
+        entryPoints.add(path);
       })
     );
   });

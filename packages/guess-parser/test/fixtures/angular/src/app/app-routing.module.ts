@@ -8,6 +8,10 @@ const routes: Routes = [
     loadChildren: 'foo/foo.module#FooModule'
   },
   {
+    path: 'qux',
+    loadChildren: () => import('foo/foo.module').then(e => e.foo)
+  },
+  {
     path: 'bar',
     component: BarComponent
   },
