@@ -1,14 +1,14 @@
-const puppeteer = require('puppeteer');
-
-let browser: any;
-let page: any;
-
-beforeAll(async () => {
-  browser = await puppeteer.launch();
-  page = await browser.newPage();
-});
-
 describe('GuessPlugin integration with Next.js', () => {
+  const puppeteer = require('puppeteer');
+
+  let browser: any;
+  let page: any;
+
+  beforeAll(async () => {
+    browser = await puppeteer.launch();
+    page = await browser.newPage();
+  });
+
   describe('auto prefetching', () => {
     it('should prefetch on initial page load', async () => {
       await page.goto('http://localhost:5122/next/dist/', { waitUntil: 'networkidle0' });

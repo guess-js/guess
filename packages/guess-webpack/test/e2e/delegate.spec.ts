@@ -1,16 +1,18 @@
-const puppeteer = require('puppeteer');
-
-let browser: any;
-let page: any;
-
-beforeAll(async () => {
-  browser = await puppeteer.launch();
-  page = await browser.newPage();
-});
-
 describe('GuessPlugin delegate', () => {
+  const puppeteer = require('puppeteer');
+
+  let browser: any;
+  let page: any;
+
+  beforeAll(async () => {
+    browser = await puppeteer.launch();
+    page = await browser.newPage();
+  });
+
   it('should export global __GUESS__', async () => {
-    await page.goto('http://localhost:5122/delegate/dist/index.html', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:5122/delegate/dist/index.html', {
+      waitUntil: 'networkidle0'
+    });
 
     const guessGlobal = await page.evaluate(() => {
       return !!(window as any).__GUESS__;
@@ -20,7 +22,9 @@ describe('GuessPlugin delegate', () => {
   });
 
   it('should export make predictions', async () => {
-    await page.goto('http://localhost:5122/delegate/dist/index.html', { waitUntil: 'networkidle0' });
+    await page.goto('http://localhost:5122/delegate/dist/index.html', {
+      waitUntil: 'networkidle0'
+    });
 
     const result = await page.evaluate(() => {
       return (window as any).__GUESS__.guess({ path: 'foo' }).bar.probability;
