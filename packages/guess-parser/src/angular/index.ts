@@ -157,52 +157,54 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     throw new Error('Cannot find the main application module');
   }
 
-  const moduleToPath: { [key: string]: RoutingModule } = {};
+  const moduleToRoute: { [key: string]: RoutingModule } = {};
   const parentToModule: { [key: string]: RoutingModule } = {};
   for (const route of routes) {
     if (!route.parentModulePath || !route.lazy) {
       continue;
     }
-    moduleToPath[route.modulePath] = route;
+    if (route.lazy) {
+      moduleToRoute[route.modulePath] = route;
+    }
     parentToModule[route.parentModulePath] = route;
   }
 
   let routingModuleRoot: null | string = null;
   for (const route of routes) {
-    if (!parentToModule[route.modulePath] && route.modulePath !== route.parentModulePath) {
+    if (moduleToRoute[route.modulePath]) {
       // this is the root module
       routingModuleRoot = route.modulePath;
       break;
     }
   }
 
-  console.log('##################', routes);
+  console.log('##################', routingModuleRoot);
 
-  for (const route of routes) {
-    if (route.parentModulePath === routingModuleRoot) {
-      route.parentModulePath = mainPath;
-    }
-    if (route.modulePath === routingModuleRoot) {
-      route.parentModulePath = mainPath;
-    }
-  }
+  // for (const route of routes) {
+  //   if (route.parentModulePath === routingModuleRoot) {
+  //     route.parentModulePath = mainPath;
+  //   }
+  //   if (route.modulePath === routingModuleRoot) {
+  //     route.parentModulePath = mainPath;
+  //   }
+  // }
 
   console.log(routes);
 
-  console.log(JSON.stringify(moduleToPath, null, 2));
+  console.log(JSON.stringify(moduleToRoute, null, 2));
   for (const route of routes) {
     if (!route.parentModulePath) {
       continue;
     }
     const path = [route.path];
-    let parent: RoutingModule | null = moduleToPath[route.parentModulePath];
+    let parent: RoutingModule | null = moduleToRoute[route.parentModulePath];
     do {
       if (!parent) {
         continue;
       }
       path.unshift(parent.path);
       if (parent.parentModulePath) {
-        parent = moduleToPath[parent.parentModulePath];
+        parent = moduleToRoute[parent.parentModulePath];
       }
     } while (parent && parent.parentModulePath);
     route.path = path
