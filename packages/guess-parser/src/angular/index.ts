@@ -3,6 +3,10 @@ import { RoutingModule } from '../../../common/interfaces';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join } from 'path';
 
+const getParentNgModulePath = (path: string) => {
+  return path;
+};
+
 const getLazyRoute = (node: ts.ObjectLiteralExpression): RoutingModule => {
   const vals = node.properties.values();
   const result = { lazy: true, modulePath: '', parentModulePath: '', path: '' };
@@ -25,7 +29,7 @@ const getLazyRoute = (node: ts.ObjectLiteralExpression): RoutingModule => {
       }
       const parent = node.getSourceFile().fileName;
       const module = join(dirname(parent), init.split('#')[0] + '.ts');
-      result.parentModulePath = parent;
+      result.parentModulePath = getParentNgModulePath(parent);
       result.modulePath = module;
     }
     if (name === 'component') {
@@ -59,6 +63,54 @@ const isRouterLike = (n: ts.Node): boolean => {
     }
   }
   return false;
+};
+
+const findMainModule = (program: ts.Program) => {
+  const tryFindMainModule = (n: ts.Node, sf: ts.SourceFile) => {
+    if (n.kind === ts.SyntaxKind.Identifier && (n as ts.Identifier).text === 'bootstrapModule') {
+      const propAccess = (n as ts.Identifier).parent;
+      if (!propAccess || propAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
+        return null;
+      }
+      const tempExpr = propAccess.parent;
+      if (!tempExpr || tempExpr.kind !== ts.SyntaxKind.CallExpression) {
+        return null;
+      }
+      const expr = tempExpr as ts.CallExpression;
+      const module = expr.arguments[0];
+      const tc = program.getTypeChecker();
+      const symbol = tc.getTypeAtLocation(module).getSymbol();
+      if (!symbol) {
+        return null;
+      }
+      const decl = symbol.getDeclarations();
+      if (!decl) {
+        return null;
+      }
+      return decl[0].getSourceFile().fileName;
+    }
+    let mainPath: null | string = null;
+    n.forEachChild(c => {
+      if (mainPath) {
+        return mainPath;
+      }
+      mainPath = tryFindMainModule(c, sf);
+    });
+    return mainPath;
+  };
+  return program.getSourceFiles().reduce((a, sf) => {
+    if (a) {
+      return a;
+    }
+    let mainPath: null | string = null;
+    sf.forEachChild(n => {
+      if (mainPath) {
+        return;
+      }
+      mainPath = tryFindMainModule(n, sf);
+    });
+    return mainPath;
+  }, null);
 };
 
 export const parseRoutes = (tsconfig: string): RoutingModule[] => {
@@ -99,13 +151,44 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   program.getSourceFiles().map(s => {
     s.forEachChild(visitNode.bind(null, s));
   });
+
+  const mainPath = findMainModule(program);
+  if (!mainPath) {
+    throw new Error('Cannot find the main application module');
+  }
+
   const moduleToPath: { [key: string]: RoutingModule } = {};
+  const parentToModule: { [key: string]: RoutingModule } = {};
   for (const route of routes) {
     if (!route.parentModulePath || !route.lazy) {
       continue;
     }
     moduleToPath[route.modulePath] = route;
+    parentToModule[route.parentModulePath] = route;
   }
+
+  let routingModuleRoot: null | string = null;
+  for (const route of routes) {
+    if (!parentToModule[route.modulePath] && route.modulePath !== route.parentModulePath) {
+      // this is the root module
+      routingModuleRoot = route.modulePath;
+      break;
+    }
+  }
+
+  console.log('##################', routes);
+
+  for (const route of routes) {
+    if (route.parentModulePath === routingModuleRoot) {
+      route.parentModulePath = mainPath;
+    }
+    if (route.modulePath === routingModuleRoot) {
+      route.parentModulePath = mainPath;
+    }
+  }
+
+  console.log(routes);
+
   console.log(JSON.stringify(moduleToPath, null, 2));
   for (const route of routes) {
     if (!route.parentModulePath) {
