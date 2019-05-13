@@ -316,15 +316,6 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     parentToModule[route.parentModulePath] = route;
   }
 
-  // let routingModuleRoot: null | string = null;
-  // for (const route of routes) {
-  //   if (moduleToRoute[route.modulePath]) {
-  //     // this is the root module
-  //     routingModuleRoot = route.modulePath;
-  //     break;
-  //   }
-  // }
-
   const newRoutePaths = new Map<RoutingModule, string>();
   for (const route of routes) {
     if (!route.parentModulePath) {
