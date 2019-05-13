@@ -3,13 +3,8 @@ import { RoutingModule } from '../../../common/interfaces';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join } from 'path';
 
-const getParentNgModulePath = (path: string) => {
-  return path;
-};
-
-const getLazyRoute = (node: ts.ObjectLiteralExpression): RoutingModule => {
+const getObjectProp = (node: ts.ObjectLiteralExpression, prop: string): ts.Expression | null => {
   const vals = node.properties.values();
-  const result = { lazy: true, modulePath: '', parentModulePath: '', path: '' };
   for (const val of vals) {
     if (val.kind !== ts.SyntaxKind.PropertyAssignment) {
       continue;
@@ -19,26 +14,104 @@ const getLazyRoute = (node: ts.ObjectLiteralExpression): RoutingModule => {
       continue;
     }
     const name = value.name.text;
-    const init = (value.initializer as ts.StringLiteral).text;
-    if (name === 'path') {
-      result.path = init;
-    }
-    if (name === 'loadChildren') {
-      if (value.initializer.kind !== ts.SyntaxKind.StringLiteral) {
-        continue;
-      }
-      const parent = node.getSourceFile().fileName;
-      const module = join(dirname(parent), init.split('#')[0] + '.ts');
-      result.parentModulePath = getParentNgModulePath(parent);
-      result.modulePath = module;
-    }
-    if (name === 'component') {
-      result.lazy = false;
-      result.parentModulePath = node.getSourceFile().fileName;
-      result.modulePath = node.getSourceFile().fileName;
+    if (name === prop) {
+      return value.initializer;
     }
   }
+  return null;
+};
+
+const imports = (parent: string, child: string, program: ts.Program) => {
+  const sf = program.getSourceFile(parent);
+  if (!sf) {
+    throw new Error('Cannot find source file for path: ' + parent);
+  }
+  let found = false;
+  sf.forEachChild(n => {
+    if (found) {
+      return;
+    }
+    if (n.kind !== ts.SyntaxKind.ImportDeclaration) {
+      return;
+    }
+    const imprt = n as ts.ImportDeclaration;
+    const path = (imprt.moduleSpecifier as ts.StringLiteral).text;
+    const fullPath = join(dirname(parent), path) + '.ts';
+    if (fullPath === child) {
+      found = true;
+    }
+    if (!found && existsSync(fullPath)) {
+      found = imports(fullPath, child, program);
+    }
+  });
+  return found;
+};
+
+const getModuleEntryPoint = (path: string, entryPoints: string[], program: ts.Program): string => {
+  const parents = entryPoints.filter(e => imports(e, path, program));
+  if (parents.length === 0) {
+    throw new Error('Cannot find the entry point for ' + path);
+  }
+  if (parents.length > 1) {
+    throw new Error(`Module ${path} belongs to more than one module: ${parents.join(', ')}`);
+  }
+  return parents[0];
+};
+
+const getLazyRoute = (
+  node: ts.ObjectLiteralExpression,
+  entryPoints: string[],
+  program: ts.Program
+): RoutingModule | null => {
+  const result = { lazy: true, modulePath: '', parentModulePath: '', path: '' };
+
+  const path = getObjectProp(node, 'path');
+  if (path === null) {
+    return null;
+  }
+  if (path.kind !== ts.SyntaxKind.StringLiteral) {
+    return null;
+  }
+  result.path = (path as ts.StringLiteral).text;
+
+  const loadChildren = getObjectProp(node, 'loadChildren');
+  const component = getObjectProp(node, 'component');
+  if (!component && !loadChildren) {
+    return null;
+  }
+
+  if (loadChildren && loadChildren.kind === ts.SyntaxKind.StringLiteral) {
+    const init = (loadChildren as ts.StringLiteral).text;
+    const parent = node.getSourceFile().fileName;
+    const module = join(dirname(parent), init.split('#')[0] + '.ts');
+    result.parentModulePath = getModuleEntryPoint(parent, entryPoints, program);
+    result.modulePath = module;
+    result.lazy = true;
+  }
+
+  if (component) {
+    result.lazy = false;
+    const entry = getModuleEntryPoint(node.getSourceFile().fileName, entryPoints, program);
+    result.parentModulePath = entry;
+    result.modulePath = entry;
+  }
+
   return result;
+};
+
+const getLazyEntryPoints = (node: ts.ObjectLiteralExpression) => {
+  const value = getObjectProp(node, 'loadChildren');
+  if (!value) {
+    return null;
+  }
+
+  if (value.kind !== ts.SyntaxKind.StringLiteral) {
+    return null;
+  }
+
+  const parent = node.getSourceFile().fileName;
+  const module = join(dirname(parent), (value as ts.StringLiteral).text.split('#')[0] + '.ts');
+  return module;
 };
 
 const isRouterLike = (n: ts.Node): boolean => {
@@ -134,28 +207,46 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   const program = ts.createProgram(parsed.fileNames, parsed.options, host);
   const routes: RoutingModule[] = [];
 
-  const visitNode = (s: ts.SourceFile, n: ts.Node) => {
+  const visitNode = (s: ts.SourceFile, callback: (routeObj: ts.Node) => void, n: ts.Node) => {
     if (!n) {
       return;
     }
-    n.forEachChild(visitNode.bind(null, s));
+    n.forEachChild(visitNode.bind(null, s, callback));
     if (!isRouterLike(n)) {
       return;
     }
-    const route = getLazyRoute(n as ts.ObjectLiteralExpression);
-    if (!route) {
-      return;
-    }
-    routes.push(route);
+    callback(n);
   };
-  program.getSourceFiles().map(s => {
-    s.forEachChild(visitNode.bind(null, s));
-  });
 
   const mainPath = findMainModule(program);
   if (!mainPath) {
     throw new Error('Cannot find the main application module');
   }
+
+  const entryPoints: string[] = [mainPath];
+  program.getSourceFiles().map(s => {
+    s.forEachChild(
+      visitNode.bind(null, s, (n: ts.Node) => {
+        const path = getLazyEntryPoints(n as ts.ObjectLiteralExpression);
+        if (!path) {
+          return;
+        }
+        entryPoints.push(path);
+      })
+    );
+  });
+
+  program.getSourceFiles().map(s => {
+    s.forEachChild(
+      visitNode.bind(null, s, (n: ts.Node) => {
+        const route = getLazyRoute(n as ts.ObjectLiteralExpression, entryPoints, program);
+        if (!route) {
+          return;
+        }
+        routes.push(route);
+      })
+    );
+  });
 
   const moduleToRoute: { [key: string]: RoutingModule } = {};
   const parentToModule: { [key: string]: RoutingModule } = {};
@@ -178,20 +269,6 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     }
   }
 
-  console.log('##################', routingModuleRoot);
-
-  // for (const route of routes) {
-  //   if (route.parentModulePath === routingModuleRoot) {
-  //     route.parentModulePath = mainPath;
-  //   }
-  //   if (route.modulePath === routingModuleRoot) {
-  //     route.parentModulePath = mainPath;
-  //   }
-  // }
-
-  console.log(routes);
-
-  console.log(JSON.stringify(moduleToRoute, null, 2));
   for (const route of routes) {
     if (!route.parentModulePath) {
       continue;
