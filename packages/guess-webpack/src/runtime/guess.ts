@@ -114,9 +114,9 @@ const getEffectiveType = (global: any): ConnectionEffectiveType => {
 
 export const initialize = (
   global: any,
+  thresholds: PrefetchConfig,
   compressed: CompressedPrefetchGraph,
   map: CompressedGraphMap,
-  thresholds: PrefetchConfig
 ) => {
   const graph = new Graph(compressed, map);
   global.__GUESS__ = global.__GUESS__ || {};

@@ -1,5 +1,6 @@
-import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from '../declarations';
-import { guess, initialize as initializeGuess } from './guess';
+import { PrefetchConfig } from '../declarations';
+
+type ConnectionEffectiveType = '4g' | '3g' | '2g' | 'slow-2g';
 
 const support = (feature: string) => {
   if (typeof document === 'undefined') {
@@ -44,39 +45,20 @@ const prefetch = (basePath: string, url: string) => {
   supportedPrefetchStrategy(url);
 };
 
-const handleNavigationChange = (basePath: string, path: string) => {
-  const predictions = guess({ path });
-  Object.keys(predictions).forEach(currentPath => {
-    const chunk = predictions[currentPath].chunk;
-    if (chunk) {
-      prefetch(basePath, chunk);
-    }
-  });
+const getEffectiveType = (global: any): ConnectionEffectiveType => {
+  if (!global.navigator || !global.navigator || !global.navigator.connection) {
+    return '3g';
+  }
+  return global.navigator.connection.effectiveType || '3g';
 };
 
 export const initialize = (
-  history: History,
-  global: any,
-  graph: CompressedPrefetchGraph,
-  map: CompressedGraphMap,
-  basePath: string,
-  thresholds: PrefetchConfig
+  g: any,
+  t: PrefetchConfig,
 ) => {
-  initializeGuess(global, thresholds, graph, map);
-
-  if (typeof global.addEventListener === 'function') {
-    global.addEventListener('popstate', (e: any) =>
-      handleNavigationChange(basePath, location.pathname)
-    );
-  }
-
-  const pushState = history.pushState;
-  history.pushState = function(state) {
-    if (typeof (history as any).onpushstate === 'function') {
-      (history as any).onpushstate({ state: state });
+  g.__GUESS__.prefetch = (c: string, p: number) => {
+    if (p >= t[getEffectiveType(g)]) {
+      prefetch('', c);
     }
-    handleNavigationChange(basePath, arguments[2]);
-    return pushState.apply(history, arguments as any);
   };
-  handleNavigationChange(basePath, location.pathname);
 };
