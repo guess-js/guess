@@ -13,6 +13,57 @@ import { join } from 'path';
 const template = require('lodash.template');
 const ConcatSource = require('webpack-sources').ConcatSource;
 
+const defaultPrefetchConfig: PrefetchConfig = {
+  '4g': 0.15,
+  '3g': 0.3,
+  '2g': 0.45,
+  'slow-2g': 0.6
+};
+
+const buildMap = (routes: RoutingModule[], graph: Graph): BundleEntryGraph => {
+  const result: BundleEntryGraph = {};
+  const routeFile = {} as { [key: string]: string };
+  routes.forEach(r => {
+    routeFile[r.path] = r.modulePath;
+  });
+  Object.keys(graph).forEach(k => {
+    result[k] = [];
+
+    const sum = Object.keys(graph[k]).reduce((a, n) => a + graph[k][n], 0);
+    Object.keys(graph[k]).forEach(n => {
+      result[k].push({
+        route: n,
+        probability: graph[k][n] / sum,
+        file: routeFile[n]
+      });
+    });
+    result[k] = result[k].sort((a, b) => b.probability - a.probability);
+  });
+  return result;
+};
+
+// webpack 4 & 3 compatible.
+const isInitial = (chunk: any) => {
+  if (chunk.canBeInitial) {
+    return chunk.canBeInitial();
+  }
+  return /^main(\.js)?$/.test(chunk.name);
+};
+
+const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
+  let blocks: any[] = [];
+  if (chunk.groupsIterable) {
+    blocks = Array.from(chunk.groupsIterable).reduce(
+      (prev: any[], group: any) =>
+        prev.concat(blocks.concat(group.getBlocks().map((block: any) => ({ chunk: group, block })))),
+      []
+    );
+  } else {
+    blocks = (chunk.blocks || []).map((block: any) => ({ chunk, block }));
+  }
+  blocks.forEach(cb);
+};
+
 export class PrefetchPlugin {
   constructor(private _config: PrefetchPluginConfig) {
     if (!_config.data) {
@@ -105,54 +156,3 @@ export class PrefetchPlugin {
     });
   }
 }
-
-const defaultPrefetchConfig: PrefetchConfig = {
-  '4g': 0.15,
-  '3g': 0.3,
-  '2g': 0.45,
-  'slow-2g': 0.6
-};
-
-const buildMap = (routes: RoutingModule[], graph: Graph): BundleEntryGraph => {
-  const result: BundleEntryGraph = {};
-  const routeFile = {} as { [key: string]: string };
-  routes.forEach(r => {
-    routeFile[r.path] = r.modulePath;
-  });
-  Object.keys(graph).forEach(k => {
-    result[k] = [];
-
-    const sum = Object.keys(graph[k]).reduce((a, n) => a + graph[k][n], 0);
-    Object.keys(graph[k]).forEach(n => {
-      result[k].push({
-        route: n,
-        probability: graph[k][n] / sum,
-        file: routeFile[n]
-      });
-    });
-    result[k] = result[k].sort((a, b) => b.probability - a.probability);
-  });
-  return result;
-};
-
-// webpack 4 & 3 compatible.
-const isInitial = (chunk: any) => {
-  if (chunk.canBeInitial) {
-    return chunk.canBeInitial();
-  }
-  return /^main(\.js)?$/.test(chunk.name);
-};
-
-const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
-  let blocks: any[] = [];
-  if (chunk.groupsIterable) {
-    blocks = Array.from(chunk.groupsIterable).reduce(
-      (prev: any[], group: any) =>
-        prev.concat(blocks.concat(group.getBlocks().map((block: any) => ({ chunk: group, block })))),
-      []
-    );
-  } else {
-    blocks = (chunk.blocks || []).map((block: any) => ({ chunk, block }));
-  }
-  blocks.forEach(cb);
-};

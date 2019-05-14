@@ -31,6 +31,30 @@ export interface Navigations {
   [key: string]: Navigation;
 }
 
+
+const matchRoute = (route: string, declaration: string) => {
+  const routeParts = route.split('/');
+  const declarationParts = declaration.split('/');
+  if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
+    routeParts.pop();
+  }
+
+  if (declarationParts.length > 0 && declarationParts[declarationParts.length - 1] === '') {
+    declarationParts.pop();
+  }
+
+  if (routeParts.length !== declarationParts.length) {
+    return false;
+  } else {
+    return declarationParts.reduce((a, p, i) => {
+      if (p[0] === ':') {
+        return a;
+      }
+      return a && p === routeParts[i];
+    }, true);
+  }
+};
+
 class GraphNode {
   constructor(private _node: number[], private _map: CompressedGraphMap) {}
 
@@ -58,29 +82,6 @@ class Graph {
     return result.map(n => new GraphNode(n, this._map));
   }
 }
-
-const matchRoute = (route: string, declaration: string) => {
-  const routeParts = route.split('/');
-  const declarationParts = declaration.split('/');
-  if (routeParts.length > 0 && routeParts[routeParts.length - 1] === '') {
-    routeParts.pop();
-  }
-
-  if (declarationParts.length > 0 && declarationParts[declarationParts.length - 1] === '') {
-    declarationParts.pop();
-  }
-
-  if (routeParts.length !== declarationParts.length) {
-    return false;
-  } else {
-    return declarationParts.reduce((a, p, i) => {
-      if (p[0] === ':') {
-        return a;
-      }
-      return a && p === routeParts[i];
-    }, true);
-  }
-};
 
 const guessNavigation = (graph: Graph, params: GuessFnParams): Navigations => {
   const matches = graph.findMatch(params.path);
