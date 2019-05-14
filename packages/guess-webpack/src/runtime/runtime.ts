@@ -32,13 +32,16 @@ const linkPrefetchStrategy = (url: string) => {
   const link = document.createElement('link');
   link.setAttribute('rel', 'prefetch');
   link.setAttribute('href', url);
-  const parentElement = document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
+  const parentElement =
+    document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
   parentElement.appendChild(link);
 };
 
 const importPrefetchStrategy = (url: string) => import(url);
 
-const supportedPrefetchStrategy = support('prefetch') ? linkPrefetchStrategy : importPrefetchStrategy;
+const supportedPrefetchStrategy = support('prefetch')
+  ? linkPrefetchStrategy
+  : importPrefetchStrategy;
 
 const preFetched: { [key: string]: boolean } = {};
 
@@ -62,7 +65,9 @@ export const initialize = (
   initializeGuess(global, graph, map, thresholds);
 
   if (typeof global.addEventListener === 'function') {
-    global.addEventListener('popstate', (e: any) => handleNavigationChange(basePath, location.pathname));
+    global.addEventListener('popstate', (e: any) =>
+      handleNavigationChange(basePath, location.pathname)
+    );
   }
 
   const pushState = history.pushState;
@@ -71,7 +76,7 @@ export const initialize = (
       (history as any).onpushstate({ state: state });
     }
     handleNavigationChange(basePath, arguments[2]);
-    return pushState.apply(history, arguments);
+    return pushState.apply(history, arguments as any);
   };
   handleNavigationChange(basePath, location.pathname);
 };
