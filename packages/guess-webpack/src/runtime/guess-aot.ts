@@ -28,11 +28,9 @@ const linkPrefetchStrategy = (url: string) => {
   parentElement.appendChild(link);
 };
 
-const importPrefetchStrategy = (url: string) => import(url);
-
 const supportedPrefetchStrategy = support('prefetch')
   ? linkPrefetchStrategy
-  : importPrefetchStrategy;
+  : (url: string) => import(url);
 
 const preFetched: { [key: string]: boolean } = {};
 
@@ -45,7 +43,7 @@ const prefetch = (basePath: string, url: string) => {
   supportedPrefetchStrategy(url);
 };
 
-const getEffectiveType = (global: any): ConnectionEffectiveType => {
+const getConnection = (global: any): ConnectionEffectiveType => {
   if (!global.navigator || !global.navigator || !global.navigator.connection) {
     return '3g';
   }
@@ -58,6 +56,6 @@ export const initialize = (
 ) => {
   const idle = g.requestIdleCallback || ((cb: Function) => setTimeout(cb, 0));
   g.__GUESS__.p = (...p: [string, number]) => {
-    idle(() => p.forEach(c => c[1] >= t[getEffectiveType(g)] ? prefetch('', c[0]) : void 0))
+    idle(() => p.forEach(c => c[1] >= t[getConnection(g)] ? prefetch('', c[0]) : void 0))
   };
 };

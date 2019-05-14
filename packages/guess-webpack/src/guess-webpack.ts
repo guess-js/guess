@@ -26,6 +26,16 @@ export interface GuessPluginConfig {
   runtime?: RuntimeConfig;
 }
 
+const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
+  if (config.routeProvider === false || config.routeProvider === undefined) {
+    return Promise.resolve([]);
+  }
+  if (typeof config.routeProvider === 'function') {
+    return Promise.resolve(config.routeProvider());
+  }
+  throw new Error('The routeProvider should be either set to false or a function which returns the routes in the app.');
+};
+
 export class GuessPlugin {
   constructor(private _config: GuessPluginConfig) {
     if ((this._config.GA || this._config.jwt) && this._config.reportProvider) {
@@ -85,13 +95,3 @@ export class GuessPlugin {
     }).execute(compilation, cb);
   }
 }
-
-const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
-  if (config.routeProvider === false || config.routeProvider === undefined) {
-    return Promise.resolve([]);
-  }
-  if (typeof config.routeProvider === 'function') {
-    return Promise.resolve(config.routeProvider());
-  }
-  throw new Error('The routeProvider should be either set to false or a function which returns the routes in the app.');
-};
