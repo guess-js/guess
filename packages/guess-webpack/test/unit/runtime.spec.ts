@@ -33,7 +33,7 @@ const config = {
 
 describe('runtime', () => {
   it('should guess links', () => {
-    initialize(window, graph, graphMap, config);
+    initialize(window, config, graph, graphMap);
     expect(
       guess({
         path: 'a',
@@ -49,7 +49,7 @@ describe('runtime', () => {
   });
 
   it('should work with no matches', () => {
-    initialize(window, graph, graphMap, config);
+    initialize(window, config, graph, graphMap);
     expect(
       guess({
         path: 'a',
@@ -65,7 +65,7 @@ describe('runtime', () => {
   });
 
   it('should work with partial matches', () => {
-    initialize(window, graph, graphMap, config);
+    initialize(window, config, graph, graphMap);
     expect(guess({ path: 'a' })).toEqual({ b: { probability: 0.9, chunk: 'b.js' } });
   });
 });
