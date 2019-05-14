@@ -56,9 +56,8 @@ export const initialize = (
   g: any,
   t: PrefetchConfig,
 ) => {
-  g.__GUESS__.prefetch = (c: string, p: number) => {
-    if (p >= t[getEffectiveType(g)]) {
-      prefetch('', c);
-    }
+  const idle = g.requestIdleCallback || ((cb: Function) => setTimeout(cb, 0));
+  g.__GUESS__.p = (...p: [string, number]) => {
+    idle(() => p.forEach(c => c[1] >= t[getEffectiveType(g)] ? prefetch('', c[0]) : void 0))
   };
 };
