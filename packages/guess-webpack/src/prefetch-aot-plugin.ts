@@ -157,9 +157,19 @@ export class PrefetchAotPlugin {
       )
     });
 
+    if (this._config.debug) {
+      console.log('Altering the main chunk');
+    }
+
     const compilationPromises = [
       alterChunk(compilation, mainName, old.source(), runtimeLogic)
     ];
+
+    if (this._config.debug) {
+      console.log('Main chunk altered');
+      console.log('Altering all other chunks to prefetch their neighbours');
+    }
+
     Object.keys(routeChunk).forEach(route => {
       const chunk = routeChunk[route];
       const currentChunk = compilation.assets[chunk];
@@ -174,6 +184,11 @@ export class PrefetchAotPlugin {
         alterChunk(compilation, chunk, currentChunk.source(), newCode)
       );
     });
+
+    if (this._config.debug) {
+      console.log('Chunks altered');
+    }
+
     Promise.all(compilationPromises)
       .then(callback)
       .catch(e => {
