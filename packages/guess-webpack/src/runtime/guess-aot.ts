@@ -55,6 +55,7 @@ export const initialize = (
   t: PrefetchConfig,
 ) => {
   const idle = g.requestIdleCallback || ((cb: Function) => setTimeout(cb, 0));
+  g.__GUESS__ = {};
   g.__GUESS__.p = (...p: [string, number][]) => {
     idle(() => p.forEach(c => c[1] >= t[getConnection(g)] ? prefetch('', c[0]) : void 0))
   };

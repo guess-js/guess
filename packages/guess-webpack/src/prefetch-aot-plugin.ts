@@ -24,13 +24,8 @@ const alterChunk = (
     memoryFs.mkdirpSync('/src');
     memoryFs.writeFileSync('/src/index.js', toAlter, 'utf-8');
     memoryFs.writeFileSync(
-      '/src/guess.js',
+      '/src/guess-aot.js',
       readFileSync(join(__dirname, 'guess.js')).toString(),
-      'utf-8'
-    );
-    memoryFs.writeFileSync(
-      '/src/runtime.js',
-      readFileSync(join(__dirname, 'runtime.js')).toString(),
       'utf-8'
     );
 
@@ -185,13 +180,17 @@ export class PrefetchAotPlugin {
       );
     });
 
-    if (this._config.debug) {
-      console.log('Chunks altered');
-    }
-
     Promise.all(compilationPromises)
-      .then(callback)
+      .then(() => {
+        if (this._config.debug) {
+          console.log('Chunks altered');
+        }
+        callback();
+      })
       .catch(e => {
+        if (this._config.debug) {
+          console.error(e);
+        }
         callback();
         throw e;
       });

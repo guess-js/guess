@@ -68,6 +68,20 @@ module.exports = [
   ),
   Object.assign(
     {
+      entry: {
+        guess: './src/runtime/guess-aot.ts'
+      },
+      target: 'node',
+      output: {
+        filename: '[name].js',
+        path: __dirname + '/dist/guess-webpack/',
+        libraryTarget: 'commonjs'
+      }
+    },
+    common
+  ),
+  Object.assign(
+    {
       entry: './index.ts',
       output: {
         filename: 'main.js',

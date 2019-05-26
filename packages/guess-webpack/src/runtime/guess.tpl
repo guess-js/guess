@@ -1,4 +1,4 @@
-import { initialize } from './guess';
+import { initialize } from './guess-aot';
 
 (function(g, thresholds) {
   initialize(g, thresholds);
