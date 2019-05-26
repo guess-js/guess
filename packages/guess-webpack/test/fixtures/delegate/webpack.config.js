@@ -15,7 +15,9 @@ module.exports = {
   plugins: [
     new CopyWebpackPlugin([{ from: 'index.html', to: 'index.html' }]),
     new GuessPlugin({
-      delegate: true,
+      runtime: {
+        delegate: true,
+      },
       routeProvider: false,
       reportProvider() {
         return Promise.resolve({

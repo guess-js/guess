@@ -21,6 +21,7 @@ export interface GuessPluginConfig {
   GA?: string;
   jwt?: any;
   period?: Period;
+  debug?: boolean;
   reportProvider?: (...args: any[]) => Promise<Graph>;
 
   /** @internal */
@@ -65,17 +66,15 @@ export class GuessPlugin {
   }
 
   private _execute(compilation: any, cb: any) {
-    extractRoutes(this._config).then(routes => {
-      return this._getReport(routes).then(
-        data => {
-          return this._executePrefetchPlugin(data, routes, compilation, cb);
-        },
-        err => {
-          console.error(err);
-          cb();
-          throw err;
-        }
-      );
+    extractRoutes(this._config).then(async routes => {
+      try {
+        const data = await this._getReport(routes);
+        return this._executePrefetchPlugin(data, routes, compilation, cb);
+      } catch (err) {
+        console.error(err);
+        cb();
+        throw err;
+      }
     });
   }
 
@@ -103,6 +102,7 @@ export class GuessPlugin {
     if (runtime && runtime.delegate) {
       new PrefetchPlugin({
         data,
+        debug: this._config.debug,
         basePath: runtime
           ? runtime.basePath === undefined
             ? ''
@@ -115,6 +115,7 @@ export class GuessPlugin {
     } else {
       new PrefetchAotPlugin({
         data,
+        debug: this._config.debug,
         basePath: runtime
           ? runtime.basePath === undefined
             ? ''

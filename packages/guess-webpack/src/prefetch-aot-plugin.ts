@@ -77,7 +77,6 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
 
 export class PrefetchAotPlugin {
   constructor(private _config: PrefetchAotPluginConfig) {
-    _config.debug = true;
     if (!_config.data) {
       throw new Error('Page graph not provided');
     }
@@ -170,7 +169,8 @@ export class PrefetchAotPlugin {
       const currentChunk = compilation.assets[chunk];
       if (!currentChunk) {
         callback();
-        throw new Error(`Cannot find the chunk ${chunk} for route ${route}`);
+        console.warn(`Cannot find the chunk "${chunk}" for route "${route}"`);
+        return;
       }
       const newCode = `__GUESS__.p([${newConfig[route]
         .map(c => `'${join(this._config.basePath, c.chunk)}', ${c.probability}`)
