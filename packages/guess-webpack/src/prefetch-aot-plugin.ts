@@ -146,7 +146,6 @@ export class PrefetchAotPlugin {
     ).toString();
 
     const runtimeLogic = template(runtimeTemplate)({
-      BASE_PATH: this._config.basePath,
       THRESHOLDS: JSON.stringify(
         Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig)
       )

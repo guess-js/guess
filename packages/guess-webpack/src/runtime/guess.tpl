@@ -1,5 +1,5 @@
 import { initialize } from './guess';
 
-(function(g, graph, m, basePath, thresholds) {
-  initialize(g, graph, m, basePath, thresholds);
-})(typeof window === 'undefined' ? global : window, <%= THRESHOLDS %>, <%= GRAPH %>, <%= GRAPH_MAP %>);
+(function(g, thresholds) {
+  initialize(g, thresholds);
+})(typeof window === 'undefined' ? global : window, <%= THRESHOLDS %>);
