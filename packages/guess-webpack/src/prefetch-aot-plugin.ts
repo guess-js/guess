@@ -172,9 +172,9 @@ export class PrefetchAotPlugin {
         console.warn(`Cannot find the chunk "${chunk}" for route "${route}"`);
         return;
       }
-      const newCode = `__GUESS__.p([${newConfig[route]
-        .map(c => `'${join(this._config.basePath, c.chunk)}', ${c.probability}`)
-        .join(',')}])`;
+      const newCode = `__GUESS__.p(${newConfig[route]
+        .map(c => `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`)
+        .join(',')})`;
       compilationPromises.push(
         alterChunk(compilation, chunk, currentChunk.source(), newCode)
       );
