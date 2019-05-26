@@ -69,7 +69,7 @@ module.exports = [
   Object.assign(
     {
       entry: {
-        guess: './src/runtime/guess-aot.ts'
+        guess: './src/aot/guess-aot.ts'
       },
       target: 'node',
       output: {
@@ -96,7 +96,7 @@ module.exports = [
       plugins: [
         new CopyWebpackPlugin([
           { from: './src/runtime/runtime.tpl', to: 'runtime.tpl' },
-          { from: './src/runtime/guess.tpl', to: 'guess.tpl' }
+          { from: './src/aot/aot.tpl', to: 'aot.tpl' }
         ])
       ]
     },

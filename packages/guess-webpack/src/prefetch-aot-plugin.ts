@@ -141,7 +141,7 @@ export class PrefetchAotPlugin {
     const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
     const old = compilation.assets[mainName];
 
-    const codeTemplate = 'guess.tpl';
+    const codeTemplate = 'aot.tpl';
     const runtimeTemplate = readFileSync(
       join(__dirname, codeTemplate)
     ).toString();
