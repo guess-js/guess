@@ -88,6 +88,9 @@ export class PrefetchAotPlugin {
   }
 
   execute(compilation: any, callback: any) {
+    if (this._config.debug) {
+      console.log('Inside PrefetchAotPlugin');
+    }
     const fileChunk: { [path: string]: string } = {};
 
     let main: any = null;
@@ -105,6 +108,10 @@ export class PrefetchAotPlugin {
         fileChunk[block.dependencies[0].module.userRequest] = name;
       });
     });
+
+    if (this._config.debug) {
+      console.log('Mapping between chunk name and entry point is ready', JSON.stringify(fileChunk, null, 2));
+    }
 
     if (!main) {
       callback();
@@ -125,6 +132,10 @@ export class PrefetchAotPlugin {
         newConfig[route].push(newTransition);
       });
     });
+
+    if (this._config.debug) {
+      console.log('Built the model', JSON.stringify(newConfig, null, 2));
+    }
 
     const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
     const old = compilation.assets[mainName];
