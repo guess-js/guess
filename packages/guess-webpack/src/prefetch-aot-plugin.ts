@@ -50,8 +50,11 @@ const alterChunk = (
         throw err;
       }
 
-      const code = stats.compilation.assets['./output.js'].source();
-      compilation.assets[chunkName] = new ConcatSource(code, '\n;', original);
+      compilation.assets[chunkName] = new ConcatSource(
+        original,
+        '\n',
+        stats.compilation.assets['./output.js']
+      );
       resolve();
     });
   });
@@ -105,7 +108,10 @@ export class PrefetchAotPlugin {
     });
 
     if (this._config.debug) {
-      console.log('Mapping between chunk name and entry point is ready', JSON.stringify(fileChunk, null, 2));
+      console.log(
+        'Mapping between chunk name and entry point is ready',
+        JSON.stringify(fileChunk, null, 2)
+      );
     }
 
     if (!main) {
@@ -117,7 +123,10 @@ export class PrefetchAotPlugin {
     const routeChunk: { [route: string]: string } = {};
     const initialGraph = buildMap(this._config.routes, this._config.data);
     if (this._config.debug) {
-      console.log('Initial mapping between routes and probability', JSON.stringify(initialGraph, null, 2));
+      console.log(
+        'Initial mapping between routes and probability',
+        JSON.stringify(initialGraph, null, 2)
+      );
     }
     Object.keys(initialGraph).forEach(route => {
       newConfig[route] = [];
@@ -134,7 +143,10 @@ export class PrefetchAotPlugin {
     if (this._config.debug) {
       console.log('Built the model', JSON.stringify(newConfig, null, 2));
       console.log('File to chunk mapping', JSON.stringify(fileChunk, null, 2));
-      console.log('Route to chunk mapping is', JSON.stringify(routeChunk, null, 2));
+      console.log(
+        'Route to chunk mapping is',
+        JSON.stringify(routeChunk, null, 2)
+      );
     }
 
     const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
@@ -165,18 +177,20 @@ export class PrefetchAotPlugin {
     }
 
     Object.keys(routeChunk).forEach(route => {
-      const chunk = routeChunk[route];
-      const currentChunk = compilation.assets[chunk];
+      const chunkName = routeChunk[route];
+      const currentChunk = compilation.assets[chunkName];
       if (!currentChunk) {
         callback();
-        console.warn(`Cannot find the chunk "${chunk}" for route "${route}"`);
+        console.warn(`Cannot find the chunk "${chunkName}" for route "${route}"`);
         return;
       }
       const newCode = `__GUESS__.p(${newConfig[route]
-        .map(c => `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`)
+        .map(
+          c => `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`
+        )
         .join(',')})`;
       compilationPromises.push(
-        alterChunk(compilation, chunk, currentChunk.source(), newCode)
+        alterChunk(compilation, chunkName, currentChunk.source(), newCode)
       );
     });
 

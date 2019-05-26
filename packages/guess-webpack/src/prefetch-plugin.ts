@@ -19,7 +19,11 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
   if (chunk.groupsIterable) {
     blocks = Array.from(chunk.groupsIterable).reduce(
       (prev: any[], group: any) =>
-        prev.concat(blocks.concat(group.getBlocks().map((block: any) => ({ chunk: group, block })))),
+        prev.concat(
+          blocks.concat(
+            group.getBlocks().map((block: any) => ({ chunk: group, block }))
+          )
+        ),
       []
     );
   } else {
@@ -44,7 +48,9 @@ export class PrefetchPlugin {
         main = currentChunk;
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        let name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
+        let name = (chunk.files || [])
+          .filter((f: string) => f.endsWith('.js'))
+          .pop();
         if (!name && chunk.chunks && chunk.chunks[0]) {
           name = chunk.chunks[0].files[0];
         }
@@ -76,13 +82,17 @@ export class PrefetchPlugin {
     const { graph, graphMap } = compressGraph(newConfig, 3);
 
     const codeTemplate = 'runtime.tpl';
-    const runtimeTemplate = readFileSync(join(__dirname, codeTemplate)).toString();
+    const runtimeTemplate = readFileSync(
+      join(__dirname, codeTemplate)
+    ).toString();
 
     const runtimeLogic = template(runtimeTemplate)({
       BASE_PATH: this._config.basePath,
       GRAPH: JSON.stringify(graph),
       GRAPH_MAP: JSON.stringify(graphMap),
-      THRESHOLDS: JSON.stringify(Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig))
+      THRESHOLDS: JSON.stringify(
+        Object.assign({}, defaultPrefetchConfig, this._config.prefetchConfig)
+      )
     });
 
     const MemoryFileSystem = require('memory-fs');
@@ -90,8 +100,16 @@ export class PrefetchPlugin {
 
     memoryFs.mkdirpSync('/src');
     memoryFs.writeFileSync('/src/index.js', runtimeLogic, 'utf-8');
-    memoryFs.writeFileSync('/src/guess.js', readFileSync(join(__dirname, 'guess.js')).toString(), 'utf-8');
-    memoryFs.writeFileSync('/src/runtime.js', readFileSync(join(__dirname, 'runtime.js')).toString(), 'utf-8');
+    memoryFs.writeFileSync(
+      '/src/guess.js',
+      readFileSync(join(__dirname, 'guess.js')).toString(),
+      'utf-8'
+    );
+    memoryFs.writeFileSync(
+      '/src/runtime.js',
+      readFileSync(join(__dirname, 'runtime.js')).toString(),
+      'utf-8'
+    );
 
     const compiler = require('webpack')({
       context: '/src/',
@@ -114,8 +132,11 @@ export class PrefetchPlugin {
         throw err;
       }
 
-      const code = stats.compilation.assets['./output.js'].source();
-      compilation.assets[mainName] = new ConcatSource(code, '\n;', old.source());
+      compilation.assets[mainName] = new ConcatSource(
+        stats.compilation.assets['./output.js'],
+        '\n',
+        old.source()
+      );
       callback();
     });
   }
