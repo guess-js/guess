@@ -82,6 +82,7 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
 
 export class PrefetchAotPlugin {
   constructor(private _config: PrefetchAotPluginConfig) {
+    _config.debug = true;
     if (!_config.data) {
       throw new Error('Page graph not provided');
     }
@@ -121,10 +122,13 @@ export class PrefetchAotPlugin {
     const newConfig: PrefetchAotGraph = {};
     const routeChunk: { [route: string]: string } = {};
     const initialGraph = buildMap(this._config.routes, this._config.data);
+    if (this._config.debug) {
+      console.log('Initial mapping between routes and probability', JSON.stringify(initialGraph, null, 2));
+    }
     Object.keys(initialGraph).forEach(route => {
       newConfig[route] = [];
       initialGraph[route].forEach(neighbor => {
-        routeChunk[neighbor.route] = fileChunk[routeChunk[neighbor.file]];
+        routeChunk[neighbor.route] = fileChunk[neighbor.file];
         const newTransition: PrefetchAotNeighbor = {
           probability: neighbor.probability,
           chunk: fileChunk[neighbor.file]
@@ -135,6 +139,8 @@ export class PrefetchAotPlugin {
 
     if (this._config.debug) {
       console.log('Built the model', JSON.stringify(newConfig, null, 2));
+      console.log('File to chunk mapping', JSON.stringify(fileChunk, null, 2));
+      console.log('Route to chunk mapping is', JSON.stringify(routeChunk, null, 2));
     }
 
     const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
@@ -159,7 +165,7 @@ export class PrefetchAotPlugin {
       const currentChunk = compilation.assets[chunk];
       if (!currentChunk) {
         callback();
-        throw new Error(`Cannot find the chunk ${chunk}`);
+        throw new Error(`Cannot find the chunk ${chunk} for route ${route}`);
       }
       const newCode = `__GUESS__.p([${newConfig[route]
         .map(c => `'${join(this._config.basePath, c.chunk)}', ${c.probability}`)
