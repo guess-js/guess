@@ -5,7 +5,7 @@ import { BarComponent } from './bar/bar.component';
 const routes: Routes = [
   {
     path: 'fo' + 'o',
-    loadChildren: () => import('./foo/foo.module').then(e => e.FooModule)
+    loadChildren: './foo/foo.module#FooModule'
   },
   {
     path: 'bar',

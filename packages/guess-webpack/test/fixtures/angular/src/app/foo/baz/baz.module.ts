@@ -7,4 +7,4 @@ import { BazRoutingModule } from './baz-routing.module';
   imports: [BazRoutingModule],
   bootstrap: [BazComponent]
 })
-export class FooModule {}
+export class BazModule {}
