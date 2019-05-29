@@ -64,7 +64,7 @@ export class PrefetchPlugin {
     }
 
     const newConfig: PrefetchGraph = {};
-    const initialGraph = buildMap(this._config.routes, this._config.data);
+    const initialGraph = buildMap(this._config.routes, this._config.data, !!this._config.debug);
     Object.keys(initialGraph).forEach(c => {
       newConfig[c] = [];
       initialGraph[c].forEach(p => {

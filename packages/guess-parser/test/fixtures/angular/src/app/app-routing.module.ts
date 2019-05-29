@@ -6,7 +6,7 @@ const module = 'foo/foo.module';
 const routes: Routes = [
   {
     path: 'fo' + 'o',
-    loadChildren: () => import(module).then(e => e.foo)
+    loadChildren: './foo/foo.module#FooModule'
   },
   {
     path: 'bar',

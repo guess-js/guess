@@ -8,7 +8,21 @@ export const defaultPrefetchConfig: PrefetchConfig = {
   'slow-2g': 0.6
 };
 
-export const buildMap = (routes: RoutingModule[], graph: Graph): BundleEntryGraph => {
+const validateInput = (routes: RoutingModule[], graph: Graph, debug: boolean) => {
+  const routesInReport = new Set();
+  Object.keys(graph).forEach(r => {
+    routesInReport.add(r);
+    Object.keys(graph[r]).forEach(c => routesInReport.add(c));
+  });
+  const intersection =
+    routes.map(r => r.path).filter(x => routesInReport.has(x));
+  intersection.forEach(r => {
+    console.warn(`The route ${r} is not present in the report or in the route declarations`);
+  });
+};
+
+export const buildMap = (routes: RoutingModule[], graph: Graph, debug: boolean): BundleEntryGraph => {
+  validateInput(routes, graph, debug);
   const result: BundleEntryGraph = {};
   const routeFile = {} as { [key: string]: string };
   routes.forEach(r => {

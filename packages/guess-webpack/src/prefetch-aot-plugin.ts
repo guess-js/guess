@@ -121,7 +121,11 @@ export class PrefetchAotPlugin {
 
     const newConfig: PrefetchAotGraph = {};
     const routeChunk: { [route: string]: string } = {};
-    const initialGraph = buildMap(this._config.routes, this._config.data);
+    const initialGraph = buildMap(
+      this._config.routes,
+      this._config.data,
+      !!this._config.debug
+    );
     if (this._config.debug) {
       console.log(
         'Initial mapping between routes and probability',
@@ -181,14 +185,32 @@ export class PrefetchAotPlugin {
       const currentChunk = compilation.assets[chunkName];
       if (!currentChunk) {
         callback();
-        console.warn(`Cannot find the chunk "${chunkName}" for route "${route}"`);
+        console.warn(
+          `Cannot find the chunk "${chunkName}" for route "${route}"`
+        );
         return;
       }
-      const newCode = `__GUESS__.p(${newConfig[route]
-        .map(
-          c => `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`
-        )
-        .join(',')})`;
+      if (this._config.debug) {
+        if (newConfig[route]) {
+          console.log(
+            'Adding',
+            newConfig[route].map(
+              c =>
+                `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`
+            )
+          );
+        } else {
+          console.log('Nothing to prefetch from', route);
+        }
+      }
+      const newCode = newConfig[route]
+        ? `__GUESS__.p(${newConfig[route]
+            .map(
+              c =>
+                `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`
+            )
+            .join(',')})`
+        : '';
       compilationPromises.push(
         alterChunk(compilation, chunkName, currentChunk.source(), newCode)
       );
