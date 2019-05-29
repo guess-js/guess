@@ -28,7 +28,6 @@ describe('Angular parser', () => {
     const routes = parseRoutes('packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json');
     const route = routes.find(r => r.path === '/foo');
     expect(route!.modulePath.endsWith('foo.module.ts')).toBeTruthy();
-    console.log(routes);
     expect(route!.lazy).toBeTruthy();
     expect(route!.parentModulePath!.endsWith('app.module.ts')).toBeTruthy();
   });
