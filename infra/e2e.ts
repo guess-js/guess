@@ -12,7 +12,7 @@ if (fooModule.indexOf('__GUESS__.p(["baz-baz-module.js",1]') < 0) {
   process.exit(1);
 }
 
-const mainModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/main.js').toString();
-if (mainModule.indexOf('__GUESS__') < 0) {
+const mainModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/vendor.js').toString();
+if (mainModule.indexOf('__GUESS__.p(') < 0 && mainModule.indexOf('__GUESS__.p=') < 0) {
   process.exit(1);
 }
