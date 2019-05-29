@@ -93,7 +93,6 @@ export class PrefetchAotPlugin {
     compilation.chunks.forEach((currentChunk: any) => {
       if (isInitial(currentChunk)) {
         main = currentChunk;
-        // console.log(main.files.filter((f: string) => f.endsWith('.js')).pop());
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
         let name = (chunk.files || [])
