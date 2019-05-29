@@ -20,9 +20,7 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
     blocks = Array.from(chunk.groupsIterable).reduce(
       (prev: any[], group: any) =>
         prev.concat(
-          blocks.concat(
-            group.getBlocks().map((block: any) => ({ chunk: group, block }))
-          )
+          group.getBlocks().map((block: any) => ({ chunk: group, block }))
         ),
       []
     );

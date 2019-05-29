@@ -66,9 +66,7 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
     blocks = Array.from(chunk.groupsIterable).reduce(
       (prev: any[], group: any) =>
         prev.concat(
-          blocks.concat(
-            group.getBlocks().map((block: any) => ({ chunk: group, block }))
-          )
+          group.getBlocks().map((block: any) => ({ chunk: group, block }))
         ),
       []
     );
@@ -95,6 +93,7 @@ export class PrefetchAotPlugin {
     compilation.chunks.forEach((currentChunk: any) => {
       if (isInitial(currentChunk)) {
         main = currentChunk;
+        // console.log(main.files.filter((f: string) => f.endsWith('.js')).pop());
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
         let name = (chunk.files || [])
@@ -109,7 +108,7 @@ export class PrefetchAotPlugin {
 
     if (this._config.debug) {
       console.log(
-        'Mapping between chunk name and entry point is ready',
+        'Mapping between chunk name and entry point',
         JSON.stringify(fileChunk, null, 2)
       );
     }
@@ -153,7 +152,12 @@ export class PrefetchAotPlugin {
       );
     }
 
-    const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
+    const mainName = main.files.filter((f: string) => f.endsWith('.js') && f.indexOf('main') >= 0).pop() ||
+      main.files.filter((f: string) => f.endsWith('.js')).pop();
+
+    if (this._config.debug) {
+      console.log('Adding prefetching logic in', mainName);
+    }
     const old = compilation.assets[mainName];
 
     const codeTemplate = 'aot.tpl';
@@ -171,15 +175,13 @@ export class PrefetchAotPlugin {
       console.log('Altering the main chunk');
     }
 
-    const compilationPromises = [
-      alterChunk(compilation, mainName, old.source(), runtimeLogic)
-    ];
-
     if (this._config.debug) {
       console.log('Main chunk altered');
       console.log('Altering all other chunks to prefetch their neighbours');
     }
 
+    const compilationPromises: Promise<{}>[] = [];
+    routeChunk['/'] = mainName;
     Object.keys(routeChunk).forEach(route => {
       const chunkName = routeChunk[route];
       const currentChunk = compilation.assets[chunkName];
@@ -203,7 +205,7 @@ export class PrefetchAotPlugin {
           console.log('Nothing to prefetch from', route);
         }
       }
-      const newCode = newConfig[route]
+      let newCode = newConfig[route]
         ? `__GUESS__.p(${newConfig[route]
             .map(
               c =>
@@ -211,6 +213,9 @@ export class PrefetchAotPlugin {
             )
             .join(',')})`
         : '';
+      if (chunkName === mainName) {
+        newCode = runtimeLogic + ';' + newCode;
+      }
       compilationPromises.push(
         alterChunk(compilation, chunkName, currentChunk.source(), newCode)
       );

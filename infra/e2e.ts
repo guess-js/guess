@@ -11,3 +11,8 @@ const fooModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dis
 if (fooModule.indexOf('__GUESS__.p(["baz-baz-module.js",1]') < 0) {
   process.exit(1);
 }
+
+const mainModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/main.js').toString();
+if (mainModule.indexOf('__GUESS__') < 0) {
+  process.exit(1);
+}
