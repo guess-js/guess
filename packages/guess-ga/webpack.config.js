@@ -6,7 +6,7 @@ module.exports = {
     filename: './guess-ga/index.js',
     libraryTarget: 'umd'
   },
-  externals: [/^(@|\w).*$/i],
+  externals: [/^(@|\w{3}(?<!\w:\\)).*$/i],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.
     extensions: ['.ts', '.js', '.json']
