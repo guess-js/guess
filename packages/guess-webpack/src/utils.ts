@@ -17,7 +17,9 @@ const validateInput = (routes: RoutingModule[], graph: Graph, debug: boolean) =>
   const intersection =
     routes.map(r => r.path).filter(x => routesInReport.has(x));
   intersection.forEach(r => {
-    console.warn(`The route ${r} is not present in the report or in the route declarations`);
+    if (debug) {
+      console.warn(`The route ${r} is not present in the report or in the route declarations`);
+    }
   });
 };
 
