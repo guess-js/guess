@@ -2,7 +2,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const common = {
   mode: 'production',
-  externals: [/^(@|\w).*$/i],
+  externals: [/^(@|\w{4}(?<!\w:\\\\)).*$/i],
   resolve: {
     extensions: ['.ts', '.tsx', '.js']
   },
@@ -17,7 +17,7 @@ const common = {
 module.exports = [
   {
     mode: 'production',
-    externals: [/^(@|\w).*$/i],
+    externals: [/^(@|\w{4}(?<!\w:\\\\)).*$/i],
     entry: `${__dirname}/api/index.ts`,
     output: {
       filename: 'api/index.js',
