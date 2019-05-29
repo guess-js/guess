@@ -24,7 +24,7 @@ const linkPrefetchStrategy = (url: string) => {
   link.setAttribute('rel', 'prefetch');
   link.setAttribute('href', url);
   const parentElement =
-    document.getElementsByTagName('head')[0] || document.getElementsByName('script')[0].parentNode;
+    document.head || document.getElementsByName('script')[0].parentNode;
   parentElement.appendChild(link);
 };
 
