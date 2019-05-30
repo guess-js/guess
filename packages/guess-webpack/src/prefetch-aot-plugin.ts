@@ -216,7 +216,7 @@ export class PrefetchAotPlugin {
         ? `__GUESS__.p(${newConfig[route]
             .map(
               c =>
-                `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`
+                `['${join(this._config.basePath, c.chunk)}',${c.probability}]`
             )
             .join(',')})`
         : '';
