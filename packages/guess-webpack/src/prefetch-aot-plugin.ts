@@ -15,48 +15,50 @@ const alterChunk = (
   compilation: any,
   chunkName: string,
   original: string,
-  toAlter: string
-) => {
-  return new Promise((resolve, reject) => {
-    const MemoryFileSystem = require('memory-fs');
-    const memoryFs = new MemoryFileSystem();
+  toAlter: string,
+  toBundle: boolean
+): Promise<string> => {
+  const promise: Promise<string> = !toBundle
+    ? Promise.resolve<string>(toAlter)
+    : new Promise<string>((resolve, reject) => {
+        const MemoryFileSystem = require('memory-fs');
+        const memoryFs = new MemoryFileSystem();
 
-    memoryFs.mkdirpSync('/src');
-    memoryFs.writeFileSync('/src/index.js', toAlter, 'utf-8');
-    memoryFs.writeFileSync(
-      '/src/guess-aot.js',
-      readFileSync(join(__dirname, 'guess.js')).toString(),
-      'utf-8'
-    );
+        memoryFs.mkdirpSync('/src');
+        memoryFs.writeFileSync('/src/index.js', toAlter, 'utf-8');
+        memoryFs.writeFileSync(
+          '/src/guess-aot.js',
+          readFileSync(join(__dirname, 'guess.js')).toString(),
+          'utf-8'
+        );
 
-    const compiler = require('webpack')({
-      context: '/src/',
-      mode: 'production',
-      entry: './index.js',
-      target: 'node',
-      output: {
-        filename: './output.js'
-      }
-    });
+        const compiler = require('webpack')({
+          context: '/src/',
+          mode: 'production',
+          entry: './index.js',
+          target: 'node',
+          output: {
+            filename: './output.js'
+          }
+        });
 
-    compiler.inputFileSystem = memoryFs;
-    compiler.outputFileSystem = memoryFs;
-    compiler.resolvers.normal.fileSystem = memoryFs;
-    compiler.resolvers.context.fileSystem = memoryFs;
+        compiler.inputFileSystem = memoryFs;
+        compiler.outputFileSystem = memoryFs;
+        compiler.resolvers.normal.fileSystem = memoryFs;
+        compiler.resolvers.context.fileSystem = memoryFs;
 
-    compiler.run((err: any, stats: any) => {
-      if (err) {
-        reject();
-        throw err;
-      }
+        compiler.run((err: any, stats: any) => {
+          if (err) {
+            reject();
+            throw err;
+          }
+          resolve(stats.compilation.assets['./output.js'] as string);
+        });
+      });
 
-      compilation.assets[chunkName] = new ConcatSource(
-        original,
-        '\n',
-        stats.compilation.assets['./output.js']
-      );
-      resolve();
-    });
+  return promise.then((output: string) => {
+    compilation.assets[chunkName] = new ConcatSource(original, '\n', output);
+    return output;
   });
 };
 
@@ -93,6 +95,7 @@ export class PrefetchAotPlugin {
     compilation.chunks.forEach((currentChunk: any) => {
       if (isInitial(currentChunk)) {
         main = currentChunk;
+        // console.log(main.files.filter((f: string) => f.endsWith('.js')).pop());
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
         let name = (chunk.files || [])
@@ -151,8 +154,10 @@ export class PrefetchAotPlugin {
       );
     }
 
-    const mainName = main.files.filter((f: string) => f.endsWith('.js') && f.indexOf('main') >= 0).pop() ||
-      main.files.filter((f: string) => f.endsWith('.js')).pop();
+    const mainName =
+      main.files
+        .filter((f: string) => f.endsWith('.js') && f.indexOf('main') >= 0)
+        .pop() || main.files.filter((f: string) => f.endsWith('.js')).pop();
 
     if (this._config.debug) {
       console.log('Adding prefetching logic in', mainName);
@@ -174,12 +179,15 @@ export class PrefetchAotPlugin {
       console.log('Altering the main chunk');
     }
 
+    const compilationPromises = [
+      alterChunk(compilation, mainName, old.source(), runtimeLogic, true)
+    ];
+
     if (this._config.debug) {
       console.log('Main chunk altered');
       console.log('Altering all other chunks to prefetch their neighbours');
     }
 
-    const compilationPromises: Promise<{}>[] = [];
     routeChunk['/'] = mainName;
     Object.keys(routeChunk).forEach(route => {
       const chunkName = routeChunk[route];
@@ -204,7 +212,7 @@ export class PrefetchAotPlugin {
           console.log('Nothing to prefetch from', route);
         }
       }
-      let newCode = newConfig[route]
+      const newCode = newConfig[route]
         ? `__GUESS__.p(${newConfig[route]
             .map(
               c =>
@@ -212,12 +220,30 @@ export class PrefetchAotPlugin {
             )
             .join(',')})`
         : '';
+
+      // If this is the main chunk, we want to add prefetching instructions
+      // only after the runtime is in the bundle, we don't want to overwrite it.
       if (chunkName === mainName) {
-        newCode = runtimeLogic + ';' + newCode;
+        compilationPromises[0] = compilationPromises[0].then(() =>
+          alterChunk(
+            compilation,
+            chunkName,
+            compilation.assets[chunkName].source(),
+            newCode,
+            false
+          )
+        );
+      } else {
+        compilationPromises.push(
+          alterChunk(
+            compilation,
+            chunkName,
+            currentChunk.source(),
+            newCode,
+            false
+          )
+        );
       }
-      compilationPromises.push(
-        alterChunk(compilation, chunkName, currentChunk.source(), newCode)
-      );
     });
 
     Promise.all(compilationPromises)
