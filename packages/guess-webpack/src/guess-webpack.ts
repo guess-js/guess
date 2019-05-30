@@ -1,6 +1,11 @@
 import { RouteProvider, PrefetchConfig } from './declarations';
 import { PrefetchPlugin } from './prefetch-plugin';
-import { Graph, RoutingModule, Period, ProjectLayout } from '../../common/interfaces';
+import { PrefetchAotPlugin } from './prefetch-aot-plugin';
+import {
+  Graph,
+  RoutingModule,
+  Period,
+} from '../../common/interfaces';
 import { getReport } from './ga-provider';
 
 export interface RuntimeConfig {
@@ -16,6 +21,7 @@ export interface GuessPluginConfig {
   GA?: string;
   jwt?: any;
   period?: Period;
+  debug?: boolean;
   reportProvider?: (...args: any[]) => Promise<Graph>;
 
   /** @internal */
@@ -25,6 +31,18 @@ export interface GuessPluginConfig {
   /** @internal */
   runtime?: RuntimeConfig;
 }
+
+const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
+  if (config.routeProvider === false || config.routeProvider === undefined) {
+    return Promise.resolve([]);
+  }
+  if (typeof config.routeProvider === 'function') {
+    return Promise.resolve(config.routeProvider());
+  }
+  throw new Error(
+    'The routeProvider should be either set to false or a function which returns the routes in the app.'
+  );
+};
 
 export class GuessPlugin {
   constructor(private _config: GuessPluginConfig) {
@@ -42,21 +60,21 @@ export class GuessPlugin {
   }
 
   apply(compiler: any) {
-    compiler.plugin('emit', (compilation: any, cb: any) => this._execute(compilation, cb));
+    compiler.plugin('emit', (compilation: any, cb: any) =>
+      this._execute(compilation, cb)
+    );
   }
 
   private _execute(compilation: any, cb: any) {
-    extractRoutes(this._config).then(routes => {
-      return this._getReport(routes).then(
-        data => {
-          return this._executePrefetchPlugin(data, routes, compilation, cb);
-        },
-        err => {
-          console.error(err);
-          cb();
-          throw err;
-        }
-      );
+    extractRoutes(this._config).then(async routes => {
+      try {
+        const data = await this._getReport(routes);
+        return this._executePrefetchPlugin(data, routes, compilation, cb);
+      } catch (err) {
+        console.error(err);
+        cb();
+        throw err;
+      }
     });
   }
 
@@ -74,24 +92,38 @@ export class GuessPlugin {
     }
   }
 
-  private _executePrefetchPlugin(data: Graph, routes: RoutingModule[], compilation: any, cb: any) {
+  private _executePrefetchPlugin(
+    data: Graph,
+    routes: RoutingModule[],
+    compilation: any,
+    cb: any
+  ) {
     const { runtime } = this._config;
-    new PrefetchPlugin({
-      data,
-      basePath: runtime ? (runtime.basePath === undefined ? '' : runtime.basePath) : '',
-      prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
-      routes,
-      delegate: runtime ? !!runtime.delegate : true
-    }).execute(compilation, cb);
+    if (runtime && runtime.delegate) {
+      new PrefetchPlugin({
+        data,
+        debug: this._config.debug,
+        basePath: runtime
+          ? runtime.basePath === undefined
+            ? ''
+            : runtime.basePath
+          : '',
+        prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
+        routes,
+        delegate: runtime ? !!runtime.delegate : true
+      }).execute(compilation, cb);
+    } else {
+      new PrefetchAotPlugin({
+        data,
+        debug: this._config.debug,
+        basePath: runtime
+          ? runtime.basePath === undefined
+            ? ''
+            : runtime.basePath
+          : '',
+        prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
+        routes,
+      }).execute(compilation, cb);
+    }
   }
 }
-
-const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
-  if (config.routeProvider === false || config.routeProvider === undefined) {
-    return Promise.resolve([]);
-  }
-  if (typeof config.routeProvider === 'function') {
-    return Promise.resolve(config.routeProvider());
-  }
-  throw new Error('The routeProvider should be either set to false or a function which returns the routes in the app.');
-};

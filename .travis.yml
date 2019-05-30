@@ -7,6 +7,7 @@ install: npm run bootstrap
 script:
   - npm run build
   - npm run test:ci
+  - npm run e2e
 
 git:
   depth: 5

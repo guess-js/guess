@@ -22,6 +22,7 @@ module.exports = [
       new CopyWebpackPlugin([{ from: 'index.html', to: 'index.html' }]),
       new GuessPlugin({
         runtime: {
+          delegate: true,
           basePath: ''
         },
         routeProvider: () => {

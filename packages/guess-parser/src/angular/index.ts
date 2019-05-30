@@ -310,9 +310,7 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     if (!route.parentModulePath || !route.lazy) {
       continue;
     }
-    if (route.lazy) {
-      moduleToRoute[route.modulePath] = route;
-    }
+    moduleToRoute[route.modulePath] = route;
     parentToModule[route.parentModulePath] = route;
   }
 
@@ -341,12 +339,23 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     );
   }
 
+  const map: {[key: string]: RoutingModule} = {};
   for (const route of routes) {
     const path = newRoutePaths.get(route);
     if (path) {
       route.path = path;
     }
     route.path = '/' + route.path;
+    // Saves us from cases when:
+    // - 'foo' is lazy
+    // - '' is default route in the FooModule
+    // we don't want to have once:
+    // - '/foo' for the lazy route declaration
+    // - '/foo' for the route in the lazy module
+    if (!map[route.path] || !map[route.path].lazy) {
+      map[route.path] = route;
+    }
   }
-  return routes;
+
+  return Object.keys(map).map(r => map[r]);
 };

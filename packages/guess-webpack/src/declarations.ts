@@ -61,5 +61,22 @@ export interface PrefetchNeighbor {
 }
 
 export interface PrefetchGraph {
-  [node: string]: PrefetchNeighbor[];
+  [route: string]: PrefetchNeighbor[];
+}
+
+export interface PrefetchAotNeighbor {
+  probability: number;
+  chunk: string;
+}
+
+export interface PrefetchAotGraph {
+  [route: string]: PrefetchAotNeighbor[];
+}
+
+export interface PrefetchAotPluginConfig {
+  debug?: boolean;
+  data: Graph;
+  basePath: string;
+  prefetchConfig?: PrefetchConfig;
+  routes: RoutingModule[];
 }

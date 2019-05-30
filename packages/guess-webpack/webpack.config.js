@@ -68,6 +68,20 @@ module.exports = [
   ),
   Object.assign(
     {
+      entry: {
+        guess: './src/aot/guess-aot.ts'
+      },
+      target: 'node',
+      output: {
+        filename: '[name].js',
+        path: __dirname + '/dist/guess-webpack/',
+        libraryTarget: 'commonjs'
+      }
+    },
+    common
+  ),
+  Object.assign(
+    {
       entry: './index.ts',
       output: {
         filename: 'main.js',
@@ -82,7 +96,7 @@ module.exports = [
       plugins: [
         new CopyWebpackPlugin([
           { from: './src/runtime/runtime.tpl', to: 'runtime.tpl' },
-          { from: './src/runtime/guess.tpl', to: 'guess.tpl' }
+          { from: './src/aot/aot.tpl', to: 'aot.tpl' }
         ])
       ]
     },

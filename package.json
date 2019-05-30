@@ -7,6 +7,7 @@
     "bootstrap": "npm i && lerna bootstrap",
     "build": "lerna run build",
     "publish": "lerna publish",
+    "e2e": "ts-node infra/e2e.ts",
     "test": "ts-node infra/test.ts --watch",
     "pretest": "ts-node infra/pretest.ts",
     "test:ci": "ts-node infra/pretest.ts && ts-node infra/test.ts",

@@ -1,16 +1,6 @@
 import { CompressedPrefetchGraph, CompressedGraphMap, PrefetchConfig } from '../declarations';
 import { guess, initialize as initializeGuess } from './guess';
 
-const handleNavigationChange = (basePath: string, path: string) => {
-  const predictions = guess({ path });
-  Object.keys(predictions).forEach(currentPath => {
-    const chunk = predictions[currentPath].chunk;
-    if (chunk) {
-      prefetch(basePath, chunk);
-    }
-  });
-};
-
 const support = (feature: string) => {
   if (typeof document === 'undefined') {
     return false;
@@ -54,6 +44,16 @@ const prefetch = (basePath: string, url: string) => {
   supportedPrefetchStrategy(url);
 };
 
+const handleNavigationChange = (basePath: string, path: string) => {
+  const predictions = guess({ path });
+  Object.keys(predictions).forEach(currentPath => {
+    const chunk = predictions[currentPath].chunk;
+    if (chunk) {
+      prefetch(basePath, chunk);
+    }
+  });
+};
+
 export const initialize = (
   history: History,
   global: any,
@@ -62,7 +62,7 @@ export const initialize = (
   basePath: string,
   thresholds: PrefetchConfig
 ) => {
-  initializeGuess(global, graph, map, thresholds);
+  initializeGuess(global, thresholds, graph, map);
 
   if (typeof global.addEventListener === 'function') {
     global.addEventListener('popstate', (e: any) =>
