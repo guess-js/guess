@@ -60,7 +60,10 @@ export class GuessPlugin {
   }
 
   apply(compiler: any) {
-    compiler.plugin('emit', (compilation: any, cb: any) =>
+    compiler.hooks.emit.tapAsync({
+      stage: 0,
+      name: 'GuessPlugin'
+    }, (compilation: any, cb: any) =>
       this._execute(compilation, cb)
     );
   }
