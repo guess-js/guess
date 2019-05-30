@@ -51,7 +51,7 @@ export interface BundleEntryNeighbor {
 }
 
 export interface BundleEntryGraph {
-  [node: string]: BundleEntryNeighbor[];
+  [route: string]: BundleEntryNeighbor[];
 }
 
 export interface PrefetchNeighbor {

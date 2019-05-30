@@ -1,12 +1,9 @@
 import { readFileSync } from 'fs';
 import {
-  PrefetchConfig,
   PrefetchPluginConfig,
   PrefetchGraph,
   PrefetchNeighbor,
-  BundleEntryGraph
 } from './declarations';
-import { Graph, RoutingModule } from '../../common/interfaces';
 import { compressGraph } from './compress';
 import { join } from 'path';
 import { isInitial, defaultPrefetchConfig, buildMap } from './utils';
