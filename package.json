@@ -39,7 +39,7 @@
     "chalk": "2.4.2",
     "copy-webpack-plugin": "5.0.3",
     "jest": "24.8.0",
-    "jest-puppeteer": "3.9.1",
+    "jest-puppeteer": "4.2.0",
     "lerna": "3.14.1",
     "meow": "5.0.0",
     "prompt-confirm": "1.2.0",
