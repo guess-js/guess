@@ -31,6 +31,6 @@
     "path": "0.12.7",
     "puppeteer": "1.2.0",
     "standard": "11.0.1",
-    "supertest": "3.0.0"
+    "supertest": "3.4.2"
   }
 }
