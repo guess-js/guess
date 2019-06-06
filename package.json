@@ -42,7 +42,7 @@
     "jest-puppeteer": "3.9.1",
     "lerna": "3.14.1",
     "meow": "5.0.0",
-    "prompt-confirm": "1.2.0",
+    "prompt-confirm": "2.0.4",
     "puppeteer": "1.15.0",
     "raw-loader": "0.5.1",
     "static-server": "2.2.1",
