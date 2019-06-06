@@ -44,7 +44,7 @@
     "meow": "5.0.0",
     "prompt-confirm": "2.0.4",
     "puppeteer": "1.15.0",
-    "raw-loader": "0.5.1",
+    "raw-loader": "3.0.0",
     "static-server": "2.2.1",
     "ts-jest": "24.0.2",
     "ts-loader": "4.5.0",
