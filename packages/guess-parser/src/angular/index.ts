@@ -113,8 +113,9 @@ const getModuleEntryPoint = (
   program: ts.Program
 ): string => {
   const parents = [...entryPoints].filter(e => imports(e, path, program));
+  // If no parents, this could be the root module
   if (parents.length === 0) {
-    throw new Error('Cannot find the entry point for ' + path);
+    return path;
   }
   if (parents.length > 1) {
     throw new Error(`Module ${path} belongs to more than one module: ${parents.join(', ')}`);
