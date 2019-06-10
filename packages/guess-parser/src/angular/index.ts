@@ -268,6 +268,7 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   );
 
   const host = ts.createCompilerHost(parsed.options, true);
+
   const program = ts.createProgram(parsed.fileNames, parsed.options, host);
   const routes: RoutingModule[] = [];
 

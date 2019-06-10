@@ -18,7 +18,7 @@ export const parseRoutes = (base: string) => {
     throw new Error('Cannot detect the application type');
   }
   if (app.type === ProjectType.AngularCLI && app.details && app.details.tsconfigPath) {
-    result = ngParseRoutes(app.details.tsconfigPath);
+    result = ngParseRoutes(join(base, app.details.tsconfigPath));
   }
   if (app.type === ProjectType.CreateReactAppTypeScript && app.details && app.details.tsconfigPath) {
     result = parseReactTSXRoutes(app.details.tsconfigPath);
