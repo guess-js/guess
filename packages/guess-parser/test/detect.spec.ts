@@ -6,6 +6,10 @@ describe('detect', () => {
     it('should detect an Angular app', () => {
       expect(detect('packages/guess-parser/test/fixtures/angular')!.type).toBe(ProjectType.AngularCLI);
     });
+
+    it('should detect an Angular version 8 app', () => {
+      expect(detect('packages/guess-parser/test/fixtures/ng8')!.type).toBe(ProjectType.AngularCLI);
+    });
   });
 
   describe('create-react-app', () => {

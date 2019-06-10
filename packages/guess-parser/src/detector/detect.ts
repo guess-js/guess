@@ -18,13 +18,19 @@ export const detect = (base: string): ProjectMetadata | undefined => {
   const exists = (file: string) => existsSync(join(base, file));
   const d = dep(content);
   const dd = devDep(content);
-  if (dd('@angular/cli') && exists(join('src', 'tsconfig.app.json'))) {
+  const tsconfig = 'tsconfig.app.json';
+  const srcTsConfig = join('src', tsconfig);
+  if (dd('@angular/cli') && (exists(srcTsConfig) || exists(tsconfig))) {
+    let tsconfigPath = tsconfig;
+    if (exists(srcTsConfig)) {
+      tsconfigPath = srcTsConfig;
+    }
     return {
       type: ProjectType.AngularCLI,
       version: dd('@angular/cli'),
       details: {
         typescript: dd('typescript'),
-        tsconfigPath: join(base, 'src', 'tsconfig.app.json'),
+        tsconfigPath,
         sourceDir: 'src'
       }
     };
