@@ -18,6 +18,7 @@ describe('parseRoutes', () => {
       expect(
         () => (routes = parseRoutes('packages/guess-parser/test/fixtures/angular'))
       ).not.toThrow();
+      console.log(routes);
       expect(
         routes.map(r => r.path).reduce((c, route) => c && angularFixtureRoutes.has(route), true)
       ).toEqual(true);

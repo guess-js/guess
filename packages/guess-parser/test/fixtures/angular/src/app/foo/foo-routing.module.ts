@@ -6,6 +6,7 @@ const baz = 'baz';
 const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
     component: FooComponent
   },
   {

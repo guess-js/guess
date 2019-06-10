@@ -2,6 +2,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-component',
-  template: 'bar-component'
+  template: 'Bar Simple'
 })
-export class BarComponent {}
+export class BarSimpleComponent {}

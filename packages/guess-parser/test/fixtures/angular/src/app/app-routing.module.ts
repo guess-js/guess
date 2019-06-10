@@ -1,16 +1,20 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { BarComponent } from './bar/bar.component';
+import { BarSimpleComponent } from './bar-simple.component';
 
-const module = 'foo/foo.module';
+const module = './foo/foo.module';
 const routes: Routes = [
   {
     path: 'fo' + 'o',
-    loadChildren: () => import(module).then(e => e.foo)
+    loadChildren: () => import(module).then(e => e.FooModule)
   },
   {
     path: 'bar',
-    component: BarComponent
+    loadChildren: () => import('./bar/bar.module').then(m => m.BarModule)
+  },
+  {
+    path: 'bar-simple',
+    component: BarSimpleComponent
   },
   {
     path: '',
@@ -20,6 +24,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
+  declarations: [BarSimpleComponent],
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })

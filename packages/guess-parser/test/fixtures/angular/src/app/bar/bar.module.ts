@@ -1,8 +1,14 @@
 import { NgModule } from '@angular/core';
-import { BarComponent } from './bar.component';
+import { RouterModule } from '@angular/router';
 
 @NgModule({
-  declarations: [BarComponent],
-  providers: []
+  imports: [
+    RouterModule.forChild([
+      {
+        path: 'baz',
+        loadChildren: () => import('./baz/baz.module').then(m => m.BazModule)
+      }
+    ])
+  ]
 })
 export class BarModule {}
