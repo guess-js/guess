@@ -107,6 +107,13 @@ const imports = (parent: string, child: string, program: ts.Program) => {
   return found;
 };
 
+// This can potentially break if there's a lazy module
+// that is not only loaded lazily but also imported
+// inside of a parent module.
+//
+// For example, `app.module.ts` lazily loads `bar.module.ts`
+// in the same time `app.module.ts` imports `bar.module.ts`
+// this way the module entry point will be `app.module.ts`.
 const getModuleEntryPoint = (
   path: string,
   entryPoints: Set<string>,

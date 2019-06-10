@@ -6,8 +6,9 @@ const angularFixtureRoutes = new Set<string>([
   '/foo',
   '/foo/baz',
   '/foo/index',
-  '/foo/baz',
-  '/foo/baz/index'
+  '/foo/baz/index',
+  '/bar/baz',
+  '/bar-simple'
 ]);
 const reactFixtureRoutes = new Set<string>(['/', '/intro', '/main', '/main/kid', '/main/parent']);
 
@@ -18,10 +19,9 @@ describe('parseRoutes', () => {
       expect(
         () => (routes = parseRoutes('packages/guess-parser/test/fixtures/angular'))
       ).not.toThrow();
-      console.log(routes);
       expect(
         routes.map(r => r.path).reduce((c, route) => c && angularFixtureRoutes.has(route), true)
-      ).toEqual(true);
+      ).toBe(true);
       expect(routes.length).toEqual(angularFixtureRoutes.size);
     });
   });

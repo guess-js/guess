@@ -5,8 +5,9 @@ const fixtureRoutes = new Set<string>([
   '/foo',
   '/foo/baz',
   '/foo/index',
-  '/foo/baz',
-  '/foo/baz/index'
+  '/foo/baz/index',
+  '/bar/baz',
+  '/bar-simple'
 ]);
 
 describe('Angular parser', () => {
