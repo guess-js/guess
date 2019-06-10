@@ -45,7 +45,7 @@
     ]
   },
   "devDependencies": {
-    "ts-loader": "4.5.0",
+    "ts-loader": "6.0.2",
     "typescript": "3.4.5"
   },
   "scripts": {
