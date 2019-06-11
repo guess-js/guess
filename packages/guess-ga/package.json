@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
-    "googleapis": "^26.0.1"
+    "googleapis": "^40.0.0"
   },
   "files": [
     "dist"
