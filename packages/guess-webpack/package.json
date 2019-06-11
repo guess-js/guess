@@ -25,7 +25,7 @@
   "dependencies": {
     "copy-webpack-plugin": "^5.0.0",
     "flat-cache": "^2.0.0",
-    "google-oauth2-node": "0.0.2",
+    "google-oauth2-node": "0.0.3",
     "googleapis": "^40.0.0",
     "guess-ga": "^0.3.2",
     "lodash.template": "^4.4.0",
