@@ -1,9 +1,5 @@
 import { readFileSync } from 'fs';
-import {
-  PrefetchAotGraph,
-  PrefetchAotNeighbor,
-  PrefetchAotPluginConfig
-} from './declarations';
+import { PrefetchAotGraph, PrefetchAotNeighbor, PrefetchAotPluginConfig } from './declarations';
 
 import { join } from 'path';
 import { isInitial, buildMap, defaultPrefetchConfig } from './utils';
@@ -67,9 +63,7 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
   if (chunk.groupsIterable) {
     blocks = Array.from(chunk.groupsIterable).reduce(
       (prev: any[], group: any) =>
-        prev.concat(
-          group.getBlocks().map((block: any) => ({ chunk: group, block }))
-        ),
+        prev.concat(group.getBlocks().map((block: any) => ({ chunk: group, block }))),
       []
     );
   } else {
@@ -98,9 +92,7 @@ export class PrefetchAotPlugin {
         // console.log(main.files.filter((f: string) => f.endsWith('.js')).pop());
       }
       forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        let name = (chunk.files || [])
-          .filter((f: string) => f.endsWith('.js'))
-          .pop();
+        let name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
         if (!name && chunk.chunks && chunk.chunks[0]) {
           name = chunk.chunks[0].files[0];
         }
@@ -109,10 +101,7 @@ export class PrefetchAotPlugin {
     });
 
     if (this._config.debug) {
-      console.log(
-        'Mapping between chunk name and entry point',
-        JSON.stringify(fileChunk, null, 2)
-      );
+      console.log('Mapping between chunk name and entry point', JSON.stringify(fileChunk, null, 2));
     }
 
     if (!main) {
@@ -122,11 +111,7 @@ export class PrefetchAotPlugin {
 
     const newConfig: PrefetchAotGraph = {};
     const routeChunk: { [route: string]: string } = {};
-    const initialGraph = buildMap(
-      this._config.routes,
-      this._config.data,
-      !!this._config.debug
-    );
+    const initialGraph = buildMap(this._config.routes, this._config.data, !!this._config.debug);
     if (this._config.debug) {
       console.log(
         'Initial mapping between routes and probability',
@@ -148,16 +133,12 @@ export class PrefetchAotPlugin {
     if (this._config.debug) {
       console.log('Built the model', JSON.stringify(newConfig, null, 2));
       console.log('File to chunk mapping', JSON.stringify(fileChunk, null, 2));
-      console.log(
-        'Route to chunk mapping is',
-        JSON.stringify(routeChunk, null, 2)
-      );
+      console.log('Route to chunk mapping is', JSON.stringify(routeChunk, null, 2));
     }
 
     const mainName =
-      main.files
-        .filter((f: string) => f.endsWith('.js') && f.indexOf('main') >= 0)
-        .pop() || main.files.filter((f: string) => f.endsWith('.js')).pop();
+      main.files.filter((f: string) => f.endsWith('.js') && f.indexOf('main') >= 0).pop() ||
+      main.files.filter((f: string) => f.endsWith('.js')).pop();
 
     if (this._config.debug) {
       console.log('Adding prefetching logic in', mainName);
@@ -165,9 +146,7 @@ export class PrefetchAotPlugin {
     const old = compilation.assets[mainName];
 
     const codeTemplate = 'aot.tpl';
-    const runtimeTemplate = readFileSync(
-      join(__dirname, codeTemplate)
-    ).toString();
+    const runtimeTemplate = readFileSync(join(__dirname, codeTemplate)).toString();
 
     const runtimeLogic = template(runtimeTemplate)({
       THRESHOLDS: JSON.stringify(
@@ -189,59 +168,46 @@ export class PrefetchAotPlugin {
     }
 
     routeChunk['/'] = mainName;
+
+    const generateNeighbors = (route: string, c: PrefetchAotNeighbor) => {
+      if (!c.chunk) {
+        if (this._config.debug) {
+          console.warn('Cannot find chunk name for', c, 'from route', route);
+        }
+        return false;
+      }
+      return `['${join(this._config.basePath, c.chunk)}',${c.probability}]`;
+    };
+
     Object.keys(routeChunk).forEach(route => {
       const chunkName = routeChunk[route];
       const currentChunk = compilation.assets[chunkName];
       if (!currentChunk) {
         callback();
-        console.warn(
-          `Cannot find the chunk "${chunkName}" for route "${route}"`
-        );
+        console.warn(`Cannot find the chunk "${chunkName}" for route "${route}"`);
         return;
       }
+      const neighbors = (newConfig[route] || [])
+        .map(generateNeighbors.bind(null, route))
+        .filter(Boolean);
       if (this._config.debug) {
         if (newConfig[route]) {
-          console.log(
-            'Adding',
-            newConfig[route].map(
-              c =>
-                `['${join(this._config.basePath, c.chunk)}', ${c.probability}]`
-            )
-          );
+          console.log('Adding', neighbors);
         } else {
           console.log('Nothing to prefetch from', route);
         }
       }
-      const newCode = newConfig[route]
-        ? `__GUESS__.p(${newConfig[route]
-            .map(
-              c =>
-                `['${join(this._config.basePath, c.chunk)}',${c.probability}]`
-            )
-            .join(',')})`
-        : '';
+      const newCode = newConfig[route] ? `__GUESS__.p(${neighbors.join(',')})` : '';
 
       // If this is the main chunk, we want to add prefetching instructions
       // only after the runtime is in the bundle, we don't want to overwrite it.
       if (chunkName === mainName) {
         compilationPromises[0] = compilationPromises[0].then(() =>
-          alterChunk(
-            compilation,
-            chunkName,
-            compilation.assets[chunkName].source(),
-            newCode,
-            false
-          )
+          alterChunk(compilation, chunkName, compilation.assets[chunkName].source(), newCode, false)
         );
       } else {
         compilationPromises.push(
-          alterChunk(
-            compilation,
-            chunkName,
-            currentChunk.source(),
-            newCode,
-            false
-          )
+          alterChunk(compilation, chunkName, currentChunk.source(), newCode, false)
         );
       }
     });
