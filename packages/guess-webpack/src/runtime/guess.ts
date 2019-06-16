@@ -31,7 +31,6 @@ export interface Navigations {
   [key: string]: Navigation;
 }
 
-
 const matchRoute = (route: string, declaration: string) => {
   const routeParts = route.split('/');
   const declarationParts = declaration.split('/');
@@ -106,18 +105,11 @@ export let guess: GuessFn = (params?: Partial<GuessFnParams>): Navigations => {
   throw new Error('Guess is not initialized');
 };
 
-const getEffectiveType = (global: any): ConnectionEffectiveType => {
-  if (!global.navigator || !global.navigator || !global.navigator.connection) {
-    return '3g';
-  }
-  return global.navigator.connection.effectiveType || '3g';
-};
-
 export const initialize = (
   global: any,
   thresholds: PrefetchConfig,
   compressed: CompressedPrefetchGraph,
-  map: CompressedGraphMap,
+  map: CompressedGraphMap
 ) => {
   const graph = new Graph(compressed, map);
   global.__GUESS__ = global.__GUESS__ || {};
@@ -127,7 +119,10 @@ export const initialize = (
       params.path = (global.location || { pathname: '' }).pathname;
     }
     if (!params.connection) {
-      params.connection = getEffectiveType(global);
+      params.connection =
+        !global.navigator || !global.navigator || !global.navigator.connection
+          ? '3g'
+          : global.navigator.connection.effectiveType || '3g';
     }
     if (!params.thresholds) {
       params.thresholds = thresholds;

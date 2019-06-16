@@ -26,7 +26,7 @@ const alterChunk = (
         memoryFs.writeFileSync('/src/index.js', toAlter, 'utf-8');
         memoryFs.writeFileSync(
           '/src/guess-aot.js',
-          readFileSync(join(__dirname, 'guess.js')).toString(),
+          readFileSync(join(__dirname, 'guess-aot.js')).toString(),
           'utf-8'
         );
 
@@ -171,11 +171,7 @@ export class PrefetchAotPlugin {
 
     routeChunk['/'] = mainName;
 
-    const tableOutput: any[] = [[
-      'Prefetcher',
-      'Target',
-      'Probability'
-    ]];
+    const tableOutput: any[] = [['Prefetcher', 'Target', 'Probability']];
     const generateNeighbors = (route: string, currentChunk: string, c: PrefetchAotNeighbor) => {
       if (!c.chunk) {
         if (this._config.debug) {
@@ -183,11 +179,7 @@ export class PrefetchAotPlugin {
         }
         return false;
       }
-      tableOutput.push([
-        currentChunk,
-        c.chunk,
-        c.probability
-      ]);
+      tableOutput.push([currentChunk, c.chunk, c.probability]);
       return `['${join(this._config.basePath, c.chunk)}',${c.probability}]`;
     };
 

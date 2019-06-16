@@ -69,7 +69,7 @@ module.exports = [
   Object.assign(
     {
       entry: {
-        guess: './src/aot/guess-aot.ts'
+        'guess-aot': './src/aot/guess-aot.ts'
       },
       target: 'node',
       output: {
@@ -87,6 +87,9 @@ module.exports = [
         filename: 'main.js',
         path: __dirname + '/dist/guess-webpack/',
         libraryTarget: 'umd'
+      },
+      optimization: {
+        minimize: false
       },
       target: 'node',
       node: {

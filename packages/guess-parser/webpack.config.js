@@ -6,6 +6,9 @@ module.exports = {
     filename: './guess-parser/index.js',
     libraryTarget: 'umd'
   },
+  optimization: {
+    minimize: false
+  },
   externals: [/^(@|\w{3}(?<!\w:\\)).*$/i],
   resolve: {
     // Add `.ts` and `.tsx` as a resolvable extension.

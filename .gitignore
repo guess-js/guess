@@ -8,3 +8,5 @@ tmp-*
 .esm-cache/
 dist
 lerna-debug.log
+*.d.ts
+
