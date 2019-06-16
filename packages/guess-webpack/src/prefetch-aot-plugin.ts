@@ -224,7 +224,7 @@ export class PrefetchAotPlugin {
       }
     });
 
-    console.log(chalk.blue('\n🔮 Guess.js introduced the following prefetching instructions:'));
+    console.log(chalk.blue('\n\n\n🔮 Guess.js introduced the following prefetching instructions:'));
     console.log(table(tableOutput));
 
     Promise.all(compilationPromises)
