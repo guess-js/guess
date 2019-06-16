@@ -2,6 +2,8 @@ import { readFileSync } from 'fs';
 import { PrefetchAotGraph, PrefetchAotNeighbor, PrefetchAotPluginConfig } from './declarations';
 
 import { join } from 'path';
+import { table } from 'table';
+import chalk from 'chalk';
 import { isInitial, buildMap, defaultPrefetchConfig } from './utils';
 
 const template = require('lodash.template');
@@ -169,13 +171,23 @@ export class PrefetchAotPlugin {
 
     routeChunk['/'] = mainName;
 
-    const generateNeighbors = (route: string, c: PrefetchAotNeighbor) => {
+    const tableOutput: any[] = [[
+      'Prefetcher',
+      'Target',
+      'Probability'
+    ]];
+    const generateNeighbors = (route: string, currentChunk: string, c: PrefetchAotNeighbor) => {
       if (!c.chunk) {
         if (this._config.debug) {
           console.warn('Cannot find chunk name for', c, 'from route', route);
         }
         return false;
       }
+      tableOutput.push([
+        currentChunk,
+        c.chunk,
+        c.probability
+      ]);
       return `['${join(this._config.basePath, c.chunk)}',${c.probability}]`;
     };
 
@@ -188,7 +200,7 @@ export class PrefetchAotPlugin {
         return;
       }
       const neighbors = (newConfig[route] || [])
-        .map(generateNeighbors.bind(null, route))
+        .map(generateNeighbors.bind(null, route, chunkName))
         .filter(Boolean);
       if (this._config.debug) {
         if (newConfig[route]) {
@@ -211,6 +223,9 @@ export class PrefetchAotPlugin {
         );
       }
     });
+
+    console.log(chalk.blue('\n🔮 Guess.js introduced the following prefetching instructions:'));
+    console.log(table(tableOutput));
 
     Promise.all(compilationPromises)
       .then(() => {

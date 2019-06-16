@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
+    "chalk": "^2.4.2",
     "copy-webpack-plugin": "^5.0.0",
     "flat-cache": "^2.0.0",
     "google-oauth2-node": "0.0.3",
@@ -32,6 +33,7 @@
     "rollup": "^1.0.0",
     "rollup-plugin-hypothetical": "^2.1.0",
     "rollup-plugin-typescript": "^1.0.0",
+    "table": "^5.4.1",
     "webpack": "^4.14.0"
   },
   "files": [
@@ -53,6 +55,8 @@
     ]
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
+    "@types/table": "^4.0.5",
     "ts-loader": "6.0.2",
     "typescript": "3.5.2"
   },
