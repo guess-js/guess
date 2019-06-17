@@ -46,7 +46,7 @@
     ]
   },
   "devDependencies": {
-    "ts-loader": "6.0.2"
+    "ts-loader": "6.0.3"
   },
   "scripts": {
     "build": "webpack"
