@@ -51,7 +51,7 @@
     "ts-node": "8.3.0",
     "tslint": "5.18.0",
     "typescript": "3.5.2",
-    "webpack": "4.19.0",
+    "webpack": "4.35.3",
     "webpack-cli": "3.3.5"
   },
   "dependencies": {
