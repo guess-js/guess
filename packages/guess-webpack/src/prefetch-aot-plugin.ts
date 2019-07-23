@@ -1,10 +1,19 @@
 import { readFileSync } from 'fs';
-import { PrefetchAotGraph, PrefetchAotNeighbor, PrefetchAotPluginConfig } from './declarations';
+import {
+  PrefetchAotGraph,
+  PrefetchAotNeighbor,
+  PrefetchAotPluginConfig
+} from './declarations';
 
 import { join } from 'path';
 import { table } from 'table';
 import chalk from 'chalk';
-import { isInitial, buildMap, defaultPrefetchConfig } from './utils';
+import {
+  buildMap,
+  defaultPrefetchConfig,
+  getCompilationMapping,
+  stripExtension
+} from './utils';
 
 const template = require('lodash.template');
 const ConcatSource = require('webpack-sources').ConcatSource;
@@ -65,7 +74,9 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
   if (chunk.groupsIterable) {
     blocks = Array.from(chunk.groupsIterable).reduce(
       (prev: any[], group: any) =>
-        prev.concat(group.getBlocks().map((block: any) => ({ chunk: group, block }))),
+        prev.concat(
+          group.getBlocks().map((block: any) => ({ chunk: group, block }))
+        ),
       []
     );
   } else {
@@ -85,35 +96,50 @@ export class PrefetchAotPlugin {
     if (this._config.debug) {
       console.log('Inside PrefetchAotPlugin');
     }
-    const fileChunk: { [path: string]: string } = {};
 
-    let main: any = null;
-    compilation.chunks.forEach((currentChunk: any) => {
-      if (isInitial(currentChunk)) {
-        main = currentChunk;
-        // console.log(main.files.filter((f: string) => f.endsWith('.js')).pop());
-      }
-      forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        let name = (chunk.files || []).filter((f: string) => f.endsWith('.js')).pop();
-        if (!name && chunk.chunks && chunk.chunks[0]) {
-          name = chunk.chunks[0].files[0];
-        }
-        fileChunk[block.dependencies[0].module.userRequest] = name;
-      });
-    });
+    let mainName: string | null = null;
+    let fileChunk: { [key: string]: string } = {};
 
-    if (this._config.debug) {
-      console.log('Mapping between chunk name and entry point', JSON.stringify(fileChunk, null, 2));
+    try {
+      const res = getCompilationMapping(
+        compilation,
+        new Set(this._config.routes.map(r => stripExtension(r.modulePath))),
+        this._config.debug
+      );
+      mainName = res.mainName;
+      fileChunk = res.fileChunk;
+    } catch (e) {
+      callback();
+      console.error(e);
     }
 
-    if (!main) {
+    if (this._config.debug) {
+      console.log(
+        'Mapping between chunk name and entry point',
+        JSON.stringify(fileChunk, null, 2)
+      );
+    }
+
+    if (!mainName) {
       callback();
       throw new Error('Cannot find the main chunk of the application');
     }
 
     const newConfig: PrefetchAotGraph = {};
     const routeChunk: { [route: string]: string } = {};
-    const initialGraph = buildMap(this._config.routes, this._config.data, !!this._config.debug);
+    const initialGraph = buildMap(
+      this._config.routes.map(r => {
+        return {
+          ...r,
+          modulePath: stripExtension(r.modulePath),
+          parentModulePath: r.parentModulePath
+            ? stripExtension(r.parentModulePath)
+            : null
+        };
+      }),
+      this._config.data,
+      !!this._config.debug
+    );
     if (this._config.debug) {
       console.log(
         'Initial mapping between routes and probability',
@@ -135,12 +161,11 @@ export class PrefetchAotPlugin {
     if (this._config.debug) {
       console.log('Built the model', JSON.stringify(newConfig, null, 2));
       console.log('File to chunk mapping', JSON.stringify(fileChunk, null, 2));
-      console.log('Route to chunk mapping is', JSON.stringify(routeChunk, null, 2));
+      console.log(
+        'Route to chunk mapping is',
+        JSON.stringify(routeChunk, null, 2)
+      );
     }
-
-    const mainName =
-      main.files.filter((f: string) => f.endsWith('.js') && f.indexOf('main') >= 0).pop() ||
-      main.files.filter((f: string) => f.endsWith('.js')).pop();
 
     if (this._config.debug) {
       console.log('Adding prefetching logic in', mainName);
@@ -148,7 +173,9 @@ export class PrefetchAotPlugin {
     const old = compilation.assets[mainName];
 
     const codeTemplate = 'aot.tpl';
-    const runtimeTemplate = readFileSync(join(__dirname, codeTemplate)).toString();
+    const runtimeTemplate = readFileSync(
+      join(__dirname, codeTemplate)
+    ).toString();
 
     const runtimeLogic = template(runtimeTemplate)({
       THRESHOLDS: JSON.stringify(
@@ -172,7 +199,11 @@ export class PrefetchAotPlugin {
     routeChunk['/'] = mainName;
 
     const tableOutput: any[] = [['Prefetcher', 'Target', 'Probability']];
-    const generateNeighbors = (route: string, currentChunk: string, c: PrefetchAotNeighbor) => {
+    const generateNeighbors = (
+      route: string,
+      currentChunk: string,
+      c: PrefetchAotNeighbor
+    ) => {
       if (!c.chunk) {
         if (this._config.debug) {
           console.warn('Cannot find chunk name for', c, 'from route', route);
@@ -188,7 +219,9 @@ export class PrefetchAotPlugin {
       const currentChunk = compilation.assets[chunkName];
       if (!currentChunk) {
         callback();
-        console.warn(`Cannot find the chunk "${chunkName}" for route "${route}"`);
+        console.warn(
+          `Cannot find the chunk "${chunkName}" for route "${route}"`
+        );
         return;
       }
       const neighbors = (newConfig[route] || [])
@@ -201,22 +234,40 @@ export class PrefetchAotPlugin {
           console.log('Nothing to prefetch from', route);
         }
       }
-      const newCode = newConfig[route] ? `__GUESS__.p(${neighbors.join(',')})` : '';
+      const newCode = newConfig[route]
+        ? `__GUESS__.p(${neighbors.join(',')})`
+        : '';
 
       // If this is the main chunk, we want to add prefetching instructions
       // only after the runtime is in the bundle, we don't want to overwrite it.
       if (chunkName === mainName) {
         compilationPromises[0] = compilationPromises[0].then(() =>
-          alterChunk(compilation, chunkName, compilation.assets[chunkName].source(), newCode, false)
+          alterChunk(
+            compilation,
+            chunkName,
+            compilation.assets[chunkName].source(),
+            newCode,
+            false
+          )
         );
       } else {
         compilationPromises.push(
-          alterChunk(compilation, chunkName, currentChunk.source(), newCode, false)
+          alterChunk(
+            compilation,
+            chunkName,
+            currentChunk.source(),
+            newCode,
+            false
+          )
         );
       }
     });
 
-    console.log(chalk.blue('\n\n\n🔮 Guess.js introduced the following prefetching instructions:'));
+    console.log(
+      chalk.blue(
+        '\n\n\n🔮 Guess.js introduced the following prefetching instructions:'
+      )
+    );
     console.log(table(tableOutput));
 
     Promise.all(compilationPromises)

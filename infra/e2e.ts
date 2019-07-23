@@ -27,3 +27,8 @@ if (mainModule.indexOf('__GUESS__.p(') < 0 && mainModule.indexOf('__GUESS__.p=')
   console.error('Unable to find runtime or initial prefetching instruction');
   process.exit(1);
 }
+
+// Prod build should work
+execSync(
+  `${enterTest} && ./node_modules/.bin/ng build --prod --extra-webpack-config webpack.extra.js`
+);

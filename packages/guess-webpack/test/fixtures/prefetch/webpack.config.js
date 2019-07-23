@@ -26,7 +26,7 @@ module.exports = [
           basePath: ''
         },
         routeProvider: () => {
-          return [
+          return Promise.resolve([
             {
               path: '/home',
               modulePath: absolute('home.js'),
@@ -45,7 +45,7 @@ module.exports = [
               parentModulePath: absolute('index.js'),
               lazy: true
             }
-          ];
+          ]);
         },
         reportProvider() {
           return Promise.resolve({

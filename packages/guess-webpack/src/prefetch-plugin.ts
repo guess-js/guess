@@ -2,30 +2,19 @@ import { readFileSync } from 'fs';
 import {
   PrefetchPluginConfig,
   PrefetchGraph,
-  PrefetchNeighbor,
+  PrefetchNeighbor
 } from './declarations';
 import { compressGraph } from './compress';
 import { join } from 'path';
-import { isInitial, defaultPrefetchConfig, buildMap } from './utils';
+import {
+  defaultPrefetchConfig,
+  buildMap,
+  getCompilationMapping,
+  stripExtension
+} from './utils';
 
 const template = require('lodash.template');
 const ConcatSource = require('webpack-sources').ConcatSource;
-
-const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
-  let blocks: any[] = [];
-  if (chunk.groupsIterable) {
-    blocks = Array.from(chunk.groupsIterable).reduce(
-      (prev: any[], group: any) =>
-        prev.concat(
-          group.getBlocks().map((block: any) => ({ chunk: group, block }))
-        ),
-      []
-    );
-  } else {
-    blocks = (chunk.blocks || []).map((block: any) => ({ chunk, block }));
-  }
-  blocks.forEach(cb);
-};
 
 export class PrefetchPlugin {
   constructor(private _config: PrefetchPluginConfig) {
@@ -35,31 +24,39 @@ export class PrefetchPlugin {
   }
 
   execute(compilation: any, callback: any) {
-    const fileChunk: { [path: string]: string } = {};
+    let mainName: string | null = null;
+    let fileChunk: { [key: string]: string } = {};
 
-    let main: any = null;
-    compilation.chunks.forEach((currentChunk: any) => {
-      if (isInitial(currentChunk)) {
-        main = currentChunk;
-      }
-      forEachBlock(currentChunk, ({ block, chunk }: any) => {
-        let name = (chunk.files || [])
-          .filter((f: string) => f.endsWith('.js'))
-          .pop();
-        if (!name && chunk.chunks && chunk.chunks[0]) {
-          name = chunk.chunks[0].files[0];
-        }
-        fileChunk[block.dependencies[0].module.userRequest] = name;
-      });
-    });
+    try {
+      const res = getCompilationMapping(
+        compilation,
+        new Set(this._config.routes.map(r => stripExtension(r.modulePath))),
+        this._config.debug
+      );
+      mainName = res.mainName;
+      fileChunk = res.fileChunk;
+    } catch (e) {
+      callback();
+      console.error(e);
+    }
 
-    if (!main) {
+    if (mainName === null) {
       callback();
       throw new Error('Cannot find the main chunk of the application');
     }
 
     const newConfig: PrefetchGraph = {};
-    const initialGraph = buildMap(this._config.routes, this._config.data, !!this._config.debug);
+    const initialGraph = buildMap(
+      this._config.routes.map(r => {
+        return {
+          ...r,
+          modulePath: stripExtension(r.modulePath),
+          parentModulePath: r.parentModulePath ? stripExtension(r.parentModulePath) : null
+        };
+      }),
+      this._config.data,
+      !!this._config.debug
+    );
     Object.keys(initialGraph).forEach(c => {
       newConfig[c] = [];
       initialGraph[c].forEach(p => {
@@ -72,7 +69,6 @@ export class PrefetchPlugin {
       });
     });
 
-    const mainName = main.files.filter((f: string) => f.endsWith('.js')).pop();
     const old = compilation.assets[mainName];
     const { graph, graphMap } = compressGraph(newConfig, 3);
 
@@ -127,7 +123,7 @@ export class PrefetchPlugin {
         throw err;
       }
 
-      compilation.assets[mainName] = new ConcatSource(
+      compilation.assets[mainName!] = new ConcatSource(
         stats.compilation.assets['./output.js'],
         '\n',
         old.source()
