@@ -1,5 +1,6 @@
 import { PrefetchConfig, BundleEntryGraph } from './declarations';
 import { Graph, RoutingModule } from '../../common/interfaces';
+import { join } from 'path';
 
 export const defaultPrefetchConfig: PrefetchConfig = {
   '4g': 0.15,
@@ -8,22 +9,33 @@ export const defaultPrefetchConfig: PrefetchConfig = {
   'slow-2g': 0.6
 };
 
-const validateInput = (routes: RoutingModule[], graph: Graph, debug: boolean) => {
+const validateInput = (
+  routes: RoutingModule[],
+  graph: Graph,
+  debug: boolean
+) => {
   const routesInReport = new Set();
   Object.keys(graph).forEach(r => {
     routesInReport.add(r);
     Object.keys(graph[r]).forEach(c => routesInReport.add(c));
   });
-  const intersection =
-    routes.map(r => r.path).filter(x => routesInReport.has(x));
-  intersection.forEach(r => {
-    if (debug) {
-      console.warn(`The route ${r} is not present in the report or in the route declarations`);
-    }
-  });
+  routes
+    .map(r => r.path)
+    .filter(x => !routesInReport.has(x))
+    .forEach(r => {
+      if (debug) {
+        console.warn(
+          `The route ${r} is not present in the report or in the route declarations`
+        );
+      }
+    });
 };
 
-export const buildMap = (routes: RoutingModule[], graph: Graph, debug: boolean): BundleEntryGraph => {
+export const buildMap = (
+  routes: RoutingModule[],
+  graph: Graph,
+  debug: boolean
+): BundleEntryGraph => {
   validateInput(routes, graph, debug);
   const result: BundleEntryGraph = {};
   const routeFile = {} as { [key: string]: string };
@@ -49,10 +61,96 @@ export const buildMap = (routes: RoutingModule[], graph: Graph, debug: boolean):
   return result;
 };
 
-// webpack 4 & 3 compatible.
-export const isInitial = (chunk: any) => {
-  if (chunk.canBeInitial) {
-    return chunk.canBeInitial();
+export const stripExtension = (path: string) => path.replace(/\.(j|t)sx?$/, '');
+
+export interface Compilation {
+  getStats(): { toJson(): JSCompilation };
+}
+
+export interface JSReason {
+  module: string;
+  moduleId: string;
+}
+
+export interface JSModule {
+  name: string;
+  reasons: JSReason[];
+}
+
+export interface JSOrigin {
+  name: string;
+  moduleName: string;
+  module: string;
+}
+
+export interface JSChunk {
+  files: string[];
+  initial: boolean;
+  modules: JSModule[];
+  origins: JSOrigin[];
+}
+
+export interface JSCompilation {
+  chunks: JSChunk[];
+}
+
+export const getCompilationMapping = (
+  compilation: Compilation,
+  entryPoints: Set<string>,
+  debug?: boolean
+): { mainName: string | null; fileChunk: { [path: string]: string } } => {
+  const fileChunk: { [path: string]: string } = {};
+
+  let mainName: string | null = null;
+  function getModulePath(moduleName: string): string {
+    const cwd = process.cwd();
+    const relativePath = moduleName
+      .split(' ')
+      .filter(p => /(\.)?(\/|\\)/.test(p))
+      .pop();
+    if (relativePath === undefined) {
+      throw new Error(`Unable to find module's path`);
+    }
+    const jsPath = stripExtension(
+      relativePath.replace(/\.ngfactory\.js$/, '.js')
+    );
+    return join(cwd, jsPath);
   }
-  return /^main(\.js)?$/.test(chunk.name);
+
+  compilation
+    .getStats()
+    .toJson()
+    .chunks.forEach(c => {
+      if (!c.files[0].endsWith('.js')) {
+        return;
+      }
+      if (c.initial) {
+        mainName = c.files.filter(f => f.endsWith('.js')).pop()!;
+      }
+      if (c.modules && c.modules.length) {
+        const existingEntries = c.modules.filter(m =>
+          entryPoints.has(getModulePath(m.name))
+        );
+        if (existingEntries.length > 1) {
+          if (debug) {
+            console.warn(
+              'There are more than two entry points associated with chunk',
+              c.files[0]
+            );
+          }
+        } else if (existingEntries.length === 0) {
+          if (debug) {
+            console.error('Cannot find entry point for chunk: ' + c.files[0]);
+          }
+        } else {
+          fileChunk[getModulePath(existingEntries[0].name)] = c.files[0];
+        }
+      } else {
+        if (debug) {
+          console.warn('Cannot find modules for chunk', c.files[0]);
+        }
+      }
+    });
+
+  return { mainName, fileChunk };
 };
