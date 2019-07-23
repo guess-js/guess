@@ -29,7 +29,7 @@
     "http-server": "0.11.1",
     "mocha": "6.2.0",
     "path": "0.12.7",
-    "puppeteer": "1.18.1",
+    "puppeteer": "1.19.0",
     "standard": "13.1.0",
     "supertest": "4.0.2"
   }
