@@ -36,7 +36,7 @@ const getComp = (chunks: JSChunk[]): Compilation => {
 };
 
 const getAbsolutePaths = (paths: string[]) => {
-  return paths.map(p => join(process.cwd(), p))
+  return paths.map(p => join(process.cwd(), p));
 };
 
 describe('getCompilationMapping', () => {
@@ -147,22 +147,24 @@ describe('getCompilationMapping', () => {
   });
 
   it('should throw when it cannot file the module entry point name', () => {
-    expect(() =>
+    expect(
       getCompilationMapping(
         getComp([
           {
             files: ['a.js'],
             initial: true,
             origins: [],
-            modules: [{
-              name: '+1 bar',
-              reasons: []
-            }]
+            modules: [
+              {
+                name: '+1 bar',
+                reasons: []
+              }
+            ]
           }
         ]),
         new Set(['c.module', 'b.module', 'a.module'])
       )
-    ).toThrow();
+    ).toEqual({ fileChunk: {}, mainName: 'a.js' });
   });
 
   it('should return file mapping with missing entry points', () => {
@@ -216,8 +218,7 @@ describe('getCompilationMapping', () => {
     const cwd = process.cwd();
     expect(res.fileChunk).toEqual({
       [join(cwd, '/a.module')]: 'a.js',
-      [join(cwd, '/b.module')]: 'b.js',
+      [join(cwd, '/b.module')]: 'b.js'
     });
   });
-
 });
