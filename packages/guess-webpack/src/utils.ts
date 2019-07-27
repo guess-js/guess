@@ -102,14 +102,14 @@ export const getCompilationMapping = (
   const fileChunk: { [path: string]: string } = {};
 
   let mainName: string | null = null;
-  function getModulePath(moduleName: string): string {
+  function getModulePath(moduleName: string): string | null {
     const cwd = process.cwd();
     const relativePath = moduleName
       .split(' ')
       .filter(p => /(\.)?(\/|\\)/.test(p))
       .pop();
     if (relativePath === undefined) {
-      throw new Error(`Unable to find module's path`);
+      return null;
     }
     const jsPath = stripExtension(
       relativePath.replace(/\.ngfactory\.js$/, '.js')
@@ -128,9 +128,13 @@ export const getCompilationMapping = (
         mainName = c.files.filter(f => f.endsWith('.js')).pop()!;
       }
       if (c.modules && c.modules.length) {
-        const existingEntries = c.modules.filter(m =>
-          entryPoints.has(getModulePath(m.name))
-        );
+        const existingEntries = c.modules.filter(m => {
+          const path = getModulePath(m.name);
+          if (!path) {
+            return false;
+          }
+          return entryPoints.has(path);
+        });
         if (existingEntries.length > 1) {
           if (debug) {
             console.warn(
@@ -143,7 +147,10 @@ export const getCompilationMapping = (
             console.error('Cannot find entry point for chunk: ' + c.files[0]);
           }
         } else {
-          fileChunk[getModulePath(existingEntries[0].name)] = c.files[0];
+          const path = getModulePath(existingEntries[0].name);
+          if (path) {
+            fileChunk[path] = c.files[0];
+          }
         }
       } else {
         if (debug) {

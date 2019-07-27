@@ -55,14 +55,19 @@ const handleNavigationChange = (basePath: string, path: string) => {
 };
 
 export const initialize = (
-  history: History,
   global: any,
+  history: History,
   graph: CompressedPrefetchGraph,
   map: CompressedGraphMap,
   basePath: string,
   thresholds: PrefetchConfig
 ) => {
   initializeGuess(global, thresholds, graph, map);
+
+  // SSR, we return
+  if (global.constructor.name !== 'Window' || !global.location) {
+    return;
+  }
 
   if (typeof global.addEventListener === 'function') {
     global.addEventListener('popstate', (e: any) =>
