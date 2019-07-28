@@ -2,14 +2,15 @@ import { parseRoutes } from '../';
 import { RoutingModule } from '../../common/interfaces';
 
 const angularFixtureRoutes = new Set<string>([
-  '/bar',
   '/foo',
   '/foo/baz',
   '/foo/index',
   '/foo/baz/index',
   '/bar/baz',
+  '/qux',
   '/bar-simple'
 ]);
+
 const reactFixtureRoutes = new Set<string>(['/', '/intro', '/main', '/main/kid', '/main/parent']);
 
 describe('parseRoutes', () => {
