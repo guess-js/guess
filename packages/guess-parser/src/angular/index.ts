@@ -1,10 +1,13 @@
 import * as ts from 'typescript';
 import { RoutingModule } from '../../../common/interfaces';
 import { existsSync, readFileSync } from 'fs';
-import { dirname, resolve, join } from 'path';
+import { dirname, resolve, join, sep } from 'path';
 import { evaluate } from '@wessberg/ts-evaluator';
 
-const getObjectProp = (node: ts.ObjectLiteralExpression, prop: string): ts.Expression | null => {
+const getObjectProp = (
+  node: ts.ObjectLiteralExpression,
+  prop: string
+): ts.Expression | null => {
   const vals = node.properties.values();
   for (const val of vals) {
     if (val.kind !== ts.SyntaxKind.PropertyAssignment) {
@@ -66,7 +69,10 @@ const readLoadChildren = (
   return result;
 };
 
-const readPath = (node: ts.ObjectLiteralExpression, typeChecker: ts.TypeChecker): string | null => {
+const readPath = (
+  node: ts.ObjectLiteralExpression,
+  typeChecker: ts.TypeChecker
+): string | null => {
   const expr = getObjectProp(node, 'path');
   if (!expr) {
     return null;
@@ -125,9 +131,42 @@ const getModuleEntryPoint = (
     return path;
   }
   if (parents.length > 1) {
-    throw new Error(`Module ${path} belongs to more than one module: ${parents.join(', ')}`);
+    throw new Error(
+      `Module ${path} belongs to more than one module: ${parents.join(', ')}`
+    );
   }
   return parents[0];
+};
+
+const getModulePathFromRoute = (parentPath: string, loadChildren: string) => {
+  const childModule = loadChildren.split('#')[0] + '.ts';
+  if (loadChildren.startsWith('.')) {
+    return join(dirname(parentPath), childModule);
+  }
+  const parentSegments = dirname(parentPath).split(sep);
+  const childSegments = childModule.split('/');
+  const max = Math.min(parentSegments.length, childSegments.length);
+  let maxCommon = 0;
+  for (let i = 1; i < max; i += 1) {
+    for (let j = 0; j < i; j += 1) {
+      let common = 0;
+      if (parentSegments[parentSegments.length - 1 - j] === childSegments[j]) {
+        common++;
+        maxCommon = Math.max(maxCommon, common);
+      } else {
+        // breaking here
+        common = 0;
+        j = i;
+      }
+    }
+  }
+  return join(
+    dirname(parentPath),
+    childModule
+      .split('/')
+      .slice(maxCommon, childSegments.length)
+      .join('/')
+  );
 };
 
 const getLazyRoute = (
@@ -151,7 +190,7 @@ const getLazyRoute = (
 
   if (loadChildren) {
     const parent = node.getSourceFile().fileName;
-    const module = join(dirname(parent), loadChildren.split('#')[0] + '.ts');
+    const module = getModulePathFromRoute(parent, loadChildren);
     result.parentModulePath = getModuleEntryPoint(parent, entryPoints, program);
     result.modulePath = module;
     result.lazy = true;
@@ -159,7 +198,11 @@ const getLazyRoute = (
 
   if (component) {
     result.lazy = false;
-    const entry = getModuleEntryPoint(node.getSourceFile().fileName, entryPoints, program);
+    const entry = getModuleEntryPoint(
+      node.getSourceFile().fileName,
+      entryPoints,
+      program
+    );
     result.parentModulePath = entry;
     result.modulePath = entry;
   }
@@ -167,15 +210,17 @@ const getLazyRoute = (
   return result;
 };
 
-const getLazyEntryPoints = (node: ts.ObjectLiteralExpression, program: ts.Program) => {
+const getLazyEntryPoints = (
+  node: ts.ObjectLiteralExpression,
+  program: ts.Program
+) => {
   const value = readLoadChildren(node, program.getTypeChecker());
   if (!value) {
     return null;
   }
 
   const parent = node.getSourceFile().fileName;
-  const module = join(dirname(parent), value.split('#')[0] + '.ts');
-  return module;
+  return getModulePathFromRoute(parent, value);
 };
 
 const isRouterLike = (n: ts.Node): boolean => {
@@ -192,7 +237,10 @@ const isRouterLike = (n: ts.Node): boolean => {
     if (key.name.getText() === 'path') {
       flags |= 1;
     }
-    if (key.name.getText() === 'loadChildren' || key.name.getText() === 'component') {
+    if (
+      key.name.getText() === 'loadChildren' ||
+      key.name.getText() === 'component'
+    ) {
       flags |= 2;
     }
     if (flags === 3) {
@@ -204,9 +252,15 @@ const isRouterLike = (n: ts.Node): boolean => {
 
 const findMainModule = (program: ts.Program) => {
   const tryFindMainModule = (n: ts.Node, sf: ts.SourceFile) => {
-    if (n.kind === ts.SyntaxKind.Identifier && (n as ts.Identifier).text === 'bootstrapModule') {
+    if (
+      n.kind === ts.SyntaxKind.Identifier &&
+      (n as ts.Identifier).text === 'bootstrapModule'
+    ) {
       const propAccess = (n as ts.Identifier).parent;
-      if (!propAccess || propAccess.kind !== ts.SyntaxKind.PropertyAccessExpression) {
+      if (
+        !propAccess ||
+        propAccess.kind !== ts.SyntaxKind.PropertyAccessExpression
+      ) {
         return null;
       }
       const tempExpr = propAccess.parent;
@@ -257,7 +311,9 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     readFile: file => readFileSync(file, 'utf8'),
     useCaseSensitiveFileNames: true
   };
-  const config = ts.readConfigFile(tsconfig, path => readFileSync(path).toString());
+  const config = ts.readConfigFile(tsconfig, path =>
+    readFileSync(path).toString()
+  );
   const parsed = ts.parseJsonConfigFileContent(
     config.config,
     parseConfigHost,
@@ -272,7 +328,11 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   const program = ts.createProgram(parsed.fileNames, parsed.options, host);
   const routes: RoutingModule[] = [];
 
-  const visitNode = (s: ts.SourceFile, callback: (routeObj: ts.Node) => void, n: ts.Node) => {
+  const visitNode = (
+    s: ts.SourceFile,
+    callback: (routeObj: ts.Node) => void,
+    n: ts.Node
+  ) => {
     if (!n) {
       return;
     }
@@ -292,7 +352,10 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   program.getSourceFiles().map(s => {
     s.forEachChild(
       visitNode.bind(null, s, (n: ts.Node) => {
-        const path = getLazyEntryPoints(n as ts.ObjectLiteralExpression, program);
+        const path = getLazyEntryPoints(
+          n as ts.ObjectLiteralExpression,
+          program
+        );
         if (!path) {
           return;
         }
@@ -304,7 +367,11 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   program.getSourceFiles().map(s => {
     s.forEachChild(
       visitNode.bind(null, s, (n: ts.Node) => {
-        const route = getLazyRoute(n as ts.ObjectLiteralExpression, entryPoints, program);
+        const route = getLazyRoute(
+          n as ts.ObjectLiteralExpression,
+          entryPoints,
+          program
+        );
         if (!route) {
           return;
         }
@@ -348,7 +415,7 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     );
   }
 
-  const map: {[key: string]: RoutingModule} = {};
+  const map: { [path: string]: RoutingModule } = {};
   for (const route of routes) {
     const path = newRoutePaths.get(route);
     if (path) {

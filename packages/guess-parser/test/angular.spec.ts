@@ -7,6 +7,7 @@ const fixtureRoutes = new Set<string>([
   '/foo/index',
   '/foo/baz/index',
   '/bar/baz',
+  '/qux',
   '/bar-simple'
 ]);
 
