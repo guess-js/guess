@@ -395,7 +395,7 @@ const getLazyEntryPoints = (
   return module;
 };
 
-export const parseRoutes = (tsconfig: string): RoutingModule[] => {
+export const parseRoutes = (tsconfig: string, exclude: string[] = []): RoutingModule[] => {
   const parseConfigHost: ts.ParseConfigHost = {
     fileExists: existsSync,
     readDirectory: ts.sys.readDirectory,
@@ -418,11 +418,16 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   const program = ts.createProgram(parsed.fileNames, parsed.options, host);
   const typeChecker = program.getTypeChecker();
 
+  const toAbsolute = (file: string) => file.startsWith('/') ? file : join(process.cwd(), file);
+  const excludeFiles = new Set<string>(exclude.map(toAbsolute));
   const visitNode = (
     s: ts.SourceFile,
     callback: (routeObj: ts.Node) => void,
     n: ts.Node
   ) => {
+    if (excludeFiles.has(s.fileName)) {
+      return;
+    }
     if (!n) {
       return;
     }
