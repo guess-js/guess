@@ -1,7 +1,6 @@
 import { parseRoutes } from '../src/angular';
 
 const fixtureRoutes = new Set<string>([
-  '/bar',
   '/foo',
   '/foo/baz',
   '/foo/index',

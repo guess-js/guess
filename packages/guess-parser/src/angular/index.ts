@@ -4,6 +4,57 @@ import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join, sep } from 'path';
 import { evaluate } from '@wessberg/ts-evaluator';
 
+const imports = (parent: string, child: string, program: ts.Program) => {
+  const sf = program.getSourceFile(parent);
+  if (!sf) {
+    throw new Error('Cannot find source file for path: ' + parent);
+  }
+  let found = false;
+  sf.forEachChild(n => {
+    if (found) {
+      return;
+    }
+    if (n.kind !== ts.SyntaxKind.ImportDeclaration) {
+      return;
+    }
+    const imprt = n as ts.ImportDeclaration;
+    const path = (imprt.moduleSpecifier as ts.StringLiteral).text;
+    const fullPath = join(dirname(parent), path) + '.ts';
+    if (fullPath === child) {
+      found = true;
+    }
+    if (!found && existsSync(fullPath)) {
+      found = imports(fullPath, child, program);
+    }
+  });
+  return found;
+};
+
+// This can potentially break if there's a lazy module
+// that is not only loaded lazily but also imported
+// inside of a parent module.
+//
+// For example, `app.module.ts` lazily loads `bar.module.ts`
+// in the same time `app.module.ts` imports `bar.module.ts`
+// this way the module entry point will be `app.module.ts`.
+const getModuleEntryPoint = (
+  path: string,
+  entryPoints: Set<string>,
+  program: ts.Program
+): string => {
+  const parents = [...entryPoints].filter(e => imports(e, path, program));
+  // If no parents, this could be the root module
+  if (parents.length === 0) {
+    return path;
+  }
+  if (parents.length > 1) {
+    throw new Error(
+      `Module ${path} belongs to more than one module: ${parents.join(', ')}`
+    );
+  }
+  return parents[0];
+};
+
 const getObjectProp = (
   node: ts.ObjectLiteralExpression,
   prop: string
@@ -87,55 +138,22 @@ const readPath = (
   return null;
 };
 
-const imports = (parent: string, child: string, program: ts.Program) => {
-  const sf = program.getSourceFile(parent);
-  if (!sf) {
-    throw new Error('Cannot find source file for path: ' + parent);
+const readChildren = (
+  node: ts.ObjectLiteralExpression,
+  typeChecker: ts.TypeChecker
+): ts.ArrayLiteralExpression | null => {
+  const expr = getObjectProp(node, 'children');
+  if (!expr) {
+    return null;
   }
-  let found = false;
-  sf.forEachChild(n => {
-    if (found) {
-      return;
-    }
-    if (n.kind !== ts.SyntaxKind.ImportDeclaration) {
-      return;
-    }
-    const imprt = n as ts.ImportDeclaration;
-    const path = (imprt.moduleSpecifier as ts.StringLiteral).text;
-    const fullPath = join(dirname(parent), path) + '.ts';
-    if (fullPath === child) {
-      found = true;
-    }
-    if (!found && existsSync(fullPath)) {
-      found = imports(fullPath, child, program);
-    }
+  const val = evaluate({
+    node: expr,
+    typeChecker
   });
-  return found;
-};
-
-// This can potentially break if there's a lazy module
-// that is not only loaded lazily but also imported
-// inside of a parent module.
-//
-// For example, `app.module.ts` lazily loads `bar.module.ts`
-// in the same time `app.module.ts` imports `bar.module.ts`
-// this way the module entry point will be `app.module.ts`.
-const getModuleEntryPoint = (
-  path: string,
-  entryPoints: Set<string>,
-  program: ts.Program
-): string => {
-  const parents = [...entryPoints].filter(e => imports(e, path, program));
-  // If no parents, this could be the root module
-  if (parents.length === 0) {
-    return path;
+  if (val.success) {
+    return val.value as ts.ArrayLiteralExpression;
   }
-  if (parents.length > 1) {
-    throw new Error(
-      `Module ${path} belongs to more than one module: ${parents.join(', ')}`
-    );
-  }
-  return parents[0];
+  return null;
 };
 
 const getModulePathFromRoute = (parentPath: string, loadChildren: string) => {
@@ -169,85 +187,144 @@ const getModulePathFromRoute = (parentPath: string, loadChildren: string) => {
   );
 };
 
-const getLazyRoute = (
+interface Route {
+  path: string;
+  children: Route[];
+}
+
+interface LazyRoute extends Route {
+  module: string;
+}
+
+const getRoute = (
   node: ts.ObjectLiteralExpression,
   entryPoints: Set<string>,
   program: ts.Program
-): RoutingModule | null => {
-  const result = { lazy: true, modulePath: '', parentModulePath: '', path: '' };
-
+): Route | null => {
   const path = readPath(node, program.getTypeChecker());
   if (path === null) {
     return null;
   }
-  result.path = path;
+
+  const childrenArray = readChildren(node, program.getTypeChecker());
+  let children: Route[] = [];
+  if (childrenArray) {
+    children = childrenArray
+      .getChildren()
+      .map(c => {
+        if (c.kind !== ts.SyntaxKind.ObjectLiteralExpression) {
+          return null;
+        }
+        return getRoute(c as ts.ObjectLiteralExpression, entryPoints, program);
+      })
+      .filter(e => e !== null) as Route[];
+  }
+
+  const route: Route = { path, children: [] };
+  route.path = path;
 
   const loadChildren = readLoadChildren(node, program.getTypeChecker());
-  const component = getObjectProp(node, 'component');
-  if (!component && !loadChildren) {
-    return null;
-  }
-
   if (loadChildren) {
-    const parent = node.getSourceFile().fileName;
-    const module = getModulePathFromRoute(parent, loadChildren);
-    result.parentModulePath = getModuleEntryPoint(parent, entryPoints, program);
-    result.modulePath = module;
-    result.lazy = true;
-  }
-
-  if (component) {
-    result.lazy = false;
-    const entry = getModuleEntryPoint(
+    const parent = getModuleEntryPoint(
       node.getSourceFile().fileName,
       entryPoints,
       program
     );
-    result.parentModulePath = entry;
-    result.modulePath = entry;
+    const module = getModulePathFromRoute(parent, loadChildren);
+    return {
+      ...route,
+      module
+    } as LazyRoute;
   }
 
-  return result;
+  return route;
 };
 
-const getLazyEntryPoints = (
-  node: ts.ObjectLiteralExpression,
-  program: ts.Program
-) => {
-  const value = readLoadChildren(node, program.getTypeChecker());
-  if (!value) {
-    return null;
-  }
-
-  const parent = node.getSourceFile().fileName;
-  return getModulePathFromRoute(parent, value);
-};
-
-const isRouterLike = (n: ts.Node): boolean => {
-  if (n.kind !== ts.SyntaxKind.ObjectLiteralExpression) {
+const isRoute = (n: ts.Node, typeChecker: ts.TypeChecker): boolean => {
+  if (
+    n.kind !== ts.SyntaxKind.ObjectLiteralExpression ||
+    !n.parent ||
+    n.parent.kind !== ts.SyntaxKind.ArrayLiteralExpression
+  ) {
     return false;
   }
-  const node = n as ts.ObjectLiteralExpression;
-  const keys = node.properties.values();
-  let flags = 0;
-  for (const key of keys) {
-    if (!key.name) {
-      continue;
+
+  const objLiteral = n as ts.ObjectLiteralExpression;
+  const path = readPath(objLiteral, typeChecker) !== null;
+  const children = !!readChildren(objLiteral, typeChecker);
+  const loadChildren = !!readLoadChildren(objLiteral, typeChecker);
+  const component = !!getObjectProp(objLiteral, 'component');
+
+  return (path && children) || (path && component) || (path && loadChildren);
+};
+
+interface RoutesDeclaration {
+  lazyRoutes: LazyRoute[];
+  eagerRoutes: Route[];
+}
+
+interface Registry {
+  [path: string]: RoutesDeclaration;
+}
+
+const findRootModule = (registry: Registry): string => {
+  const childModules = new Set<string>();
+  const traverseRoute = (route: Route) => {
+    if ((route as LazyRoute).module) {
+      childModules.add((route as LazyRoute).module);
     }
-    if (key.name.getText() === 'path') {
-      flags |= 1;
-    }
-    if (
-      key.name.getText() === 'loadChildren' ||
-      key.name.getText() === 'component'
-    ) {
-      flags |= 2;
-    }
-    if (flags === 3) {
-      return true;
-    }
+    route.children.forEach(traverseRoute);
+  };
+  const allModulePaths = Object.keys(registry);
+  allModulePaths.forEach(path => {
+    const declaration = registry[path];
+    declaration.eagerRoutes.forEach(traverseRoute);
+    declaration.lazyRoutes.forEach(traverseRoute);
+  });
+  const roots = allModulePaths.filter(m => !childModules.has(m));
+  if (roots.length > 1) {
+    throw new Error('Multiple root routing modules found ' + roots.join(', '));
   }
-  return false;
+  return roots[0];
+};
+
+const collectRoutingModules = (
+  root: string,
+  registry: Registry,
+  result: RoutingModule[],
+  parentPath: string = root,
+  currentPath: string = '',
+) => {
+  const declaration = registry[root];
+
+  const process = (r: Route) => {
+    if ((r as LazyRoute).module) {
+      // tslint:disable-next-line: no-use-before-declare
+      return processLazyRoute(r as LazyRoute);
+    }
+    // tslint:disable-next-line: no-use-before-declare
+    return processRoute(r);
+  };
+
+  const processRoute = (r: Route) => {
+    r.children.forEach(process);
+    const path = (currentPath + '/' + r.path).replace(/\/$/, '');
+    result.push({
+      path,
+      lazy: parentPath !== root,
+      modulePath: root,
+      parentModulePath: parentPath
+    })
+  };
+
+  const processLazyRoute = (r: LazyRoute) => {
+    r.children.forEach(process);
+    const path = (currentPath + '/' + r.path).replace(/\/$/, '');
+    collectRoutingModules(r.module, registry, result, root, path);
+  };
+
+  declaration.eagerRoutes.forEach(processRoute);
+  declaration.lazyRoutes.forEach(processLazyRoute);
 };
 
 const findMainModule = (program: ts.Program) => {
@@ -304,6 +381,20 @@ const findMainModule = (program: ts.Program) => {
   }, null);
 };
 
+const getLazyEntryPoints = (
+  node: ts.ObjectLiteralExpression,
+  program: ts.Program
+) => {
+  const value = readLoadChildren(node, program.getTypeChecker());
+  if (!value) {
+    return null;
+  }
+
+  const parent = node.getSourceFile().fileName;
+  const module = getModulePathFromRoute(parent, value);
+  return module;
+};
+
 export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   const parseConfigHost: ts.ParseConfigHost = {
     fileExists: existsSync,
@@ -324,9 +415,8 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
   );
 
   const host = ts.createCompilerHost(parsed.options, true);
-
   const program = ts.createProgram(parsed.fileNames, parsed.options, host);
-  const routes: RoutingModule[] = [];
+  const typeChecker = program.getTypeChecker();
 
   const visitNode = (
     s: ts.SourceFile,
@@ -337,10 +427,9 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
       return;
     }
     n.forEachChild(visitNode.bind(null, s, callback));
-    if (!isRouterLike(n)) {
-      return;
+    if (isRoute(n, typeChecker)) {
+      callback(n);
     }
-    callback(n);
   };
 
   const mainPath = findMainModule(program);
@@ -364,10 +453,13 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
     );
   });
 
+  const registry: Registry = {};
+
   program.getSourceFiles().map(s => {
     s.forEachChild(
       visitNode.bind(null, s, (n: ts.Node) => {
-        const route = getLazyRoute(
+        const path = n.getSourceFile().fileName;
+        const route = getRoute(
           n as ts.ObjectLiteralExpression,
           entryPoints,
           program
@@ -375,63 +467,24 @@ export const parseRoutes = (tsconfig: string): RoutingModule[] => {
         if (!route) {
           return;
         }
-        routes.push(route);
+
+        const modulePath = getModuleEntryPoint(path, entryPoints, program);
+        const current = registry[modulePath] || {
+          lazyRoutes: [],
+          eagerRoutes: []
+        };
+        if ((route as LazyRoute).module) {
+          current.lazyRoutes.push(route as LazyRoute);
+        } else {
+          current.eagerRoutes.push(route);
+        }
+        registry[modulePath] = current;
       })
     );
   });
 
-  const moduleToRoute: { [key: string]: RoutingModule } = {};
-  const parentToModule: { [key: string]: RoutingModule } = {};
-  for (const route of routes) {
-    if (!route.parentModulePath || !route.lazy) {
-      continue;
-    }
-    moduleToRoute[route.modulePath] = route;
-    parentToModule[route.parentModulePath] = route;
-  }
+  const result: RoutingModule[] = [];
+  collectRoutingModules(findRootModule(registry), registry, result);
 
-  const newRoutePaths = new Map<RoutingModule, string>();
-  for (const route of routes) {
-    if (!route.parentModulePath) {
-      continue;
-    }
-    const path = [route.path];
-    let parent: RoutingModule | null = moduleToRoute[route.parentModulePath];
-    do {
-      if (!parent) {
-        continue;
-      }
-      path.unshift(parent.path);
-      if (parent.parentModulePath) {
-        parent = moduleToRoute[parent.parentModulePath];
-      }
-    } while (parent && parent.parentModulePath);
-    newRoutePaths.set(
-      route,
-      path
-        .join('/')
-        .replace(/\/\//g, '/')
-        .replace(/\/$/, '')
-    );
-  }
-
-  const map: { [path: string]: RoutingModule } = {};
-  for (const route of routes) {
-    const path = newRoutePaths.get(route);
-    if (path) {
-      route.path = path;
-    }
-    route.path = '/' + route.path;
-    // Saves us from cases when:
-    // - 'foo' is lazy
-    // - '' is default route in the FooModule
-    // we don't want to have once:
-    // - '/foo' for the lazy route declaration
-    // - '/foo' for the route in the lazy module
-    if (!map[route.path] || !map[route.path].lazy) {
-      map[route.path] = route;
-    }
-  }
-
-  return Object.keys(map).map(r => map[r]);
+  return result;
 };
