@@ -14,6 +14,7 @@ import {
   getCompilationMapping,
   stripExtension
 } from './utils';
+import { Logger, LogLevel } from '../../common/logger';
 
 const template = require('lodash.template');
 const ConcatSource = require('webpack-sources').ConcatSource;
@@ -86,16 +87,18 @@ const forEachBlock = (chunk: any, cb: ({ block, chunk }: any) => void) => {
 };
 
 export class PrefetchAotPlugin {
+  logger = new Logger();
   constructor(private _config: PrefetchAotPluginConfig) {
     if (!_config.data) {
       throw new Error('Page graph not provided');
     }
+    if (this._config.debug) {
+      this.logger.setLevel(LogLevel.DEBUG);
+    }
   }
 
   execute(compilation: any, callback: any) {
-    if (this._config.debug) {
-      console.log('Inside PrefetchAotPlugin');
-    }
+    this.logger.debug('Inside PrefetchAotPlugin');
 
     let mainName: string | null = null;
     let fileChunk: { [key: string]: string } = {};
@@ -110,15 +113,13 @@ export class PrefetchAotPlugin {
       fileChunk = res.fileChunk;
     } catch (e) {
       callback();
-      console.error(e);
+      this.logger.error(e);
     }
 
-    if (this._config.debug) {
-      console.log(
-        'Mapping between chunk name and entry point',
-        JSON.stringify(fileChunk, null, 2)
-      );
-    }
+    this.logger.debug(
+      'Mapping between chunk name and entry point',
+      JSON.stringify(fileChunk, null, 2)
+    );
 
     if (!mainName) {
       callback();
@@ -140,12 +141,12 @@ export class PrefetchAotPlugin {
       this._config.data,
       !!this._config.debug
     );
-    if (this._config.debug) {
-      console.log(
-        'Initial mapping between routes and probability',
-        JSON.stringify(initialGraph, null, 2)
-      );
-    }
+
+    this.logger.debug(
+      'Initial mapping between routes and probability',
+      JSON.stringify(initialGraph, null, 2)
+    );
+
     Object.keys(initialGraph).forEach(route => {
       newConfig[route] = [];
       initialGraph[route].forEach(neighbor => {
@@ -158,18 +159,18 @@ export class PrefetchAotPlugin {
       });
     });
 
-    if (this._config.debug) {
-      console.log('Built the model', JSON.stringify(newConfig, null, 2));
-      console.log('File to chunk mapping', JSON.stringify(fileChunk, null, 2));
-      console.log(
-        'Route to chunk mapping is',
-        JSON.stringify(routeChunk, null, 2)
-      );
-    }
+    this.logger.debug('Built the model', JSON.stringify(newConfig, null, 2));
+    this.logger.debug(
+      'File to chunk mapping',
+      JSON.stringify(fileChunk, null, 2)
+    );
+    this.logger.debug(
+      'Route to chunk mapping is',
+      JSON.stringify(routeChunk, null, 2)
+    );
 
-    if (this._config.debug) {
-      console.log('Adding prefetching logic in', mainName);
-    }
+    this.logger.debug('Adding prefetching logic in', mainName);
+
     const old = compilation.assets[mainName];
 
     const codeTemplate = 'aot.tpl';
@@ -183,18 +184,14 @@ export class PrefetchAotPlugin {
       )
     });
 
-    if (this._config.debug) {
-      console.log('Altering the main chunk');
-    }
+    this.logger.debug('Altering the main chunk');
 
     const compilationPromises = [
       alterChunk(compilation, mainName, old.source(), runtimeLogic, true)
     ];
 
-    if (this._config.debug) {
-      console.log('Main chunk altered');
-      console.log('Altering all other chunks to prefetch their neighbours');
-    }
+    this.logger.debug('Main chunk altered');
+    this.logger.debug('Altering all other chunks to prefetch their neighbours');
 
     routeChunk['/'] = mainName;
 
@@ -205,9 +202,8 @@ export class PrefetchAotPlugin {
       c: PrefetchAotNeighbor
     ) => {
       if (!c.chunk) {
-        if (this._config.debug) {
-          console.warn('Cannot find chunk name for', c, 'from route', route);
-        }
+        this.logger.warn('Cannot find chunk name for', c, 'from route', route);
+
         return false;
       }
       tableOutput.push([currentChunk, c.chunk, c.probability]);
@@ -219,7 +215,7 @@ export class PrefetchAotPlugin {
       const currentChunk = compilation.assets[chunkName];
       if (!currentChunk) {
         callback();
-        console.warn(
+        this.logger.warn(
           `Cannot find the chunk "${chunkName}" for route "${route}"`
         );
         return;
@@ -227,13 +223,13 @@ export class PrefetchAotPlugin {
       const neighbors = (newConfig[route] || [])
         .map(generateNeighbors.bind(null, route, chunkName))
         .filter(Boolean);
-      if (this._config.debug) {
-        if (newConfig[route]) {
-          console.log('Adding', neighbors);
-        } else {
-          console.log('Nothing to prefetch from', route);
-        }
+
+      if (newConfig[route]) {
+        this.logger.debug('Adding', neighbors);
+      } else {
+        this.logger.debug('Nothing to prefetch from', route);
       }
+
       const newCode = newConfig[route]
         ? `__GUESS__.p(${neighbors.join(',')})`
         : '';
@@ -263,24 +259,20 @@ export class PrefetchAotPlugin {
       }
     });
 
-    console.log(
+    this.logger.info(
       chalk.blue(
         '\n\n\n🔮 Guess.js introduced the following prefetching instructions:'
       )
     );
-    console.log(table(tableOutput));
+    this.logger.info(table(tableOutput));
 
     Promise.all(compilationPromises)
       .then(() => {
-        if (this._config.debug) {
-          console.log('Chunks altered');
-        }
+        this.logger.debug('Chunks altered');
         callback();
       })
       .catch(e => {
-        if (this._config.debug) {
-          console.error(e);
-        }
+        this.logger.error(e);
         callback();
         throw e;
       });
