@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/guess-js/guess#readme",
   "devDependencies": {
-    "@types/jest": "24.0.15",
+    "@types/jest": "24.0.16",
     "@types/meow": "5.0.0",
     "@types/node": "9.6.50",
     "blund": "1.0.0",
