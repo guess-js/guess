@@ -489,7 +489,9 @@ export const parseRoutes = (tsconfig: string, exclude: string[] = []): RoutingMo
   });
 
   const result: RoutingModule[] = [];
-  collectRoutingModules(findRootModule(registry), registry, result);
+  if (Object.keys(registry).length > 0) {
+    collectRoutingModules(findRootModule(registry), registry, result);
+  }
 
   return result;
 };
