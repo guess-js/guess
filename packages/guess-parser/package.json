@@ -1,6 +1,6 @@
 {
   "name": "guess-parser",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Finds the route declarations in your application.",
   "main": "dist/guess-parser/index.js",
   "types": "dist/guess-parser/index.d.ts",
