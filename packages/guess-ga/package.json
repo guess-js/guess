@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "ts-loader": "6.0.4",
-    "typescript": "3.5.3"
+    "typescript": "3.6.2"
   },
   "scripts": {
     "build": "webpack"

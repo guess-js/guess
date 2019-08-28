@@ -26,7 +26,7 @@
     "@wessberg/ts-evaluator": "0.0.21"
   },
   "peerDependencies": {
-    "typescript": "3.5.3"
+    "typescript": "3.6.2"
   },
   "files": [
     "dist"
