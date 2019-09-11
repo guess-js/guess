@@ -4,11 +4,20 @@ import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join, sep } from 'path';
 import { evaluate } from '@wessberg/ts-evaluator';
 
-const imports = (parent: string, child: string, program: ts.Program) => {
+const imports = (
+  parent: string,
+  child: string,
+  program: ts.Program,
+  visited: { [key: string]: boolean } = {}
+) => {
   const sf = program.getSourceFile(parent);
   if (!sf) {
     throw new Error('Cannot find source file for path: ' + parent);
   }
+  if (visited[parent]) {
+    return false;
+  }
+  visited[parent] = true;
   let found = false;
   sf.forEachChild(n => {
     if (found) {
@@ -24,7 +33,7 @@ const imports = (parent: string, child: string, program: ts.Program) => {
       found = true;
     }
     if (!found && existsSync(fullPath)) {
-      found = imports(fullPath, child, program);
+      found = imports(fullPath, child, program, visited);
     }
   });
   return found;
@@ -293,7 +302,7 @@ const collectRoutingModules = (
   registry: Registry,
   result: RoutingModule[],
   parentPath: string = root,
-  currentPath: string = '',
+  currentPath: string = ''
 ) => {
   const declaration = registry[root];
 
@@ -314,7 +323,7 @@ const collectRoutingModules = (
       lazy: parentPath !== root,
       modulePath: root,
       parentModulePath: parentPath
-    })
+    });
   };
 
   const processLazyRoute = (r: LazyRoute) => {
@@ -395,7 +404,10 @@ const getLazyEntryPoints = (
   return module;
 };
 
-export const parseRoutes = (tsconfig: string, exclude: string[] = []): RoutingModule[] => {
+export const parseRoutes = (
+  tsconfig: string,
+  exclude: string[] = []
+): RoutingModule[] => {
   const parseConfigHost: ts.ParseConfigHost = {
     fileExists: existsSync,
     readDirectory: ts.sys.readDirectory,
@@ -418,7 +430,8 @@ export const parseRoutes = (tsconfig: string, exclude: string[] = []): RoutingMo
   const program = ts.createProgram(parsed.fileNames, parsed.options, host);
   const typeChecker = program.getTypeChecker();
 
-  const toAbsolute = (file: string) => file.startsWith('/') ? file : join(process.cwd(), file);
+  const toAbsolute = (file: string) =>
+    file.startsWith('/') ? file : join(process.cwd(), file);
   const excludeFiles = new Set<string>(exclude.map(toAbsolute));
   const visitNode = (
     s: ts.SourceFile,

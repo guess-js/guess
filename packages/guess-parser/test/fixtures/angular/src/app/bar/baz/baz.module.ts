@@ -1,5 +1,6 @@
 import { NgModule, Component } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import './cycle-parent';
 
 @Component({
   selector: 'app-baz',
