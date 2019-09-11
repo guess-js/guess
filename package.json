@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/jest": "24.0.18",
     "@types/meow": "5.0.0",
-    "@types/node": "9.6.51",
+    "@types/node": "9.6.52",
     "blund": "1.0.0",
     "chalk": "2.4.2",
     "copy-webpack-plugin": "5.0.4",
@@ -49,13 +49,13 @@
     "ts-jest": "24.0.2",
     "ts-loader": "6.0.4",
     "ts-node": "8.3.0",
-    "tslint": "5.19.0",
-    "typescript": "3.6.2",
+    "tslint": "5.20.0",
+    "typescript": "3.6.3",
     "webpack": "4.39.3",
-    "webpack-cli": "3.3.7"
+    "webpack-cli": "3.3.8"
   },
   "dependencies": {
     "flat-cache": "^2.0.1",
-    "googleapis": "^42.0.0"
+    "googleapis": "^43.0.0"
   }
 }
