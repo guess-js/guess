@@ -81,7 +81,7 @@ const alterChunk = (
 };
 
 export class PrefetchAotPlugin {
-  logger = new Logger();
+  private logger = new Logger();
   constructor(private _config: PrefetchAotPluginConfig) {
     if (!_config.data) {
       throw new Error('Page graph not provided');
@@ -106,6 +106,7 @@ export class PrefetchAotPlugin {
       const res = getCompilationMapping(
         compilation,
         new Set(this._config.routes.map(r => stripExtension(r.modulePath))),
+        this.logger,
         this._config.debug
       );
       mainName = res.mainName;
@@ -139,6 +140,7 @@ export class PrefetchAotPlugin {
         };
       }),
       this._config.data,
+      this.logger,
       !!this._config.debug
     );
 
@@ -178,7 +180,7 @@ export class PrefetchAotPlugin {
       c: PrefetchAotNeighbor
     ) => {
       if (!c.chunk) {
-        this.logger.warn('Cannot find chunk name for', c, 'from route', route);
+        this.logger.debug('Cannot find chunk name for', c, 'from route', route);
 
         return false;
       }
@@ -192,13 +194,12 @@ export class PrefetchAotPlugin {
       const chunkName = asset.name;
       const route = chunkRoute[chunkName];
       if (!route) {
-        this.logger.warn(
+        this.logger.debug(
           `Cannot find the route "${route}" for chunk "${chunkName}"`
         );
         asset.callback();
         return;
       }
-      chunksLeft -= 1;
 
       const neighbors = (newConfig[route] || [])
         .map(generateNeighbors.bind(null, route, chunkName))
@@ -243,17 +244,20 @@ export class PrefetchAotPlugin {
         newCode,
         isMainChunk
       ).finally(asset.callback);
+
+      chunksLeft -= 1;
+      if (!chunksLeft) {
+        this.logger.info(
+          chalk.blue(
+            '\n\n\n🔮 Guess.js introduced the following prefetching instructions:'
+          )
+        );
+        this.logger.info('\n\n' + table(tableOutput));
+      }
     };
 
     assetObserver.onAsset(handleAsset);
     assetObserver.buffer.forEach(handleAsset);
-
-    this.logger.info(
-      chalk.blue(
-        '\n\n\n🔮 Guess.js introduced the following prefetching instructions:'
-      )
-    );
-    this.logger.info('\n\n' + table(tableOutput));
 
     callback();
   }
