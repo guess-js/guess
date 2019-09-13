@@ -227,4 +227,37 @@ describe('getCompilationMapping', () => {
       [join(cwd, '/b.module')]: 'b.js'
     });
   });
+
+  it('should pick the right bundle priority', () => {
+    expect(
+      getCompilationMapping(
+        getComp([
+          {
+            files: ['foo.js'],
+            initial: true,
+            origins: [],
+            modules: [
+              {
+                name: 'foo',
+                reasons: []
+              }
+            ]
+          },
+          {
+            files: ['main.js'],
+            initial: true,
+            origins: [],
+            modules: [
+              {
+                name: 'main',
+                reasons: []
+              }
+            ]
+          }
+        ]),
+        new Set(['c.module', 'b.module', 'a.module']),
+        new Logger()
+      )
+    ).toEqual({ fileChunk: {}, mainName: 'main.js' });
+  });
 });
