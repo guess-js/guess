@@ -22,7 +22,7 @@ if (bazModule.indexOf('__GUESS__') >= 0) {
 }
 
 // No runtime
-const mainModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/vendor.js').toString();
+const mainModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/main.js').toString();
 if (mainModule.indexOf('__GUESS__.p(') < 0 && mainModule.indexOf('__GUESS__.p=') < 0) {
   console.error('Unable to find runtime or initial prefetching instruction');
   process.exit(1);
