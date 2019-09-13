@@ -235,7 +235,7 @@ const getRoute = (
   const loadChildren = readLoadChildren(node, program.getTypeChecker());
   if (loadChildren) {
     const parent = getModuleEntryPoint(
-      node.getSourceFile().fileName,
+      resolve(node.getSourceFile().fileName),
       entryPoints,
       program
     );
@@ -364,7 +364,7 @@ const findMainModule = (program: ts.Program) => {
       if (!decl) {
         return null;
       }
-      return decl[0].getSourceFile().fileName;
+      return resolve(decl[0].getSourceFile().fileName);
     }
     let mainPath: null | string = null;
     n.forEachChild(c => {
@@ -399,7 +399,7 @@ const getLazyEntryPoints = (
     return null;
   }
 
-  const parent = node.getSourceFile().fileName;
+  const parent = resolve(node.getSourceFile().fileName);
   const module = getModulePathFromRoute(parent, value);
   return module;
 };
@@ -438,7 +438,7 @@ export const parseRoutes = (
     callback: (routeObj: ts.Node) => void,
     n: ts.Node
   ) => {
-    if (excludeFiles.has(s.fileName)) {
+    if (excludeFiles.has(resolve(s.fileName))) {
       return;
     }
     if (!n) {
@@ -476,7 +476,7 @@ export const parseRoutes = (
   program.getSourceFiles().map(s => {
     s.forEachChild(
       visitNode.bind(null, s, (n: ts.Node) => {
-        const path = n.getSourceFile().fileName;
+        const path = resolve(n.getSourceFile().fileName);
         const route = getRoute(
           n as ts.ObjectLiteralExpression,
           entryPoints,

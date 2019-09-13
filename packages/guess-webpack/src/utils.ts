@@ -130,9 +130,9 @@ export const getCompilationMapping = (
       }
       if (c.initial) {
         const pickers = [
-          (f: string) => f.startsWith('main'),
-          (f: string) => f.startsWith('runtime'),
-          (f: string) => f.startsWith('vendor'),
+          (f: string) => f.startsWith('main') && f.endsWith('.js'),
+          (f: string) => f.startsWith('runtime') && f.endsWith('.js'),
+          (f: string) => f.startsWith('vendor') && f.endsWith('.js'),
           (f: string) => f.endsWith('.js'),
         ]
         while (!mainName && pickers.length) {
