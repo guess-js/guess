@@ -1,13 +1,13 @@
 import { withRouter } from 'next/router';
-const { guess } = require('../../../../api');
+//const { guess } = require('../../../../api');
 
 import Link from 'next/link';
 import Head from 'next/head';
 
 const layout = ({ router, children, title = '🔮 Next.js + Guess.js' }) => {
-  if (typeof window !== 'undefined') {
-    Object.keys(guess()).forEach(p => router.prefetch(p));
-  }
+//  if (typeof window !== 'undefined') {
+//    Object.keys(guess()).forEach(p => router.prefetch(p));
+//  }
 
   return (
     <div>
