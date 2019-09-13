@@ -101,11 +101,11 @@ export const getCompilationMapping = (
   compilation: Compilation,
   entryPoints: Set<string>,
   logger: Logger,
-  debug?: boolean
 ): { mainName: string | null; fileChunk: { [path: string]: string } } => {
   const fileChunk: { [path: string]: string } = {};
 
   let mainName: string | null = null;
+  let mainPriority = Infinity;
   function getModulePath(moduleName: string): string | null {
     const cwd = process.cwd();
     const relativePath = moduleName
@@ -131,12 +131,23 @@ export const getCompilationMapping = (
       if (c.initial) {
         const pickers = [
           (f: string) => f.startsWith('main') && f.endsWith('.js'),
+          (f: string) => f.indexOf('/main') >= 0 && f.endsWith('.js'),
           (f: string) => f.startsWith('runtime') && f.endsWith('.js'),
+          (f: string) => f.indexOf('/runtime') >= 0 && f.endsWith('.js'),
           (f: string) => f.startsWith('vendor') && f.endsWith('.js'),
+          (f: string) => f.indexOf('/vendor') >= 0 && f.endsWith('.js'),
+          (f: string) => f.startsWith('common') && f.endsWith('.js'),
           (f: string) => f.endsWith('.js'),
         ]
-        while (!mainName && pickers.length) {
-          mainName = c.files.filter(pickers.shift()!).pop()!;
+        let currentMain = null;
+        let currentPriority = 0;
+        while (!currentMain && pickers.length) {
+          currentMain = c.files.filter(pickers.shift()!).pop()!;
+          currentPriority++;
+        }
+        if (mainPriority > currentPriority) {
+          mainName = currentMain;
+          mainPriority = currentPriority;
         }
       }
       if (c.modules && c.modules.length) {

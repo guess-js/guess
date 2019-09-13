@@ -107,7 +107,6 @@ export class PrefetchAotPlugin {
         compilation,
         new Set(this._config.routes.map(r => stripExtension(r.modulePath))),
         this.logger,
-        this._config.debug
       );
       mainName = res.mainName;
       fileChunk = res.fileChunk;
