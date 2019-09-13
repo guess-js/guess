@@ -30,7 +30,7 @@
     "mocha": "6.2.0",
     "path": "0.12.7",
     "puppeteer": "1.19.0",
-    "standard": "14.1.0",
+    "standard": "14.2.0",
     "supertest": "4.0.2"
   }
 }
