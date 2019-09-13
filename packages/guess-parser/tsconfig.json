@@ -6,7 +6,7 @@
     "declaration": true,
     "experimentalDecorators": true,
     "strict": true,
-    "outDir": ".",
+    "outDir": "dist",
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"]
   },
