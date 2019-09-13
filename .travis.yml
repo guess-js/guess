@@ -3,7 +3,9 @@ node_js: stable
 os: linux
 sudo: required
 
-install: npm run bootstrap
+install:
+  - npm run bootstrap
+  - npm i -g yarn
 script:
   - npm run build
   - npm run test:ci

@@ -8,17 +8,17 @@ module.exports = {
       new GuessPlugin({
         reportProvider() {
           return Promise.resolve({
-            '/next/dist/': {
-              '/next/dist/contact': 80,
-              '/next/dist/about': 20
+            '/': {
+              '/contact': 80,
+              '/about': 20
             },
-            '/next/dist/contact': {
-              '/next/dist/': 20,
-              '/next/dist/about': 80
+            '/contact': {
+              '/': 20,
+              '/about': 80
             },
-            '/next/dist/about': {
-              '/next/dist/': 80,
-              '/next/dist/contact': 20
+            '/about': {
+              '/': 80,
+              '/contact': 20
             }
           });
         },

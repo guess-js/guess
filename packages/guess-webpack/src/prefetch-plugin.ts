@@ -12,11 +12,14 @@ import {
   getCompilationMapping,
   stripExtension
 } from './utils';
+import { Logger } from '../../common/logger';
 
 const template = require('lodash.template');
 const ConcatSource = require('webpack-sources').ConcatSource;
 
 export class PrefetchPlugin {
+  private logger = new Logger();
+
   constructor(private _config: PrefetchPluginConfig) {
     if (!_config.data) {
       throw new Error('Page graph not provided');
@@ -31,7 +34,7 @@ export class PrefetchPlugin {
       const res = getCompilationMapping(
         compilation,
         new Set(this._config.routes.map(r => stripExtension(r.modulePath))),
-        this._config.debug
+        this.logger,
       );
       mainName = res.mainName;
       fileChunk = res.fileChunk;
@@ -55,6 +58,7 @@ export class PrefetchPlugin {
         };
       }),
       this._config.data,
+      this.logger,
       !!this._config.debug
     );
     Object.keys(initialGraph).forEach(c => {

@@ -5,6 +5,7 @@ import {
   getCompilationMapping
 } from '../../src/utils';
 import { join } from 'path';
+import { Logger } from '../../../common/logger';
 
 describe('stripExtension', () => {
   it('should strip .js, .jsx, .tsx, .ts extensions', () => {
@@ -41,7 +42,7 @@ const getAbsolutePaths = (paths: string[]) => {
 
 describe('getCompilationMapping', () => {
   it('should work', () => {
-    const res = getCompilationMapping(getComp([]), new Set());
+    const res = getCompilationMapping(getComp([]), new Set(), new Logger());
     expect(res.mainName).toBe(null);
     expect(res.fileChunk).toEqual({});
   });
@@ -56,7 +57,8 @@ describe('getCompilationMapping', () => {
           modules: []
         }
       ]),
-      new Set()
+      new Set(),
+      new Logger()
     );
     expect(res.mainName).toBe('chunk.js');
     expect(res.fileChunk).toEqual({});
@@ -84,9 +86,10 @@ describe('getCompilationMapping', () => {
           origins: []
         }
       ]),
-      new Set()
+      new Set(),
+      new Logger()
     );
-    expect(res.mainName).toBe('c.js');
+    expect(res.mainName).toBe('a.js');
     expect(res.fileChunk).toEqual({});
   });
 
@@ -135,9 +138,10 @@ describe('getCompilationMapping', () => {
           ]
         }
       ]),
-      new Set(getAbsolutePaths(['c.module', 'b.module', 'a.module']))
+      new Set(getAbsolutePaths(['c.module', 'b.module', 'a.module'])),
+      new Logger()
     );
-    expect(res.mainName).toBe('c.js');
+    expect(res.mainName).toBe('a.js');
     const cwd = process.cwd();
     expect(res.fileChunk).toEqual({
       [join(cwd, '/a.module')]: 'a.js',
@@ -162,7 +166,8 @@ describe('getCompilationMapping', () => {
             ]
           }
         ]),
-        new Set(['c.module', 'b.module', 'a.module'])
+        new Set(['c.module', 'b.module', 'a.module']),
+        new Logger()
       )
     ).toEqual({ fileChunk: {}, mainName: 'a.js' });
   });
@@ -212,13 +217,47 @@ describe('getCompilationMapping', () => {
           ]
         }
       ]),
-      new Set(getAbsolutePaths(['not-there.module', 'b.module', 'a.module']))
+      new Set(getAbsolutePaths(['not-there.module', 'b.module', 'a.module'])),
+      new Logger()
     );
-    expect(res.mainName).toBe('c.js');
+    expect(res.mainName).toBe('a.js');
     const cwd = process.cwd();
     expect(res.fileChunk).toEqual({
       [join(cwd, '/a.module')]: 'a.js',
       [join(cwd, '/b.module')]: 'b.js'
     });
+  });
+
+  it('should pick the right bundle priority', () => {
+    expect(
+      getCompilationMapping(
+        getComp([
+          {
+            files: ['foo.js'],
+            initial: true,
+            origins: [],
+            modules: [
+              {
+                name: 'foo',
+                reasons: []
+              }
+            ]
+          },
+          {
+            files: ['main.js'],
+            initial: true,
+            origins: [],
+            modules: [
+              {
+                name: 'main',
+                reasons: []
+              }
+            ]
+          }
+        ]),
+        new Set(['c.module', 'b.module', 'a.module']),
+        new Logger()
+      )
+    ).toEqual({ fileChunk: {}, mainName: 'main.js' });
   });
 });

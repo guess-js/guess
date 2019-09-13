@@ -1,6 +1,7 @@
 import { PrefetchConfig, BundleEntryGraph } from './declarations';
 import { Graph, RoutingModule } from '../../common/interfaces';
 import { join } from 'path';
+import { Logger } from '../../common/logger';
 
 export const defaultPrefetchConfig: PrefetchConfig = {
   '4g': 0.15,
@@ -12,6 +13,7 @@ export const defaultPrefetchConfig: PrefetchConfig = {
 const validateInput = (
   routes: RoutingModule[],
   graph: Graph,
+  logger: Logger,
   debug: boolean
 ) => {
   const routesInReport = new Set();
@@ -24,7 +26,7 @@ const validateInput = (
     .filter(x => !routesInReport.has(x))
     .forEach(r => {
       if (debug) {
-        console.warn(
+        logger.debug(
           `The route ${r} is not present in the report or in the route declarations`
         );
       }
@@ -34,9 +36,10 @@ const validateInput = (
 export const buildMap = (
   routes: RoutingModule[],
   graph: Graph,
+  logger: Logger,
   debug: boolean
 ): BundleEntryGraph => {
-  validateInput(routes, graph, debug);
+  validateInput(routes, graph, logger, debug);
   const result: BundleEntryGraph = {};
   const routeFile = {} as { [key: string]: string };
   routes.forEach(r => {
@@ -97,11 +100,12 @@ export interface JSCompilation {
 export const getCompilationMapping = (
   compilation: Compilation,
   entryPoints: Set<string>,
-  debug?: boolean
+  logger: Logger,
 ): { mainName: string | null; fileChunk: { [path: string]: string } } => {
   const fileChunk: { [path: string]: string } = {};
 
   let mainName: string | null = null;
+  let mainPriority = Infinity;
   function getModulePath(moduleName: string): string | null {
     const cwd = process.cwd();
     const relativePath = moduleName
@@ -125,7 +129,26 @@ export const getCompilationMapping = (
         return;
       }
       if (c.initial) {
-        mainName = c.files.filter(f => f.endsWith('.js')).pop()!;
+        const pickers = [
+          (f: string) => f.startsWith('main') && f.endsWith('.js'),
+          (f: string) => f.indexOf('/main') >= 0 && f.endsWith('.js'),
+          (f: string) => f.startsWith('runtime') && f.endsWith('.js'),
+          (f: string) => f.indexOf('/runtime') >= 0 && f.endsWith('.js'),
+          (f: string) => f.startsWith('vendor') && f.endsWith('.js'),
+          (f: string) => f.indexOf('/vendor') >= 0 && f.endsWith('.js'),
+          (f: string) => f.startsWith('common') && f.endsWith('.js'),
+          (f: string) => f.endsWith('.js'),
+        ]
+        let currentMain = null;
+        let currentPriority = 0;
+        while (!currentMain && pickers.length) {
+          currentMain = c.files.filter(pickers.shift()!).pop()!;
+          currentPriority++;
+        }
+        if (mainPriority > currentPriority) {
+          mainName = currentMain;
+          mainPriority = currentPriority;
+        }
       }
       if (c.modules && c.modules.length) {
         const existingEntries = c.modules.filter(m => {
@@ -136,16 +159,12 @@ export const getCompilationMapping = (
           return entryPoints.has(path);
         });
         if (existingEntries.length > 1) {
-          if (debug) {
-            console.warn(
-              'There are more than two entry points associated with chunk',
-              c.files[0]
-            );
-          }
+          logger.debug(
+            'There are more than two entry points associated with chunk',
+            c.files[0]
+          );
         } else if (existingEntries.length === 0) {
-          if (debug) {
-            console.error('Cannot find entry point for chunk: ' + c.files[0]);
-          }
+          logger.debug('Cannot find entry point for chunk: ' + c.files[0]);
         } else {
           const path = getModulePath(existingEntries[0].name);
           if (path) {
@@ -153,9 +172,7 @@ export const getCompilationMapping = (
           }
         }
       } else {
-        if (debug) {
-          console.warn('Cannot find modules for chunk', c.files[0]);
-        }
+        logger.debug('Cannot find modules for chunk', c.files[0]);
       }
     });
 

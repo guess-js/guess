@@ -9,6 +9,7 @@
     "experimentalDecorators": true,
     "downlevelIteration": true,
     "lib": ["es2015", "esnext", "dom"],
+    "outDir": "dist",
     "paths": {
       "guess-ga": ["guess-ga"]
     }

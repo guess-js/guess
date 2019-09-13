@@ -9,9 +9,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "core-js": "^3.0.1",
-    "next": "^8.1.0",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0"
+    "next": "^9.0.0",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0"
   }
 }
