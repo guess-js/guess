@@ -25,6 +25,9 @@
   "dependencies": {
     "@wessberg/ts-evaluator": "0.0.22"
   },
+  "devDependencies": {
+    "ts-loader": "6.0.4"
+  },
   "peerDependencies": {
     "typescript": "3.6.3"
   },
@@ -44,9 +47,6 @@
       "json",
       "node"
     ]
-  },
-  "devDependencies": {
-    "ts-loader": "6.0.4"
   },
   "scripts": {
     "build": "webpack"

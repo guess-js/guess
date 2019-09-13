@@ -27,6 +27,10 @@
   "dependencies": {
     "googleapis": "^43.0.0"
   },
+  "devDependencies": {
+    "ts-loader": "6.0.4",
+    "typescript": "3.6.3"
+  },
   "files": [
     "dist"
   ],
@@ -43,10 +47,6 @@
       "json",
       "node"
     ]
-  },
-  "devDependencies": {
-    "ts-loader": "6.0.4",
-    "typescript": "3.6.3"
   },
   "scripts": {
     "build": "webpack"
