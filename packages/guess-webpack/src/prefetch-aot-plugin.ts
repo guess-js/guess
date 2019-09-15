@@ -81,6 +81,13 @@ const alterChunk = (
   });
 };
 
+const joinUrl = (basePath: string, chunk: string) => {
+  if (basePath) {
+    return basePath + '/' + chunk;
+  }
+  return chunk;
+};
+
 export class PrefetchAotPlugin {
   private logger = new Logger();
   constructor(private _config: PrefetchAotPluginConfig) {
@@ -160,7 +167,7 @@ export class PrefetchAotPlugin {
         chunkRoute[node.file] = neighbor.route;
         const newTransition: PrefetchAotNeighbor = {
           probability: neighbor.probability,
-          chunks: [node.file, ...node.deps]
+          chunks: [...new Set([node.file, ...node.deps])]
         };
         newConfig[route].push(newTransition);
       });
@@ -190,8 +197,8 @@ export class PrefetchAotPlugin {
         return false;
       }
       tableOutput.push([currentChunk, c.chunks[0], c.probability]);
-      return `[${c.probability}, ${c.chunks.map(
-        chunk => `'${this._config.basePath}/${chunk}'`
+      return `[${c.probability},${c.chunks.map(
+        chunk => `'${joinUrl(this._config.basePath, chunk)}'`
       ).join(',')}]`;
     };
 
