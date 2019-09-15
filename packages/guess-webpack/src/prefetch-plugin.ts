@@ -2,7 +2,8 @@ import { readFileSync } from 'fs';
 import {
   PrefetchPluginConfig,
   PrefetchGraph,
-  PrefetchNeighbor
+  PrefetchNeighbor,
+  FileChunkMap
 } from './declarations';
 import { compressGraph } from './compress';
 import { join } from 'path';
@@ -28,7 +29,7 @@ export class PrefetchPlugin {
 
   execute(compilation: any, callback: any) {
     let mainName: string | null = null;
-    let fileChunk: { [key: string]: string } = {};
+    let fileChunk: FileChunkMap = {};
 
     try {
       const res = getCompilationMapping(
@@ -64,10 +65,13 @@ export class PrefetchPlugin {
     Object.keys(initialGraph).forEach(c => {
       newConfig[c] = [];
       initialGraph[c].forEach(p => {
+        const node = fileChunk[p.file];
         const newTransition: PrefetchNeighbor = {
           probability: p.probability,
           route: p.route,
-          chunk: fileChunk[p.file]
+          // In delegate mode we don't care about chunks
+          // so it's fine if the mapping file/chunk is missing.
+          chunk: (node || { file: '' }).file
         };
         newConfig[c].push(newTransition);
       });

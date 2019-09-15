@@ -50,13 +50,16 @@ const getConnection = (global: any): ConnectionEffectiveType => {
   return global.navigator.connection.effectiveType || '3g';
 };
 
-export const initialize = (
-  g: any,
-  t: PrefetchConfig,
-) => {
+export const initialize = (g: any, t: PrefetchConfig) => {
   const idle = g.requestIdleCallback || ((cb: Function) => setTimeout(cb, 0));
   g.__GUESS__ = {};
-  g.__GUESS__.p = (...p: [string, number][]) => {
-    idle(() => p.forEach(c => c[1] >= t[getConnection(g)] ? prefetch('', c[0]) : void 0))
+  g.__GUESS__.p = (...p: [number, string][]) => {
+    idle(() =>
+      p.forEach(c =>
+        c[0] >= t[getConnection(g)]
+          ? c.slice(1).forEach(f => prefetch('', f as string))
+          : void 0
+      )
+    );
   };
 };
