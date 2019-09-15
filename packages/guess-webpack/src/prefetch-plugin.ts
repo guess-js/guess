@@ -66,14 +66,12 @@ export class PrefetchPlugin {
       newConfig[c] = [];
       initialGraph[c].forEach(p => {
         const node = fileChunk[p.file];
-        if (!node) {
-          this.logger.debug('No chunk for file', p.file);
-          return;
-        }
         const newTransition: PrefetchNeighbor = {
           probability: p.probability,
           route: p.route,
-          chunk: node.file
+          // In delegate mode we don't care about chunks
+          // so it's fine if the mapping file/chunk is missing.
+          chunk: (node || { file: '' }).file
         };
         newConfig[c].push(newTransition);
       });
