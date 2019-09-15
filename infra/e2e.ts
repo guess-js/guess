@@ -9,7 +9,7 @@ console.log(execSync(
 
 // Prefetching instruction for baz
 const fooModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/foo-foo-module.js').toString();
-if (fooModule.indexOf(`__GUESS__.p(['baz-baz-module.js',1]`) < 0) {
+if (fooModule.indexOf(`__GUESS__.p([1,'baz-baz-module.js']`) < 0) {
   console.error('Cannot find prefetching instructions');
   process.exit(1);
 }

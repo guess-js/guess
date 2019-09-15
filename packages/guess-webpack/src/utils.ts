@@ -1,4 +1,4 @@
-import { PrefetchConfig, BundleEntryGraph } from './declarations';
+import { PrefetchConfig, BundleEntryGraph, FileChunkMap } from './declarations';
 import { Graph, RoutingModule } from '../../common/interfaces';
 import { join } from 'path';
 import { Logger } from '../../common/logger';
@@ -76,8 +76,10 @@ export interface JSReason {
 }
 
 export interface JSModule {
+  id: string;
   name: string;
   reasons: JSReason[];
+  chunks: number[];
 }
 
 export interface JSOrigin {
@@ -87,6 +89,7 @@ export interface JSOrigin {
 }
 
 export interface JSChunk {
+  id: number;
   files: string[];
   initial: boolean;
   modules: JSModule[];
@@ -95,14 +98,61 @@ export interface JSChunk {
 
 export interface JSCompilation {
   chunks: JSChunk[];
+  modules: JSModule[];
 }
+
+interface ChunkGraph {
+  [chunk: string]: Set<string>;
+}
+
+const getChunkJsFile = (chunk: JSChunk) => {
+  return chunk.files.filter(f => f.endsWith('.js')).shift();
+};
+
+const getChunkDependencyGraph = (stats: JSCompilation): ChunkGraph => {
+  const chunkGraph: ChunkGraph = {};
+
+  const chunkIdToChunk: {[id: number]: JSChunk} = {};
+  stats.chunks.forEach(chunk => chunkIdToChunk[chunk.id] = chunk);
+
+  const moduleIdToModule: {[id: string]: JSModule} = {};
+  stats.modules.forEach(module => moduleIdToModule[module.id] = module);
+
+  stats.modules.forEach(module => {
+    const moduleChunks = module.chunks.map(id => chunkIdToChunk[id]);
+    module.reasons.forEach(reason => {
+      const dependent = moduleIdToModule[reason.moduleId];
+      if (!dependent) {
+        return;
+      }
+      const dependentChunks = dependent.chunks.map(id => chunkIdToChunk[id]);
+      dependentChunks.forEach(dependentChunk => {
+        const file = getChunkJsFile(dependentChunk);
+        if (!file) {
+          return;
+        }
+        chunkGraph[file] = chunkGraph[file] || new Set<string>();
+        moduleChunks.forEach(dependencyChunk => {
+          if (dependencyChunk.initial) {
+            return;
+          }
+          const dependencyFile = getChunkJsFile(dependencyChunk);
+          if (!dependencyFile) {
+            return;
+          }
+          chunkGraph[file].add(dependencyFile);
+        });
+      });
+    });
+  });
+  return chunkGraph;
+};
 
 export const getCompilationMapping = (
   compilation: Compilation,
   entryPoints: Set<string>,
   logger: Logger,
-): { mainName: string | null; fileChunk: { [path: string]: string } } => {
-  const fileChunk: { [path: string]: string } = {};
+): { mainName: string | null; fileChunk: FileChunkMap } => {
 
   let mainName: string | null = null;
   let mainPriority = Infinity;
@@ -121,11 +171,17 @@ export const getCompilationMapping = (
     return join(cwd, jsPath);
   }
 
-  compilation
-    .getStats()
-    .toJson()
+  const jsonStats = compilation.getStats().toJson();
+
+  const chunkDepGraph = getChunkDependencyGraph(jsonStats);
+  logger.debug('Chunk dependency graph', chunkDepGraph);
+
+  const fileChunk: FileChunkMap = {};
+
+  jsonStats
     .chunks.forEach(c => {
-      if (!c.files[0].endsWith('.js')) {
+      const jsFile = getChunkJsFile(c);
+      if (!jsFile) {
         return;
       }
       if (c.initial) {
@@ -161,18 +217,18 @@ export const getCompilationMapping = (
         if (existingEntries.length > 1) {
           logger.debug(
             'There are more than two entry points associated with chunk',
-            c.files[0]
+            jsFile
           );
         } else if (existingEntries.length === 0) {
-          logger.debug('Cannot find entry point for chunk: ' + c.files[0]);
+          logger.debug('Cannot find entry point for chunk: ' + jsFile);
         } else {
           const path = getModulePath(existingEntries[0].name);
           if (path) {
-            fileChunk[path] = c.files[0];
+            fileChunk[path] = fileChunk[path] || { file: jsFile, deps: chunkDepGraph[jsFile] };
           }
         }
       } else {
-        logger.debug('Cannot find modules for chunk', c.files[0]);
+        logger.debug('Cannot find modules for chunk', jsFile);
       }
     });
 

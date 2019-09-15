@@ -2,7 +2,8 @@ import { readFileSync } from 'fs';
 import {
   PrefetchPluginConfig,
   PrefetchGraph,
-  PrefetchNeighbor
+  PrefetchNeighbor,
+  FileChunkMap
 } from './declarations';
 import { compressGraph } from './compress';
 import { join } from 'path';
@@ -28,7 +29,7 @@ export class PrefetchPlugin {
 
   execute(compilation: any, callback: any) {
     let mainName: string | null = null;
-    let fileChunk: { [key: string]: string } = {};
+    let fileChunk: FileChunkMap = {};
 
     try {
       const res = getCompilationMapping(
@@ -64,10 +65,15 @@ export class PrefetchPlugin {
     Object.keys(initialGraph).forEach(c => {
       newConfig[c] = [];
       initialGraph[c].forEach(p => {
+        const node = fileChunk[p.file];
+        if (!node) {
+          this.logger.debug('No chunk for file', p.file);
+          return;
+        }
         const newTransition: PrefetchNeighbor = {
           probability: p.probability,
           route: p.route,
-          chunk: fileChunk[p.file]
+          chunk: node.file
         };
         newConfig[c].push(newTransition);
       });

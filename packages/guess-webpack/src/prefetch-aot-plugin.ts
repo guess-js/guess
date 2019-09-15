@@ -2,7 +2,8 @@ import { readFileSync, writeFile } from 'fs';
 import {
   PrefetchAotGraph,
   PrefetchAotNeighbor,
-  PrefetchAotPluginConfig
+  PrefetchAotPluginConfig,
+  FileChunkMap
 } from './declarations';
 
 import { join } from 'path';
@@ -100,13 +101,13 @@ export class PrefetchAotPlugin {
     this.logger.debug('Inside PrefetchAotPlugin');
 
     let mainName: string | null = null;
-    let fileChunk: { [key: string]: string } = {};
+    let fileChunk: FileChunkMap = {};
 
     try {
       const res = getCompilationMapping(
         compilation,
         new Set(this._config.routes.map(r => stripExtension(r.modulePath))),
-        this.logger,
+        this.logger
       );
       mainName = res.mainName;
       fileChunk = res.fileChunk;
@@ -151,10 +152,15 @@ export class PrefetchAotPlugin {
     Object.keys(initialGraph).forEach(route => {
       newConfig[route] = [];
       initialGraph[route].forEach(neighbor => {
-        chunkRoute[fileChunk[neighbor.file]] = neighbor.route;
+        const node = fileChunk[neighbor.file];
+        if (!node) {
+          this.logger.debug('No chunk for file', neighbor.file);
+          return;
+        }
+        chunkRoute[node.file] = neighbor.route;
         const newTransition: PrefetchAotNeighbor = {
           probability: neighbor.probability,
-          chunk: fileChunk[neighbor.file]
+          chunks: [node.file, ...node.deps]
         };
         newConfig[route].push(newTransition);
       });
@@ -178,13 +184,15 @@ export class PrefetchAotPlugin {
       currentChunk: string,
       c: PrefetchAotNeighbor
     ) => {
-      if (!c.chunk) {
+      if (!c.chunks || !c.chunks.length) {
         this.logger.debug('Cannot find chunk name for', c, 'from route', route);
 
         return false;
       }
-      tableOutput.push([currentChunk, c.chunk, c.probability]);
-      return `['${join(this._config.basePath, c.chunk)}',${c.probability}]`;
+      tableOutput.push([currentChunk, c.chunks[0], c.probability]);
+      return `[${c.probability}, ${c.chunks.map(
+        chunk => `'${this._config.basePath}/${chunk}'`
+      ).join(',')}]`;
     };
 
     let chunksLeft = Object.keys(chunkRoute).length;
