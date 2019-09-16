@@ -9,8 +9,14 @@ console.log(execSync(
 
 // Prefetching instruction for baz
 const fooModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/foo-foo-module.js').toString();
-if (fooModule.indexOf(`__GUESS__.p([1,'baz-baz-module.js']`) < 0) {
-  console.error('Cannot find prefetching instructions');
+if (fooModule.indexOf(`__GUESS__.p([0.6,'baz-baz-module.js'],[0.4,'qux-qux-module.js'])`) < 0) {
+  console.error('Problem with the ordering, or cannot find prefetching instructions');
+  process.exit(1);
+}
+
+const quxModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/qux-qux-module.js').toString();
+if (quxModule.indexOf(`__GUESS__.p([0.99,'foo-foo-module.js'])`) < 0) {
+  console.error('Problem with filtering prefetching instructions');
   process.exit(1);
 }
 
