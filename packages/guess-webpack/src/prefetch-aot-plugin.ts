@@ -190,16 +190,15 @@ export class PrefetchAotPlugin {
       route: string,
       currentChunk: string,
       c: PrefetchAotNeighbor
-    ) => {
+    ): false | [number, string] => {
       if (!c.chunks || !c.chunks.length) {
         this.logger.debug('Cannot find chunk name for', c, 'from route', route);
-
         return false;
       }
       tableOutput.push([currentChunk, c.chunks[0], c.probability]);
-      return `[${c.probability},${c.chunks.map(
+      return [c.probability, `[${c.probability},${c.chunks.map(
         chunk => `'${joinUrl(this._config.basePath, chunk)}'`
-      ).join(',')}]`;
+      ).join(',')}]`];
     };
 
     let chunksLeft = Object.keys(chunkRoute).length;
@@ -217,7 +216,9 @@ export class PrefetchAotPlugin {
 
       const neighbors = (newConfig[route] || [])
         .map(generateNeighbors.bind(null, route, chunkName))
-        .filter(Boolean);
+        .filter(Boolean)
+        .sort((a, b) => a === false || b === false ? 0 : b[0] - a[0])
+        .map(n => n === false ? null : n[1]);
 
       if (newConfig[route]) {
         this.logger.debug('Adding', neighbors);
