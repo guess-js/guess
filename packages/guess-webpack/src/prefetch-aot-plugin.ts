@@ -196,12 +196,23 @@ export class PrefetchAotPlugin {
         return false;
       }
       tableOutput.push([currentChunk, c.chunks[0], c.probability]);
-      return [c.probability, `[${c.probability},${c.chunks.map(
-        chunk => `'${joinUrl(this._config.basePath, chunk)}'`
-      ).join(',')}]`];
+      return [
+        c.probability,
+        `[${c.probability},${c.chunks
+          .map(chunk => `'${joinUrl(this._config.basePath, chunk)}'`)
+          .join(',')}]`
+      ];
     };
 
     let chunksLeft = Object.keys(chunkRoute).length;
+
+    const conf = this._config.prefetchConfig || defaultPrefetchConfig;
+    const minProbability = Math.min(
+      conf['2g'],
+      conf['3g'],
+      conf['4g'],
+      conf['slow-2g']
+    );
 
     const handleAsset = (asset: Asset) => {
       const chunkName = asset.name;
@@ -217,8 +228,9 @@ export class PrefetchAotPlugin {
       const neighbors = (newConfig[route] || [])
         .map(generateNeighbors.bind(null, route, chunkName))
         .filter(Boolean)
-        .sort((a, b) => a === false || b === false ? 0 : b[0] - a[0])
-        .map(n => n === false ? null : n[1]);
+        .sort((a, b) => (a === false || b === false ? 0 : b[0] - a[0]))
+        .filter(n => n === false ? false : n[0] >= minProbability)
+        .map(n => (n === false ? null : n[1]));
 
       if (newConfig[route]) {
         this.logger.debug('Adding', neighbors);
