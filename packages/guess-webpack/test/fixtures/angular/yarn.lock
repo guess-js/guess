@@ -3788,27 +3788,27 @@ gtoken@^4.0.0:
     jws "^3.1.5"
     mime "^2.2.0"
 
-guess-ga@^0.3.13:
-  version "0.3.13"
-  resolved "https://registry.yarnpkg.com/guess-ga/-/guess-ga-0.3.13.tgz#8f581d6a2acad0cc95b6dd3964960e2b6c7fab27"
-  integrity sha512-jB8pmyepPC1QiZnPV/4IDviJsHxilZLtj8zUnRGWBLrqcNx5+6lDojSp4et+ZnVJmFB27+pXqIrYX6jX5Qv1ug==
+guess-ga@^0.4.6:
+  version "0.4.6"
+  resolved "https://registry.yarnpkg.com/guess-ga/-/guess-ga-0.4.6.tgz#b018238e6085587f62cb29961c4061a2f1e0e655"
+  integrity sha512-sSsBOy3ia5JgRgUWP4Q1FomDWzkC4NunC7umukaZedvA3hBXZ2Kl+sV0GP5VnEyIZzjDq5/K0W5iqXTwKlC2Zw==
   dependencies:
     googleapis "^43.0.0"
 
 guess-parser@../../../../guess-parser:
-  version "0.3.13"
+  version "0.4.6"
   dependencies:
     "@wessberg/ts-evaluator" "0.0.22"
 
 guess-webpack@../../../:
-  version "0.3.13"
+  version "0.4.6"
   dependencies:
     chalk "^2.4.2"
     copy-webpack-plugin "^5.0.0"
     flat-cache "^2.0.0"
     google-oauth2-node "0.0.3"
     googleapis "^43.0.0"
-    guess-ga "^0.3.13"
+    guess-ga "^0.4.6"
     lodash.template "^4.4.0"
     rollup "^1.0.0"
     rollup-plugin-hypothetical "^2.1.0"

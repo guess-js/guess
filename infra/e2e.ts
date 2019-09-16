@@ -14,6 +14,7 @@ if (fooModule.indexOf(`__GUESS__.p([0.6,'baz-baz-module.js'],[0.4,'qux-qux-modul
   process.exit(1);
 }
 
+// Proper filtering of the instructions
 const quxModule = readFileSync('packages/guess-webpack/test/fixtures/angular/dist/angular/qux-qux-module.js').toString();
 if (quxModule.indexOf(`__GUESS__.p([0.99,'foo-foo-module.js'])`) < 0) {
   console.error('Problem with filtering prefetching instructions');
