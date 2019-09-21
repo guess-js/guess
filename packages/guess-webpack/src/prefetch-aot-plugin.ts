@@ -81,13 +81,6 @@ const alterChunk = (
   });
 };
 
-const joinUrl = (basePath: string, chunk: string) => {
-  if (basePath) {
-    return basePath + '/' + chunk;
-  }
-  return chunk;
-};
-
 export class PrefetchAotPlugin {
   private logger = new Logger();
   constructor(private _config: PrefetchAotPluginConfig) {
@@ -199,7 +192,7 @@ export class PrefetchAotPlugin {
       return [
         c.probability,
         `[${parseFloat(c.probability.toFixed(2))},${c.chunks
-          .map(chunk => `'${joinUrl(this._config.basePath, chunk)}'`)
+          .map(chunk => `'${chunk}'`)
           .join(',')}]`
       ];
     };
@@ -258,7 +251,8 @@ export class PrefetchAotPlugin {
               defaultPrefetchConfig,
               this._config.prefetchConfig
             )
-          )
+          ),
+          BASE_PATH: this._config.base
         });
         newCode = prefetchingLogic + ';' + newCode;
         this.logger.debug('Altering the main chunk');

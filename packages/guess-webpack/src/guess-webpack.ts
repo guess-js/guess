@@ -7,7 +7,7 @@ import { AssetObserver } from './asset-observer';
 
 export interface RuntimeConfig {
   /** @internal */
-  basePath?: string;
+  base?: string;
   /** @internal */
   prefetchConfig?: PrefetchConfig;
   /** @internal */
@@ -126,9 +126,9 @@ export class GuessPlugin {
         data,
         debug: this._config.debug,
         basePath: runtime
-          ? runtime.basePath === undefined
+          ? runtime.base === undefined
             ? ''
-            : runtime.basePath
+            : runtime.base
           : '',
         prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
         routes,
@@ -138,10 +138,10 @@ export class GuessPlugin {
       new PrefetchAotPlugin({
         data,
         debug: this._config.debug,
-        basePath: runtime
-          ? runtime.basePath === undefined
+        base: runtime
+          ? runtime.base === undefined
             ? ''
-            : runtime.basePath
+            : runtime.base
           : '',
         prefetchConfig: runtime ? runtime.prefetchConfig : undefined,
         routes

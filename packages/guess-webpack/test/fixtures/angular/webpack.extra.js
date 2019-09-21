@@ -8,6 +8,9 @@ module.exports = {
       reportProvider() {
         return Promise.resolve(JSON.parse(require('fs').readFileSync('./routes.json').toString()));
       },
+      runtime: {
+        base: 'http://localhost:1337'
+      },
       routeProvider() {
         return parseRoutes('.');
       }

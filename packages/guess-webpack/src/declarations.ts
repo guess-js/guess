@@ -80,7 +80,7 @@ export interface PrefetchAotGraph {
 export interface PrefetchAotPluginConfig {
   debug?: boolean;
   data: Graph;
-  basePath: string;
+  base: string;
   prefetchConfig?: PrefetchConfig;
   routes: RoutingModule[];
 }
