@@ -35,6 +35,12 @@ if (mainModule.indexOf('__GUESS__.p(') < 0 || mainModule.indexOf('__GUESS__.p=')
   process.exit(1);
 }
 
+// No base
+if (mainModule.indexOf('"http://localhost:1337"') < 0) {
+  console.error('Unable to find the base path');
+  process.exit(1);
+}
+
 // Prod build should work
 console.log(execSync(
   `${enterTest} && ./node_modules/.bin/ng build --prod --extra-webpack-config webpack.extra.js`
