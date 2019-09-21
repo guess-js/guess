@@ -191,7 +191,7 @@ export class PrefetchAotPlugin {
       tableOutput.push([currentChunk, c.chunks[0], c.probability]);
       return [
         c.probability,
-        `[${c.probability},${c.chunks
+        `[${parseFloat(c.probability.toFixed(2))},${c.chunks
           .map(chunk => `'${chunk}'`)
           .join(',')}]`
       ];
