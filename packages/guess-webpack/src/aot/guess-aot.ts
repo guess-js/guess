@@ -54,14 +54,19 @@ const getConnection = (global: any): ConnectionEffectiveType => {
 
 export const initialize = (g: any, t: PrefetchConfig, base?: string) => {
   const idle = g.requestIdleCallback || ((cb: Function) => setTimeout(cb, 0));
+  base = base || '';
   g.__GUESS__ = {};
   g.__GUESS__.p = (...p: [number, string][]) => {
-    idle(() =>
-      p.forEach(c =>
-        c[0] >= t[getConnection(g)]
-          ? c.slice(1).forEach(f => prefetch(base || '', f as string))
-          : void 0
-      )
-    );
+    idle(() => {
+      const speed = getConnection(g);
+      for (let i = 0; i < p.length; i++) {
+        const c = p[i];
+        if (c[0] >= t[speed]) {
+          for (let j = 1; j < c.length; j++) {
+            prefetch(base as string, c[j] as string);
+          }
+        }
+      }
+    });
   };
 };
