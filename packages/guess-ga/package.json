@@ -28,7 +28,7 @@
     "googleapis": "^43.0.0"
   },
   "devDependencies": {
-    "ts-loader": "6.1.2",
+    "ts-loader": "6.2.0",
     "typescript": "3.6.3"
   },
   "files": [
