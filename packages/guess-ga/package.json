@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "ts-loader": "6.2.0",
-    "typescript": "3.6.3"
+    "typescript": "3.6.4"
   },
   "files": [
     "dist"
