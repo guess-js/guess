@@ -4,6 +4,14 @@ import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join, sep } from 'path';
 import { evaluate } from '@wessberg/ts-evaluator';
 
+const isImportDeclaration = (node: ts.Node): node is ts.ImportDeclaration => {
+  return node.kind === ts.SyntaxKind.ImportDeclaration;
+};
+
+const isReExportDeclaration = (node: ts.Node): node is ts.ExportDeclaration => {
+  return (node.kind === ts.SyntaxKind.ExportDeclaration && (node as ts.ExportDeclaration).exportClause === undefined);
+};
+
 const imports = (
   parent: string,
   child: string,
@@ -23,11 +31,10 @@ const imports = (
     if (found) {
       return;
     }
-    if (n.kind !== ts.SyntaxKind.ImportDeclaration) {
+    if (!isImportDeclaration(n) && !isReExportDeclaration(n)) {
       return;
     }
-    const imprt = n as ts.ImportDeclaration;
-    const path = (imprt.moduleSpecifier as ts.StringLiteral).text;
+    const path = (n.moduleSpecifier as ts.StringLiteral).text;
     const fullPath = join(dirname(parent), path) + '.ts';
     if (fullPath === child) {
       found = true;
