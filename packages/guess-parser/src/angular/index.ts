@@ -218,8 +218,7 @@ const getRoute = (
   const childrenArray = readChildren(node, program.getTypeChecker());
   let children: Route[] = [];
   if (childrenArray) {
-    children = childrenArray
-      .getChildren()
+    children = (childrenArray.getChildren ? childrenArray.getChildren() : childrenArray as unknown as ts.Node[])
       .map(c => {
         if (c.kind !== ts.SyntaxKind.ObjectLiteralExpression) {
           return null;
