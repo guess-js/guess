@@ -33,6 +33,10 @@ const routes: Routes = [
     loadChildren: 'app/qux/qux.module#QuxModule'
   },
   {
+    path: 'library',
+    loadChildren: 'app/wrapper/wrapper.module#WrapperModule'
+  },
+  {
     path: 'bar-simple',
     component: BarSimpleComponent
   },

@@ -8,6 +8,7 @@ const angularFixtureRoutes = new Set<string>([
   '/foo/baz/index',
   '/bar/baz',
   '/qux',
+  '/library',
   '/bar-simple'
 ]);
 
