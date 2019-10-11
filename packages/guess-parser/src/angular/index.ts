@@ -4,10 +4,19 @@ import { existsSync, readFileSync } from 'fs';
 import { dirname, resolve, join, sep } from 'path';
 import { evaluate } from '@wessberg/ts-evaluator';
 
+const isImportDeclaration = (node: ts.Node): node is ts.ImportDeclaration => {
+  return node.kind === ts.SyntaxKind.ImportDeclaration;
+};
+
+const isReExportDeclaration = (node: ts.Node): node is ts.ExportDeclaration => {
+  return (node.kind === ts.SyntaxKind.ExportDeclaration && (node as ts.ExportDeclaration).exportClause === undefined);
+};
+
 const imports = (
   parent: string,
   child: string,
   program: ts.Program,
+  host: ts.CompilerHost,
   visited: { [key: string]: boolean } = {}
 ) => {
   const sf = program.getSourceFile(parent);
@@ -23,17 +32,20 @@ const imports = (
     if (found) {
       return;
     }
-    if (n.kind !== ts.SyntaxKind.ImportDeclaration) {
+    if (!isImportDeclaration(n) && !isReExportDeclaration(n)) {
       return;
     }
-    const imprt = n as ts.ImportDeclaration;
-    const path = (imprt.moduleSpecifier as ts.StringLiteral).text;
-    const fullPath = join(dirname(parent), path) + '.ts';
-    if (fullPath === child) {
-      found = true;
-    }
-    if (!found && existsSync(fullPath)) {
-      found = imports(fullPath, child, program, visited);
+    const path = (n.moduleSpecifier as ts.StringLiteral).text;
+    const { resolvedModule } = ts.resolveModuleName(path, child, program.getCompilerOptions(), host);
+    if (resolvedModule !== undefined) {
+      const fullPath = resolvedModule.resolvedFileName;
+
+      if (fullPath === child) {
+        found = true;
+      }
+      if (!found && existsSync(fullPath)) {
+        found = imports(fullPath, child, program, host, visited);
+      }
     }
   });
   return found;
@@ -49,9 +61,10 @@ const imports = (
 const getModuleEntryPoint = (
   path: string,
   entryPoints: Set<string>,
-  program: ts.Program
+  program: ts.Program,
+  host: ts.CompilerHost
 ): string => {
-  const parents = [...entryPoints].filter(e => imports(e, path, program));
+  const parents = [...entryPoints].filter(e => imports(e, path, program, host));
   // If no parents, this could be the root module
   if (parents.length === 0) {
     return path;
@@ -208,7 +221,8 @@ interface LazyRoute extends Route {
 const getRoute = (
   node: ts.ObjectLiteralExpression,
   entryPoints: Set<string>,
-  program: ts.Program
+  program: ts.Program,
+  host: ts.CompilerHost
 ): Route | null => {
   const path = readPath(node, program.getTypeChecker());
   if (path === null) {
@@ -223,7 +237,7 @@ const getRoute = (
         if (c.kind !== ts.SyntaxKind.ObjectLiteralExpression) {
           return null;
         }
-        return getRoute(c as ts.ObjectLiteralExpression, entryPoints, program);
+        return getRoute(c as ts.ObjectLiteralExpression, entryPoints, program, host);
       })
       .filter(e => e !== null) as Route[];
   }
@@ -236,7 +250,8 @@ const getRoute = (
     const parent = getModuleEntryPoint(
       resolve(node.getSourceFile().fileName),
       entryPoints,
-      program
+      program,
+      host
     );
     const module = getModulePathFromRoute(parent, loadChildren);
     return {
@@ -479,13 +494,14 @@ export const parseRoutes = (
         const route = getRoute(
           n as ts.ObjectLiteralExpression,
           entryPoints,
-          program
+          program,
+          host
         );
         if (!route) {
           return;
         }
 
-        const modulePath = getModuleEntryPoint(path, entryPoints, program);
+        const modulePath = getModuleEntryPoint(path, entryPoints, program, host);
         const current = registry[modulePath] || {
           lazyRoutes: [],
           eagerRoutes: []
