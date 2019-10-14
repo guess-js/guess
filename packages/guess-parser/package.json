@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
-    "@wessberg/ts-evaluator": "0.0.22"
+    "@wessberg/ts-evaluator": "0.0.23"
   },
   "devDependencies": {
     "ts-loader": "6.2.0"
