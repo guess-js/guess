@@ -36,7 +36,7 @@ const imports = (
       return;
     }
     const path = (n.moduleSpecifier as ts.StringLiteral).text;
-    const { resolvedModule } = ts.resolveModuleName(path, child, program.getCompilerOptions(), host);
+    const { resolvedModule } = ts.resolveModuleName(path, parent, program.getCompilerOptions(), host);
     if (resolvedModule !== undefined) {
       const fullPath = resolvedModule.resolvedFileName;
 
