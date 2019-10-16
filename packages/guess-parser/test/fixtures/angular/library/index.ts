@@ -1,1 +1,1 @@
-export * from './library.module';
+export * from './nested/library.module';
