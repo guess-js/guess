@@ -34,7 +34,7 @@
   "devDependencies": {
     "@types/jest": "24.0.19",
     "@types/meow": "5.0.0",
-    "@types/node": "9.6.52",
+    "@types/node": "9.6.53",
     "blund": "1.0.0",
     "chalk": "2.4.2",
     "copy-webpack-plugin": "5.0.4",
