@@ -12,6 +12,10 @@ const isReExportDeclaration = (node: ts.Node): node is ts.ExportDeclaration => {
   return (node.kind === ts.SyntaxKind.ExportDeclaration && (node as ts.ExportDeclaration).exportClause === undefined);
 };
 
+const normalizeFilePath = (path: string): string => {
+  return join(...path.split(/\//).map((part, index) => (part === '' && index === 0) ? sep : part));
+};
+
 const imports = (
   parent: string,
   child: string,
@@ -38,7 +42,7 @@ const imports = (
     const path = (n.moduleSpecifier as ts.StringLiteral).text;
     const { resolvedModule } = ts.resolveModuleName(path, parent, program.getCompilerOptions(), host);
     if (resolvedModule !== undefined) {
-      const fullPath = resolvedModule.resolvedFileName;
+      const fullPath = normalizeFilePath(resolvedModule.resolvedFileName);
 
       if (fullPath === child) {
         found = true;
