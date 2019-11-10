@@ -1,6 +1,6 @@
 {
   "name": "guess-webpack",
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "Webpack plugins for the Machine Learning-driven bundler",
   "main": "dist/guess-webpack/main.js",
   "types": "dist/guess-webpack/index.d.ts",
@@ -28,7 +28,7 @@
     "flat-cache": "^2.0.0",
     "google-oauth2-node": "0.0.3",
     "googleapis": "^45.0.0",
-    "guess-ga": "^0.4.11",
+    "guess-ga": "^0.4.12",
     "lodash.template": "^4.4.0",
     "rollup": "^1.0.0",
     "rollup-plugin-hypothetical": "^2.1.0",
