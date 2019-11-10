@@ -25,7 +25,7 @@ const imports = (
 ) => {
   const sf = program.getSourceFile(parent);
   if (!sf) {
-    throw new Error('Cannot find source file for path: ' + parent);
+    return false;
   }
   if (visited[parent]) {
     return false;
@@ -41,15 +41,17 @@ const imports = (
     }
     const path = (n.moduleSpecifier as ts.StringLiteral).text;
     const { resolvedModule } = ts.resolveModuleName(path, parent, program.getCompilerOptions(), host);
-    if (resolvedModule !== undefined) {
-      const fullPath = normalizeFilePath(resolvedModule.resolvedFileName);
+    if (resolvedModule === undefined) {
+      return;
+    }
 
-      if (fullPath === child) {
-        found = true;
-      }
-      if (!found && existsSync(fullPath)) {
-        found = imports(fullPath, child, program, host, visited);
-      }
+    const fullPath = normalizeFilePath(resolvedModule.resolvedFileName);
+    if (fullPath === child) {
+      found = true;
+    }
+    // We don't want to dig into node_modules to find an entry point.
+    if (!found && existsSync(fullPath) && !fullPath.includes('node_modules')) {
+      found = imports(fullPath, child, program, host, visited);
     }
   });
   return found;
