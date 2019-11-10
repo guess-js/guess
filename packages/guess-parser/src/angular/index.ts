@@ -21,13 +21,20 @@ const imports = (
   child: string,
   program: ts.Program,
   host: ts.CompilerHost,
+  cache: {[parent: string]: {[child: string]: boolean}},
   visited: { [key: string]: boolean } = {}
 ) => {
+  if (cache[parent] && cache[parent][child] !== undefined) {
+    return cache[parent][child];
+  }
+  cache[parent] = cache[parent] || {};
   const sf = program.getSourceFile(parent);
   if (!sf) {
+    cache[parent][child] = false;
     return false;
   }
   if (visited[parent]) {
+    cache[parent][child] = false;
     return false;
   }
   visited[parent] = true;
@@ -51,11 +58,14 @@ const imports = (
     }
     // We don't want to dig into node_modules to find an entry point.
     if (!found && existsSync(fullPath) && !fullPath.includes('node_modules')) {
-      found = imports(fullPath, child, program, host, visited);
+      found = imports(fullPath, child, program, host, cache, visited);
     }
   });
+  cache[parent][child] = found;
   return found;
 };
+
+let cache: {[parent: string]: {[child: string]: boolean}} = {};
 
 // This can potentially break if there's a lazy module
 // that is not only loaded lazily but also imported
@@ -70,7 +80,7 @@ const getModuleEntryPoint = (
   program: ts.Program,
   host: ts.CompilerHost
 ): string => {
-  const parents = [...entryPoints].filter(e => imports(e, path, program, host));
+  const parents = [...entryPoints].filter(e => imports(e, path, program, host, cache));
   // If no parents, this could be the root module
   if (parents.length === 0) {
     return path;
@@ -428,6 +438,7 @@ export const parseRoutes = (
   tsconfig: string,
   exclude: string[] = []
 ): RoutingModule[] => {
+  cache = {};
   const parseConfigHost: ts.ParseConfigHost = {
     fileExists: existsSync,
     readDirectory: ts.sys.readDirectory,
