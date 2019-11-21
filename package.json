@@ -40,7 +40,7 @@
     "copy-webpack-plugin": "5.0.5",
     "jest": "24.9.0",
     "jest-puppeteer": "4.3.0",
-    "lerna": "3.18.5",
+    "lerna": "3.19.0",
     "meow": "5.0.0",
     "prompt-confirm": "2.0.4",
     "puppeteer": "2.0.0",
