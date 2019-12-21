@@ -29,7 +29,7 @@
     "ts-loader": "6.2.1"
   },
   "peerDependencies": {
-    "typescript": "3.7.3"
+    "typescript": "3.7.4"
   },
   "files": [
     "dist"
