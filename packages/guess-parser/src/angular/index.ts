@@ -194,13 +194,15 @@ const readChildren = (
   return null;
 };
 
-const getModulePathFromRoute = (parentPath: string, loadChildren: string) => {
-  const childModule = loadChildren.split('#')[0] + '.ts';
-  if (loadChildren.startsWith('.')) {
-    return join(dirname(parentPath), childModule);
+const getModulePathFromRoute = (parentPath: string, loadChildren: string, program: ts.Program, host: ts.CompilerHost) => {
+  const childModule = loadChildren.split('#')[0];
+  const { resolvedModule } = ts.resolveModuleName(childModule, parentPath, program.getCompilerOptions(), host);
+  if (resolvedModule) {
+    return resolvedModule.resolvedFileName;
   }
+  const childModuleFile = childModule + '.ts';
   const parentSegments = dirname(parentPath).split(sep);
-  const childSegments = childModule.split('/');
+  const childSegments = childModuleFile.split('/');
   const max = Math.min(parentSegments.length, childSegments.length);
   let maxCommon = 0;
   for (let i = 1; i < max; i += 1) {
@@ -218,7 +220,7 @@ const getModulePathFromRoute = (parentPath: string, loadChildren: string) => {
   }
   return join(
     dirname(parentPath),
-    childModule
+    childModuleFile
       .split('/')
       .slice(maxCommon, childSegments.length)
       .join('/')
@@ -269,7 +271,7 @@ const getRoute = (
       program,
       host
     );
-    const module = getModulePathFromRoute(parent, loadChildren);
+    const module = getModulePathFromRoute(parent, loadChildren, program, host);
     return {
       ...route,
       module
@@ -422,7 +424,8 @@ const findMainModule = (program: ts.Program) => {
 
 const getLazyEntryPoints = (
   node: ts.ObjectLiteralExpression,
-  program: ts.Program
+  program: ts.Program,
+  host: ts.CompilerHost
 ) => {
   const value = readLoadChildren(node, program.getTypeChecker());
   if (!value) {
@@ -430,7 +433,7 @@ const getLazyEntryPoints = (
   }
 
   const parent = resolve(node.getSourceFile().fileName);
-  const module = getModulePathFromRoute(parent, value);
+  const module = getModulePathFromRoute(parent, value, program, host);
   return module;
 };
 
@@ -492,7 +495,8 @@ export const parseRoutes = (
       visitNode.bind(null, s, (n: ts.Node) => {
         const path = getLazyEntryPoints(
           n as ts.ObjectLiteralExpression,
-          program
+          program,
+          host
         );
         if (!path) {
           return;

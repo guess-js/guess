@@ -1,0 +1,9 @@
+.box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  span {
+    margin-left: 1rem;
+  }
+}

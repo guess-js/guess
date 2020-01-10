@@ -1,0 +1,60 @@
+{
+  "npmScope": "ng-cli-app",
+  "implicitDependencies": {
+    "angular.json": "*",
+    "package.json": "*",
+    "tsconfig.json": "*",
+    "tslint.json": "*",
+    "nx.json": "*"
+  },
+  "projects": {
+    "ng-cli-app": {
+      "tags": [
+        "scope:app",
+        "type:app"
+      ]
+    },
+    "ng-cli-app-e2e": {
+      "tags": [
+        "scope:app",
+        "type:e2e"
+      ]
+    },
+    "shared-components": {
+      "tags": [
+        "scope:shared",
+        "type:ui"
+      ]
+    },
+    "auth": {
+      "tags": [
+        "scope:auth",
+        "type:ui"
+      ]
+    },
+    "feat-customers": {
+      "tags": [
+        "scope:customers",
+        "type:ui"
+      ]
+    },
+    "customers-data": {
+      "tags": [
+        "scope:customers",
+        "type:data"
+      ]
+    },
+    "feat-home": {
+      "tags": [
+        "scope:home",
+        "type:ui"
+      ]
+    },
+    "shared-components-e2e": {
+      "tags": []
+    },
+    "feat-home-e2e": {
+      "tags": []
+    }
+  }
+}
