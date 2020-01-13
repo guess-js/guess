@@ -21,20 +21,20 @@ const imports = (
   child: string,
   program: ts.Program,
   host: ts.CompilerHost,
-  cache: {[parent: string]: {[child: string]: boolean}},
+  importCache: {[parent: string]: {[child: string]: boolean}},
   visited: { [key: string]: boolean } = {}
 ) => {
-  if (cache[parent] && cache[parent][child] !== undefined) {
-    return cache[parent][child];
+  if (importCache[parent] && importCache[parent][child] !== undefined) {
+    return importCache[parent][child];
   }
-  cache[parent] = cache[parent] || {};
+  importCache[parent] = importCache[parent] || {};
   const sf = program.getSourceFile(parent);
   if (!sf) {
-    cache[parent][child] = false;
+    importCache[parent][child] = false;
     return false;
   }
   if (visited[parent]) {
-    cache[parent][child] = false;
+    importCache[parent][child] = false;
     return false;
   }
   visited[parent] = true;
@@ -58,10 +58,10 @@ const imports = (
     }
     // We don't want to dig into node_modules to find an entry point.
     if (!found && existsSync(fullPath) && !fullPath.includes('node_modules')) {
-      found = imports(fullPath, child, program, host, cache, visited);
+      found = imports(fullPath, child, program, host, importCache, visited);
     }
   });
-  cache[parent][child] = found;
+  importCache[parent][child] = found;
   return found;
 };
 
