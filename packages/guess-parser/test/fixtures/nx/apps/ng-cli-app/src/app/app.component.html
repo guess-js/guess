@@ -1,0 +1,9 @@
+<app-navigation>
+  <header>
+    <ng-container *ngIf="user$ | async as user">
+      <span>{{ user.fullName }}</span>
+      <button mat-button (click)="logout()">Logout</button>
+    </ng-container>
+  </header>
+  <router-outlet></router-outlet>
+</app-navigation>

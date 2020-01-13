@@ -1,0 +1,20 @@
+<h1>Login</h1>
+
+<app-info-box *ngIf="error" [icon]="'error'" [message]="error"></app-info-box>
+
+<form class="example-form" [formGroup]="form" (submit)="onSubmit()">
+  <mat-form-field>
+    <input matInput placeholder="Username" formControlName="username" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <input
+      type="password"
+      matInput
+      placeholder="Password"
+      formControlName="password"
+    />
+  </mat-form-field>
+
+  <button type="submit" mat-flat-button color="primary">Login</button>
+</form>

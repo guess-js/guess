@@ -1,0 +1,14 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  max-width: 250px;
+}
+
+app-info-box {
+  margin-bottom: 2rem;
+}

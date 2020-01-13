@@ -1,0 +1,11 @@
+{
+  "fileServerFolder": "./",
+  "fixturesFolder": "./src/fixtures",
+  "integrationFolder": "./src/integration",
+  "pluginsFile": "./src/plugins/index.js",
+  "supportFile": "./src/support/index.ts",
+  "video": true,
+  "videosFolder": "../../dist/out-tsc/apps/ng-cli-app-e2e/videos",
+  "screenshotsFolder": "../../dist/out-tsc/apps/ng-cli-app-e2e/screenshots",
+  "chromeWebSecurity": false
+}

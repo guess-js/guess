@@ -1,0 +1,7 @@
+<h1>Welcome to the Demo App</h1>
+<hr />
+<h2>🥳 Customer of the day</h2>
+<app-info-box
+  [icon]="'person'"
+  [message]="customerOfTheDay$ | async"
+></app-info-box>
