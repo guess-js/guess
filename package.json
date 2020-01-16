@@ -56,6 +56,6 @@
   },
   "dependencies": {
     "flat-cache": "^2.0.1",
-    "googleapis": "^46.0.0"
+    "googleapis": "^47.0.0"
   }
 }
