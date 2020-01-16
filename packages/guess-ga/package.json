@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
-    "googleapis": "^46.0.0"
+    "googleapis": "^47.0.0"
   },
   "devDependencies": {
     "ts-loader": "6.2.1",
