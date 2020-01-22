@@ -38,7 +38,7 @@
     "blund": "1.0.0",
     "chalk": "2.4.2",
     "copy-webpack-plugin": "5.1.1",
-    "jest": "24.9.0",
+    "jest": "25.1.0",
     "jest-puppeteer": "4.4.0",
     "lerna": "3.20.2",
     "meow": "6.0.0",
