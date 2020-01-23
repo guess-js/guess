@@ -218,13 +218,21 @@ const getModulePathFromRoute = (parentPath: string, loadChildren: string, progra
       }
     }
   }
-  return join(
+
+  const path = join(
     dirname(parentPath),
     childModuleFile
       .split('/')
       .slice(maxCommon, childSegments.length)
       .join('/')
   );
+
+  // This early failure provides better error message compared to the
+  // generic "Multiple root routing modules" error.
+  if (!existsSync(path)) {
+    throw new Error(`The relative path "${loadChildren}" to "${parentPath}" cannot be resolved to a module`);
+  }
+  return path;
 };
 
 interface Route {
