@@ -41,6 +41,10 @@ const routes: Routes = [
     component: BarSimpleComponent
   },
   {
+    path: 'about',
+    loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'bar'
