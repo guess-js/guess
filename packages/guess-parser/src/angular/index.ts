@@ -327,8 +327,12 @@ const findRootModule = (registry: Registry): string => {
   const allModulePaths = Object.keys(registry);
   allModulePaths.forEach(path => {
     const declaration = registry[path];
-    declaration.eagerRoutes.forEach(traverseRoute);
-    declaration.lazyRoutes.forEach(traverseRoute);
+    // It's possible if the declaration does not exist
+    // See https://github.com/guess-js/guess/issues/311
+    if (declaration) {
+      declaration.eagerRoutes.forEach(traverseRoute);
+      declaration.lazyRoutes.forEach(traverseRoute);
+    }
   });
   const roots = allModulePaths.filter(m => !childModules.has(m));
   if (roots.length > 1) {
@@ -345,6 +349,12 @@ const collectRoutingModules = (
   currentPath: string = ''
 ) => {
   const declaration = registry[root];
+
+  // It's possible if the declaration does not exist
+  // See https://github.com/guess-js/guess/issues/311
+  if (!declaration) {
+    return;
+  }
 
   const process = (r: Route) => {
     if ((r as LazyRoute).module) {
@@ -475,7 +485,7 @@ export const parseRoutes = (
   const toAbsolute = (file: string) =>
     file.startsWith('/') ? file : join(process.cwd(), file);
   const excludeFiles = new Set<string>(exclude.map(toAbsolute));
-  const visitNode = (
+  const visitRoutes = (
     s: ts.SourceFile,
     callback: (routeObj: ts.Node) => void,
     n: ts.Node
@@ -486,7 +496,7 @@ export const parseRoutes = (
     if (!n) {
       return;
     }
-    n.forEachChild(visitNode.bind(null, s, callback));
+    n.forEachChild(visitRoutes.bind(null, s, callback));
     if (isRoute(n, typeChecker)) {
       callback(n);
     }
@@ -500,7 +510,7 @@ export const parseRoutes = (
   const entryPoints: Set<string> = new Set([mainPath]);
   program.getSourceFiles().map(s => {
     s.forEachChild(
-      visitNode.bind(null, s, (n: ts.Node) => {
+      visitRoutes.bind(null, s, (n: ts.Node) => {
         const path = getLazyEntryPoints(
           n as ts.ObjectLiteralExpression,
           program,
@@ -518,7 +528,7 @@ export const parseRoutes = (
 
   program.getSourceFiles().map(s => {
     s.forEachChild(
-      visitNode.bind(null, s, (n: ts.Node) => {
+      visitRoutes.bind(null, s, (n: ts.Node) => {
         const path = resolve(n.getSourceFile().fileName);
         const route = getRoute(
           n as ts.ObjectLiteralExpression,
