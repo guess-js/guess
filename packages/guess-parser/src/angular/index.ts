@@ -179,7 +179,7 @@ const readPath = (
 const readChildren = (
   node: ts.ObjectLiteralExpression,
   typeChecker: ts.TypeChecker
-): ts.ArrayLiteralExpression | null => {
+): ts.NodeArray<ts.Node> | null => {
   const expr = getObjectProp(node, 'children');
   if (!expr) {
     return null;
@@ -189,9 +189,10 @@ const readChildren = (
     typeChecker
   });
   if (val.success) {
-    return val.value as ts.ArrayLiteralExpression;
+    const childrenArray = val.value as any;
+    return childrenArray.getChildren ? childrenArray.getChildren() : childrenArray
   }
-  return null;
+  return (expr as ts.ArrayLiteralExpression).elements;
 };
 
 const getModulePathFromRoute = (parentPath: string, loadChildren: string, program: ts.Program, host: ts.CompilerHost) => {
@@ -258,7 +259,7 @@ const getRoute = (
   const childrenArray = readChildren(node, program.getTypeChecker());
   let children: Route[] = [];
   if (childrenArray) {
-    children = (childrenArray.getChildren ? childrenArray.getChildren() : childrenArray as unknown as ts.Node[])
+    children = childrenArray
       .map(c => {
         if (c.kind !== ts.SyntaxKind.ObjectLiteralExpression) {
           return null;
@@ -268,8 +269,7 @@ const getRoute = (
       .filter(e => e !== null) as Route[];
   }
 
-  const route: Route = { path, children: [] };
-  route.path = path;
+  const route: Route = { path, children };
 
   const loadChildren = readLoadChildren(node, program.getTypeChecker());
   if (loadChildren) {
@@ -342,13 +342,14 @@ const findRootModule = (registry: Registry): string => {
 };
 
 const collectRoutingModules = (
-  root: string,
+  rootFile: string,
   registry: Registry,
   result: RoutingModule[],
-  parentPath: string = root,
-  currentPath: string = ''
+  parentFilePath: string = rootFile,
+  currentRoutePath: string = '',
+  existing = new Set<string>()
 ) => {
-  const declaration = registry[root];
+  const declaration = registry[rootFile];
 
   // It's possible if the declaration does not exist
   // See https://github.com/guess-js/guess/issues/311
@@ -356,34 +357,37 @@ const collectRoutingModules = (
     return;
   }
 
-  const process = (r: Route) => {
+  const process = (r: Route, routePath = currentRoutePath) => {
     if ((r as LazyRoute).module) {
       // tslint:disable-next-line: no-use-before-declare
-      return processLazyRoute(r as LazyRoute);
+      return processLazyRoute(r as LazyRoute, routePath);
     }
     // tslint:disable-next-line: no-use-before-declare
-    return processRoute(r);
+    return processRoute(r, routePath);
   };
 
-  const processRoute = (r: Route) => {
-    r.children.forEach(process);
-    const path = (currentPath + '/' + r.path).replace(/\/$/, '');
-    result.push({
-      path,
-      lazy: parentPath !== root,
-      modulePath: root,
-      parentModulePath: parentPath
-    });
+  const processRoute = (r: Route, routePath = currentRoutePath) => {
+    const path = (routePath + '/' + r.path).replace(/\/$/, '');
+    r.children.forEach(route => process(route, path));
+    if (!existing.has(path)) {
+      result.push({
+        path,
+        lazy: parentFilePath !== rootFile,
+        modulePath: rootFile,
+        parentModulePath: parentFilePath
+      });
+      existing.add(path);
+    }
   };
 
-  const processLazyRoute = (r: LazyRoute) => {
-    r.children.forEach(process);
-    const path = (currentPath + '/' + r.path).replace(/\/$/, '');
-    collectRoutingModules(r.module, registry, result, root, path);
+  const processLazyRoute = (r: LazyRoute, routePath = currentRoutePath) => {
+    const path = (routePath + '/' + r.path).replace(/\/$/, '');
+    r.children.forEach(route => process(route, path));
+    collectRoutingModules(r.module, registry, result, rootFile, path);
   };
 
-  declaration.eagerRoutes.forEach(processRoute);
-  declaration.lazyRoutes.forEach(processLazyRoute);
+  declaration.eagerRoutes.forEach(r => processRoute(r));
+  declaration.lazyRoutes.forEach(r => processLazyRoute(r));
 };
 
 const findMainModule = (program: ts.Program) => {
@@ -485,7 +489,8 @@ export const parseRoutes = (
   const toAbsolute = (file: string) =>
     file.startsWith('/') ? file : join(process.cwd(), file);
   const excludeFiles = new Set<string>(exclude.map(toAbsolute));
-  const visitRoutes = (
+
+  const visitTopLevelRoutes = (
     s: ts.SourceFile,
     callback: (routeObj: ts.Node) => void,
     n: ts.Node
@@ -496,9 +501,10 @@ export const parseRoutes = (
     if (!n) {
       return;
     }
-    n.forEachChild(visitRoutes.bind(null, s, callback));
     if (isRoute(n, typeChecker)) {
       callback(n);
+    } else {
+      n.forEachChild(visitTopLevelRoutes.bind(null, s, callback));
     }
   };
 
@@ -510,7 +516,7 @@ export const parseRoutes = (
   const entryPoints: Set<string> = new Set([mainPath]);
   program.getSourceFiles().map(s => {
     s.forEachChild(
-      visitRoutes.bind(null, s, (n: ts.Node) => {
+      visitTopLevelRoutes.bind(null, s, (n: ts.Node) => {
         const path = getLazyEntryPoints(
           n as ts.ObjectLiteralExpression,
           program,
@@ -528,7 +534,7 @@ export const parseRoutes = (
 
   program.getSourceFiles().map(s => {
     s.forEachChild(
-      visitRoutes.bind(null, s, (n: ts.Node) => {
+      visitTopLevelRoutes.bind(null, s, (n: ts.Node) => {
         const path = resolve(n.getSourceFile().fileName);
         const route = getRoute(
           n as ts.ObjectLiteralExpression,

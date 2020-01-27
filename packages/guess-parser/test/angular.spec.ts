@@ -8,7 +8,10 @@ const fixtureRoutes = new Set([
   '/bar/baz',
   '/qux',
   '/library',
-  '/bar-simple'
+  '/bar-simple',
+  '/foo/child1',
+  '/foo/foo-parent',
+  '/foo/foo-parent/child2',
 ]);
 
 const nxRoutes = new Set([
