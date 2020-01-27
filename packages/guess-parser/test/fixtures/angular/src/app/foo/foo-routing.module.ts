@@ -16,6 +16,24 @@ const routes: Routes = [
   {
     path: 'baz',
     loadChildren: baz + '/baz.module#BazModule'
+  },
+  {
+    path: '',
+    children: [
+      {
+        path: 'child1',
+        component: FooComponent
+      }
+    ]
+  },
+  {
+    path: 'foo-parent',
+    children: [
+      {
+        path: 'child2',
+        component: FooComponent
+      }
+    ]
   }
 ];
 

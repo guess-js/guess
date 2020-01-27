@@ -9,14 +9,17 @@ const angularFixtureRoutes = new Set<string>([
   '/bar/baz',
   '/qux',
   '/library',
-  '/bar-simple'
+  '/bar-simple',
+  '/foo/child1',
+  '/foo/foo-parent',
+  '/foo/foo-parent/child2',
 ]);
 
 const reactFixtureRoutes = new Set<string>(['/', '/intro', '/main', '/main/kid', '/main/parent']);
 
 describe('parseRoutes', () => {
   describe('auto detect Angular', () => {
-    it('should recognize the app and return the routes', () => {
+    it('should recognize an Angular app and return the routes', () => {
       let routes: RoutingModule[] = [];
       expect(
         () => (routes = parseRoutes('packages/guess-parser/test/fixtures/angular'))
@@ -29,7 +32,7 @@ describe('parseRoutes', () => {
   });
 
   describe('auto detect React', () => {
-    it('should recognize the app and return the routes', () => {
+    it('should recognize a React app and return the routes', () => {
       let routes: RoutingModule[] = [];
       expect(
         () => (routes = parseRoutes('packages/guess-parser/test/fixtures/react-app'))
@@ -42,7 +45,7 @@ describe('parseRoutes', () => {
   });
 
   describe('auto detect React TypeScript', () => {
-    it('should recognize the app and return the routes', () => {
+    it('should recognize a React TypeScript app and return the routes', () => {
       let routes: RoutingModule[] = [];
       expect(
         () => (routes = parseRoutes('packages/guess-parser/test/fixtures/react-app-ts'))
