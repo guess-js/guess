@@ -30,7 +30,7 @@ export interface GuessPluginConfig {
 }
 
 const extractRoutes = (config: GuessPluginConfig): Promise<RoutingModule[]> => {
-  if (config.routeProvider === false || config.routeProvider === undefined) {
+  if (config.routeProvider === false) {
     return Promise.resolve([]);
   }
   if (typeof config.routeProvider === 'function') {
