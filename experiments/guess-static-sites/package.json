@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "generate-predictions-tests": "NODE_ENV=test mocha ./test/gaclientTests.js",
+    "generate-predictions-tests": "NODE_ENV=test mocha ./test/gaClientTests.js",
     "client-tests": "NODE_ENV=test mocha ./test/clientTests.js",
     "server-tests": "NODE_ENV=test mocha ./test/serverTests.js",
     "build": "babel src/client.js --out-file dist/client.js --presets minify"
