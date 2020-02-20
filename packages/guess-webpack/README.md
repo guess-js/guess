@@ -108,7 +108,7 @@ At build time, the snippet above will first create mapping between paths and laz
 Keep in mind that `parseRoutes` might not be able to properly create the mapping between the routes and the bundles in applications with very dynamic route definition, for example most React and Vue applications are not supported. For further information on `guess-parser` look at the [package's documentation](https://github.com/guess-js/guess/tree/master/packages/guess-parser).
  
 Also, keep in mind that **authentication** with google (once a GA VIEW_ID is set) can be done by OAuth2 (chrome pop up) 
-**OR** with a JWT token (like the example above) download credentials.json it by using [guess-ga documentation](https://github.com/slavoroi/guess/tree/master/packages/guess-ga) and add it to .gitignore due to security reasons .
+**OR** with a JWT token (like the example above) download as credentials.json by using: [guess-ga documentation](https://github.com/slavoroi/guess/tree/master/packages/guess-ga) and add it to .gitignore due to security reasons .
 
 ### Custom Route Provider
 
