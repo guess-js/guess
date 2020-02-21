@@ -19,7 +19,7 @@ const { GuessPlugin } = require('guess-webpack');
 Add this to the end of your webpack config:
 
 ```js
-new GuessPlugin({ GA: 'GOOGLE_ANALYTICS_VIEW_ID' });
+new GuessPlugin({ GA: 'GOOGLE_ANALYTICS_VIEW_ID'});
 ```
 
 ## Usage
@@ -89,8 +89,10 @@ In case you're interested in automating the process of prefetching of bundles in
 
 ```ts
 import { parseRoutes } from 'guess-parser';
+const credentials = require('./credentials.json');
 
 GuessPlugin({
+  jwt: credentials,
   GA: 'XXXXXX',
   routeProvider() {
     return parseRoutes('.');
@@ -104,6 +106,9 @@ GuessPlugin({
 At build time, the snippet above will first create mapping between paths and lazy-loaded JavaScript bundles. At runtime, while the user is navigating in the application a small runtime will invoke `guess` to make predictions for the pages which are likely to be visited next. At each step, Guess.js will pick the top paths and prefetch their corresponding bundles.
 
 Keep in mind that `parseRoutes` might not be able to properly create the mapping between the routes and the bundles in applications with very dynamic route definition, for example most React and Vue applications are not supported. For further information on `guess-parser` look at the [package's documentation](https://github.com/guess-js/guess/tree/master/packages/guess-parser).
+ 
+Also, keep in mind that **authentication** with google (once a GA VIEW_ID is set) can be done by OAuth2 (chrome pop up) 
+**OR** with a JWT token (like the example above) download as credentials.json by using: [guess-ga documentation](https://github.com/slavoroi/guess/tree/master/packages/guess-ga) and add it to .gitignore due to security reasons .
 
 ### Custom Route Provider
 
