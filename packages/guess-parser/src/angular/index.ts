@@ -199,7 +199,7 @@ const getModulePathFromRoute = (parentPath: string, loadChildren: string, progra
   const childModule = loadChildren.split('#')[0];
   const { resolvedModule } = ts.resolveModuleName(childModule, parentPath, program.getCompilerOptions(), host);
   if (resolvedModule) {
-    return resolvedModule.resolvedFileName;
+    return normalizeFilePath(resolvedModule.resolvedFileName);
   }
   const childModuleFile = childModule + '.ts';
   const parentSegments = dirname(parentPath).split(sep);
@@ -487,7 +487,7 @@ export const parseRoutes = (
   const typeChecker = program.getTypeChecker();
 
   const toAbsolute = (file: string) =>
-    file.startsWith('/') ? file : join(process.cwd(), file);
+    file.startsWith('/') || file.startsWith(process.cwd()) ? file : join(process.cwd(), file);
   const excludeFiles = new Set<string>(exclude.map(toAbsolute));
 
   const visitTopLevelRoutes = (
