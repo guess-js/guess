@@ -45,6 +45,15 @@ const routes: Routes = [
     loadChildren: () => import('./about/about.module').then(m => m.AboutModule)
   },
   {
+    path: 'eager',
+    children: [
+      {
+        path: 'lazy',
+        loadChildren: () => import('./lazy/lazy.module').then(m => m.LazyModule)
+      }
+    ]
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'bar'

@@ -178,19 +178,10 @@ const readPath = (
 
 const readChildren = (
   node: ts.ObjectLiteralExpression,
-  typeChecker: ts.TypeChecker
 ): ts.NodeArray<ts.Node> | null => {
   const expr = getObjectProp(node, 'children');
   if (!expr) {
     return null;
-  }
-  const val = evaluate({
-    node: expr,
-    typeChecker
-  });
-  if (val.success) {
-    const childrenArray = val.value as any;
-    return childrenArray.getChildren ? childrenArray.getChildren() : childrenArray
   }
   return (expr as ts.ArrayLiteralExpression).elements;
 };
@@ -256,7 +247,7 @@ const getRoute = (
     return null;
   }
 
-  const childrenArray = readChildren(node, program.getTypeChecker());
+  const childrenArray = readChildren(node);
   let children: Route[] = [];
   if (childrenArray) {
     children = childrenArray
@@ -300,7 +291,7 @@ const isRoute = (n: ts.Node, typeChecker: ts.TypeChecker): boolean => {
 
   const objLiteral = n as ts.ObjectLiteralExpression;
   const path = readPath(objLiteral, typeChecker) !== null;
-  const children = !!readChildren(objLiteral, typeChecker);
+  const children = !!readChildren(objLiteral);
   const loadChildren = !!readLoadChildren(objLiteral, typeChecker);
   const component = !!getObjectProp(objLiteral, 'component');
 
@@ -514,19 +505,24 @@ export const parseRoutes = (
   }
 
   const entryPoints: Set<string> = new Set([mainPath]);
+  const collectEntryPoints = (n: ts.Node) => {
+    const path = getLazyEntryPoints(
+      n as ts.ObjectLiteralExpression,
+      program,
+      host
+    );
+    if (!path) {
+      const childrenArray = readChildren(n as ts.ObjectLiteralExpression);
+      if (childrenArray) {
+        childrenArray.forEach(collectEntryPoints);
+      }
+      return;
+    }
+    entryPoints.add(path);
+  };
   program.getSourceFiles().map(s => {
     s.forEachChild(
-      visitTopLevelRoutes.bind(null, s, (n: ts.Node) => {
-        const path = getLazyEntryPoints(
-          n as ts.ObjectLiteralExpression,
-          program,
-          host
-        );
-        if (!path) {
-          return;
-        }
-        entryPoints.add(path);
-      })
+      visitTopLevelRoutes.bind(null, s, collectEntryPoints)
     );
   });
 

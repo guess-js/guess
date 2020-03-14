@@ -12,6 +12,8 @@ const fixtureRoutes = new Set([
   '/foo/child1',
   '/foo/foo-parent',
   '/foo/foo-parent/child2',
+  '/eager',
+  '/eager/lazy',
 ]);
 
 const nxRoutes = new Set([
