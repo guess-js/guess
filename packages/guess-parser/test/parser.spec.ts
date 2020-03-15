@@ -13,6 +13,8 @@ const angularFixtureRoutes = new Set<string>([
   '/foo/child1',
   '/foo/foo-parent',
   '/foo/foo-parent/child2',
+  '/eager',
+  '/eager/lazy',
 ]);
 
 const reactFixtureRoutes = new Set<string>(['/', '/intro', '/main', '/main/kid', '/main/parent']);
