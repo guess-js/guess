@@ -56,7 +56,7 @@
   },
   "devDependencies": {
     "@types/chalk": "2.2.0",
-    "@types/table": "4.0.7",
+    "@types/table": "5.0.0",
     "ts-loader": "6.2.2",
     "typescript": "3.8.3"
   },
