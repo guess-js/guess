@@ -125,7 +125,9 @@ Prefetching links to "logout" pages is likely undesirable. The same could be sai
 
 Some of the attempts to accomplish similar proposals in the past have relied on `<link rel=prerender>`. The Chrome team is currently exploring [deprecating rel=prerender](https://groups.google.com/a/chromium.org/forum/%23!topic/blink-dev/0nSxuuv9bBw?sa=D&ust=1522637949833000) in favor of [NoStatePrefetch](https://docs.google.com/document/d/16VCYGGWau483IMSxODpg5faZny1FJ6vNK2v-BuM5EhU/edit%23?sa=D&ust=1522637949833000) - a lighter version of this mechanism that only prefetches to the HTTP cache but uses no other state of the web platform. A solution should factor in whether it will be relying on the replacement to rel=prerender or using prefetch/preload/other approaches.
 
-There are two key differences between NoStatePrefetch and Prefetch 1. nostate-prefetch is a mechanism, and `<link rel=prefetch>` is an API. The nostate-prefetch can be requested by other entry points: omnibox prediction, custom tabs, `<link rel=prerender>`.
+There are two key differences between NoStatePrefetch and Prefetch: 
+
+1. nostate-prefetch is a mechanism, and `<link rel=prefetch>` is an API. The nostate-prefetch can be requested by other entry points: omnibox prediction, custom tabs, `<link rel=prerender>`.
 
 2.  The implementation is different: `<link rel=prefetch>` prefetches one resource, but nostate-prefetch on top of that runs the preload scanner on the resource (in a fresh new renderer), discovers subresources and prefetches them as well (without recursing into preload scanner).
 
