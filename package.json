@@ -41,7 +41,7 @@
     "jest": "25.3.0",
     "jest-puppeteer": "4.4.0",
     "lerna": "3.20.2",
-    "meow": "6.1.0",
+    "meow": "6.1.1",
     "prompt-confirm": "2.0.4",
     "puppeteer": "3.0.0",
     "raw-loader": "4.0.1",
