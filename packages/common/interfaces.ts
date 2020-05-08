@@ -16,6 +16,7 @@ export interface RoutingModule {
   modulePath: string;
   parentModulePath: string | null;
   lazy: boolean;
+  redirectTo?: string;
 }
 
 export interface Connection {

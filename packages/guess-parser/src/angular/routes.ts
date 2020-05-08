@@ -86,11 +86,11 @@ const readPath = (
   return null;
 };
 
-const readChildren = (
+const readRedirect = (
   node: ts.ObjectLiteralExpression,
   typeChecker: ts.TypeChecker
-): ts.NodeArray<ts.Node> | null => {
-  const expr = getObjectProp(node, 'children');
+): string | null => {
+  const expr = getObjectProp(node, 'redirectTo');
   if (!expr) {
     return null;
   }
@@ -99,17 +99,25 @@ const readChildren = (
     typeChecker
   });
   if (val.success) {
-    const childrenArray = val.value as any;
-    return childrenArray.getChildren ? childrenArray.getChildren() : childrenArray
+    return val.value as string;
+  }
+  return null;
+};
+
+export const readChildren = (
+  node: ts.ObjectLiteralExpression,
+): ts.NodeArray<ts.Node> | null => {
+  const expr = getObjectProp(node, 'children');
+  if (!expr) {
+    return null;
   }
   return (expr as ts.ArrayLiteralExpression).elements;
 };
 
-
 export interface Route {
   path: string;
   children: Route[];
-  redirect?: string;
+  redirectTo?: string;
 }
 
 export interface LazyRoute extends Route {
@@ -127,7 +135,7 @@ export const getRoute = (
     return null;
   }
 
-  const childrenArray = readChildren(node, program.getTypeChecker());
+  const childrenArray = readChildren(node);
   let children: Route[] = [];
   if (childrenArray) {
     children = childrenArray
@@ -141,6 +149,11 @@ export const getRoute = (
   }
 
   const route: Route = { path, children };
+
+  const redirectTo = readRedirect(node, program.getTypeChecker());
+  if (redirectTo) {
+    route.redirectTo = redirectTo;
+  }
 
   const loadChildren = readLoadChildren(node, program.getTypeChecker());
   if (loadChildren) {
@@ -160,7 +173,7 @@ export const getRoute = (
   return route;
 };
 
-export const isRoute = (n: ts.Node, typeChecker: ts.TypeChecker): boolean => {
+export const isRoute = (n: ts.Node, typeChecker: ts.TypeChecker, redirects: boolean): boolean => {
   if (
     n.kind !== ts.SyntaxKind.ObjectLiteralExpression ||
     !n.parent ||
@@ -171,9 +184,10 @@ export const isRoute = (n: ts.Node, typeChecker: ts.TypeChecker): boolean => {
 
   const objLiteral = n as ts.ObjectLiteralExpression;
   const path = readPath(objLiteral, typeChecker) !== null;
-  const children = !!readChildren(objLiteral, typeChecker);
+  const redirectTo = redirects && readRedirect(objLiteral, typeChecker) !== null;
+  const children = !!readChildren(objLiteral);
   const loadChildren = !!readLoadChildren(objLiteral, typeChecker);
   const component = !!getObjectProp(objLiteral, 'component');
 
-  return (path && children) || (path && component) || (path && loadChildren);
+  return (path && children) || (path && component) || (path && loadChildren) || (path && redirectTo);
 };

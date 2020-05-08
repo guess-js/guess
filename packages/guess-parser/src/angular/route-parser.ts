@@ -11,7 +11,7 @@ import {
   findRootModule,
   cleanModuleCache
 } from './modules';
-import { LazyRoute, isRoute, getRoute } from './routes';
+import { LazyRoute, isRoute, getRoute, readChildren } from './routes';
 
 export interface Options {
   redirects: boolean;
@@ -31,17 +31,16 @@ export const parseRoutes = (
   exclude: string[] = [],
   inputOptions: Partial<Options> = {}
 ): RoutingModule[] => {
+
   const options = normalizeOptions(inputOptions);
-
   cleanModuleCache();
-
   const parseConfigHost: ts.ParseConfigHost = {
     fileExists: existsSync,
     readDirectory: ts.sys.readDirectory,
-    readFile: (file) => readFileSync(file, 'utf8'),
-    useCaseSensitiveFileNames: true,
+    readFile: file => readFileSync(file, 'utf8'),
+    useCaseSensitiveFileNames: true
   };
-  const config = ts.readConfigFile(tsconfig, (path) =>
+  const config = ts.readConfigFile(tsconfig, path =>
     readFileSync(path).toString()
   );
   const parsed = ts.parseJsonConfigFileContent(
@@ -49,7 +48,7 @@ export const parseRoutes = (
     parseConfigHost,
     resolve(dirname(tsconfig)),
     {
-      noEmit: true,
+      noEmit: true
     }
   );
 
@@ -58,9 +57,7 @@ export const parseRoutes = (
   const typeChecker = program.getTypeChecker();
 
   const toAbsolute = (file: string) =>
-    file.startsWith('/') || file.startsWith(process.cwd())
-      ? file
-      : join(process.cwd(), file);
+    file.startsWith('/') || file.startsWith(process.cwd()) ? file : join(process.cwd(), file);
   const excludeFiles = new Set<string>(exclude.map(toAbsolute));
 
   const visitTopLevelRoutes = (
@@ -74,7 +71,7 @@ export const parseRoutes = (
     if (!n) {
       return;
     }
-    if (isRoute(n, typeChecker)) {
+    if (isRoute(n, typeChecker, options.redirects)) {
       callback(n);
     } else {
       n.forEachChild(visitTopLevelRoutes.bind(null, s, callback));
@@ -87,25 +84,30 @@ export const parseRoutes = (
   }
 
   const entryPoints: Set<string> = new Set([mainPath]);
-  program.getSourceFiles().map((s) => {
+  const collectEntryPoints = (n: ts.Node) => {
+    const path = getLazyEntryPoints(
+      n as ts.ObjectLiteralExpression,
+      program,
+      host
+    );
+    if (!path) {
+      const childrenArray = readChildren(n as ts.ObjectLiteralExpression);
+      if (childrenArray) {
+        childrenArray.forEach(collectEntryPoints);
+      }
+      return;
+    }
+    entryPoints.add(path);
+  };
+  program.getSourceFiles().map(s => {
     s.forEachChild(
-      visitTopLevelRoutes.bind(null, s, (n: ts.Node) => {
-        const path = getLazyEntryPoints(
-          n as ts.ObjectLiteralExpression,
-          program,
-          host
-        );
-        if (!path) {
-          return;
-        }
-        entryPoints.add(path);
-      })
+      visitTopLevelRoutes.bind(null, s, collectEntryPoints)
     );
   });
 
   const registry: Registry = {};
 
-  program.getSourceFiles().map((s) => {
+  program.getSourceFiles().map(s => {
     s.forEachChild(
       visitTopLevelRoutes.bind(null, s, (n: ts.Node) => {
         const path = resolve(n.getSourceFile().fileName);
@@ -119,15 +121,10 @@ export const parseRoutes = (
           return;
         }
 
-        const modulePath = getModuleEntryPoint(
-          path,
-          entryPoints,
-          program,
-          host
-        );
+        const modulePath = getModuleEntryPoint(path, entryPoints, program, host);
         const current = registry[modulePath] || {
           lazyRoutes: [],
-          eagerRoutes: [],
+          eagerRoutes: []
         };
         if ((route as LazyRoute).module) {
           current.lazyRoutes.push(route as LazyRoute);
