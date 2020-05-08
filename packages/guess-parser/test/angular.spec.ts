@@ -16,11 +16,21 @@ const fixtureRoutes = new Set([
   '/eager/lazy',
 ]);
 
+const fixtureRoutesWithRedirects = new Set([
+  ...fixtureRoutes,
+  ''
+]);
+
 const nxRoutes = new Set([
   '/login',
   '/home',
   '/customers/list',
   '/customers'
+]);
+
+const nxRoutesWithRedirects = new Set([
+  ...nxRoutes,
+  ''
 ]);
 
 describe('Angular parser', () => {
@@ -42,6 +52,19 @@ describe('Angular parser', () => {
     expect(allRoutes.size).toEqual(fixtureRoutes.size);
   });
 
+  it('should consider redirects', () => {
+    const routes = parseRoutes(
+      'packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json'
+    , undefined, { redirects: true });
+    expect(routes instanceof Array).toBeTruthy();
+    const allRoutes = new Set(routes.map(r => r.path));
+    [...allRoutes].forEach(r => expect(fixtureRoutesWithRedirects).toContain(r));
+    expect(allRoutes.size).toEqual(fixtureRoutesWithRedirects.size);
+    const redirect = routes.filter(route => route.path === '').pop();
+    expect(redirect?.redirectTo).toEqual('bar');
+    expect(redirect?.lazy).toEqual(false);
+  });
+
   it('should produce routes with proper paths', () => {
     const routes = parseRoutes(
       'packages/guess-parser/test/fixtures/angular/src/tsconfig.app.json'
@@ -57,5 +80,12 @@ describe('Angular parser', () => {
       'packages/guess-parser/test/fixtures/nx/apps/ng-cli-app/tsconfig.app.json'
     ).map(r => r.path);
     [...routes].forEach(r => expect(nxRoutes).toContain(r));
+  });
+
+  it('should discover redirects', () => {
+    const routes = parseRoutes(
+      'packages/guess-parser/test/fixtures/nx/apps/ng-cli-app/tsconfig.app.json'
+    , undefined, { redirects: true }).map(r => r.path);
+    [...routes].forEach(r => expect(nxRoutesWithRedirects).toContain(r));
   });
 });

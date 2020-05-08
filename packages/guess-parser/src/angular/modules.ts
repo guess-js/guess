@@ -68,12 +68,16 @@ export const collectRoutingModules = (
     const path = (routePath + '/' + r.path).replace(/\/$/, '');
     r.children.forEach(route => process(route, path));
     if (!existing.has(path)) {
-      result.push({
+      const routingModule: RoutingModule = {
         path,
-        lazy: parentFilePath !== rootFile,
+        lazy: parentFilePath !== rootFile && r.redirectTo === undefined,
         modulePath: rootFile,
-        parentModulePath: parentFilePath
-      });
+        parentModulePath: parentFilePath,
+      };
+      if (r.redirectTo !== undefined) {
+        routingModule.redirectTo = r.redirectTo;
+      }
+      result.push(routingModule);
       existing.add(path);
     }
   };
