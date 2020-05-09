@@ -7,7 +7,6 @@ import {
 } from './declarations';
 
 import { join } from 'path';
-import { table } from 'table';
 import chalk from 'chalk';
 import {
   buildMap,
@@ -19,6 +18,7 @@ import { Logger, LogLevel } from '../../common/logger';
 import { AssetObserver, Asset } from './asset-observer';
 
 const template = require('lodash.template');
+const { table } = require('table');
 
 const alterChunk = (
   compiler: any,
