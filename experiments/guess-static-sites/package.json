@@ -16,7 +16,7 @@
     "dotenv": "^8.0.0",
     "express": "^4.16.3",
     "fs": "0.0.2",
-    "googleapis": "^49.0.0",
+    "googleapis": "^50.0.0",
     "mongoose": "^5.0.14"
   },
   "devDependencies": {
