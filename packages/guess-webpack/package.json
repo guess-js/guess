@@ -58,7 +58,7 @@
     "@types/chalk": "2.2.0",
     "@types/table": "5.0.0",
     "ts-loader": "7.0.0",
-    "typescript": "3.9.3"
+    "typescript": "3.9.5"
   },
   "scripts": {
     "build": "webpack"
