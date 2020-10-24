@@ -26,7 +26,7 @@
     "@wessberg/ts-evaluator": "0.0.26"
   },
   "devDependencies": {
-    "ts-loader": "7.0.0"
+    "ts-loader": "8.0.7"
   },
   "peerDependencies": {
     "typescript": ">=3.7.5"
