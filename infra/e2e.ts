@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import { readFileSync } from 'fs';
 
 const enterTest = 'cd packages/guess-webpack/test/fixtures/angular';
-console.log(execSync(`${enterTest} && yarn`).toString());
+console.log(execSync(`${enterTest} && npm i`).toString());
 console.log(execSync(
   `${enterTest} && ./node_modules/.bin/ng build --extra-webpack-config webpack.extra.js`
 ).toString());
