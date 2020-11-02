@@ -27,7 +27,7 @@
     "chai": "4.2.0",
     "cors": "2.8.5",
     "http-server": "0.12.1",
-    "mocha": "8.2.0",
+    "mocha": "8.2.1",
     "path": "0.12.7",
     "puppeteer": "5.4.1",
     "standard": "14.3.3",
