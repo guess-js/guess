@@ -52,7 +52,7 @@
     "tslint": "6.1.1",
     "typescript": "3.9.7",
     "webpack": "4.44.2",
-    "webpack-cli": "3.3.12"
+    "webpack-cli": "4.2.0"
   },
   "dependencies": {
     "flat-cache": "^2.0.1",
