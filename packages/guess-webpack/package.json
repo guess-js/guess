@@ -25,7 +25,7 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "copy-webpack-plugin": "^5.0.0",
-    "flat-cache": "^2.0.0",
+    "flat-cache": "^3.0.0",
     "google-oauth2-node": "0.0.3",
     "googleapis": "^59.0.0",
     "guess-ga": "^0.4.20",

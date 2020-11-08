@@ -55,7 +55,7 @@
     "webpack-cli": "3.3.12"
   },
   "dependencies": {
-    "flat-cache": "^2.0.1",
+    "flat-cache": "^3.0.0",
     "googleapis": "^59.0.0"
   }
 }
