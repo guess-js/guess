@@ -26,7 +26,7 @@ const alterChunk = (
   original: string,
   toAlter: string,
   toBundle: boolean
-): Promise<string> => {
+): Promise<void> => {
   const promise: Promise<string> = !toBundle
     ? Promise.resolve<string>(toAlter)
     : new Promise<string>((resolve, reject) => {
@@ -66,7 +66,7 @@ const alterChunk = (
       });
 
   return promise.then((output: string) => {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       writeFile(
         join(compiler.outputPath, chunkName),
         original + '\n' + output,
