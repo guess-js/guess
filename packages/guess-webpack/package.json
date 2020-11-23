@@ -27,7 +27,7 @@
     "copy-webpack-plugin": "^5.0.0",
     "flat-cache": "^3.0.0",
     "google-oauth2-node": "0.0.3",
-    "googleapis": "^59.0.0",
+    "googleapis": "^65.0.0",
     "guess-ga": "^0.4.20",
     "lodash.template": "^4.4.0",
     "rollup": "^2.0.0",
