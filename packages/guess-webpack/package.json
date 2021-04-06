@@ -24,7 +24,7 @@
   "homepage": "https://github.com/guess-js/guess#readme",
   "dependencies": {
     "chalk": "^2.4.2",
-    "copy-webpack-plugin": "^5.0.0",
+    "copy-webpack-plugin": "^8.0.0",
     "flat-cache": "^3.0.0",
     "google-oauth2-node": "0.0.3",
     "googleapis": "^67.0.0",
