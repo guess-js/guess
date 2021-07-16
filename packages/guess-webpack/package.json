@@ -34,7 +34,7 @@
     "rollup-plugin-hypothetical": "^2.1.0",
     "rollup-plugin-typescript": "^1.0.0",
     "table": "^5.4.1",
-    "webpack": "^4.14.0"
+    "webpack": "^5.0.0"
   },
   "files": [
     "dist",
