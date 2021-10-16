@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { evaluate } from '@wessberg/ts-evaluator';
+import { evaluate } from 'ts-evaluator';
 import { getModuleEntryPoint, getModulePathFromRoute } from './modules';
 import { resolve } from 'path';
 
