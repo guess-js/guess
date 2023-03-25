@@ -23,7 +23,7 @@
     "babel-cli": "6.26.0",
     "babel-minify": "0.5.1",
     "babel-preset-es2015": "6.24.1",
-    "babel-preset-minify": "0.5.1",
+    "babel-preset-minify": "0.5.2",
     "chai": "4.3.0",
     "cors": "2.8.5",
     "http-server": "0.12.1",
