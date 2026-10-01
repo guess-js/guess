@@ -17,7 +17,7 @@
     "express": "^4.16.3",
     "fs": "0.0.2",
     "googleapis": "^67.0.0",
-    "mongoose": "^5.0.14"
+    "mongoose": "^6.0.0"
   },
   "devDependencies": {
     "babel-cli": "6.26.0",
